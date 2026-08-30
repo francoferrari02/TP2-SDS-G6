@@ -16,15 +16,28 @@
 // sin introducir una afirmación física sobre bandadas reales.
 //
 // Con `eta=0`, `voter_update` nunca crea una orientación nueva: cada
-// actualización copia exactamente (bit a bit, sin aritmética) la orientación
-// vieja de la propia partícula o de un vecino. Por lo tanto, el conjunto de
-// orientaciones distintas presentes en el sistema nunca puede crecer, solo
-// achicarse o mantenerse; "consenso exacto" se define aquí como que ese
-// conjunto se haya reducido a un único valor. Esto es más fuerte y más
-// verificable que pedir `va cercano a 1`: `va=1` puede alcanzarse solo por
-// redondeo de punto flotante sin que las orientaciones sean exactamente
-// iguales, mientras que "un único valor distinto" es una propiedad exacta
-// del propio proceso de copia.
+// actualización copia la orientación vieja de la propia partícula o de un
+// vecino. Esa copia es además bit a bit exacta y no una aproximación
+// numérica: `sample_angular_noise(rng, eta<=0)` devuelve `0.0` exactamente
+// sin consumir el generador (ver `rules.hpp`), así que `theta_base + xi`
+// es `theta_base + 0.0`, que en IEEE 754 preserva el valor exacto de
+// `theta_base`; y `normalize_angle` (`std::fmod(theta, 2*pi)`) es una
+// operación exacta -- sin redondeo -- cuando el argumento ya está en
+// `[0, 2*pi)`, que es el caso de toda orientación producida por este
+// programa (el estado inicial ya sale normalizado de `angle_distribution`,
+// y por inducción cualquier copia posterior también). Por lo tanto el
+// conjunto de orientaciones distintas presentes en el sistema nunca puede
+// crecer, solo achicarse o mantenerse, y "consenso exacto" se define aquí
+// como que ese conjunto se haya reducido a un único valor comparado por
+// **igualdad exacta de punto flotante** (`==`, sin tolerancia): con `eta=0`
+// no hay ninguna fuente de error de redondeo que la tolerancia debiera
+// absorber, así que exigir igualdad exacta es coherente con la semántica
+// de la regla, no una aproximación. Esto es más fuerte y más verificable
+// que pedir `va` cercano a 1: `va=1` puede alcanzarse por redondeo de
+// punto flotante en la suma de senos/cosenos sin que las orientaciones sean
+// exactamente iguales entre sí, mientras que "un único valor distinto bajo
+// igualdad exacta" es una propiedad exacta y discreta del propio proceso
+// de copia.
 //
 // Este programa no tiene ningún assert rígido sobre alcanzar consenso: si
 // alguna semilla no converge dentro del horizonte elegido, se informa como
@@ -89,10 +102,14 @@ std::vector<tp2::Particle> random_initial_state(std::size_t count,
 }
 
 // Cuenta cuántos valores de orientación distintos hay en el estado,
-// agrupando por igualdad exacta (con una tolerancia mínima que solo
-// absorbe ruido de redondeo de `normalize_angle`, no diferencias reales).
+// agrupando por **igualdad exacta de punto flotante** (`!=`, sin ninguna
+// tolerancia). Es correcto porque, con `eta=0`, `voter_update` nunca
+// perturba numéricamente una orientación al copiarla (ver comentario de
+// cabecera): dos orientaciones que ya eran bit a bit iguales antes de un
+// paso siguen siendo bit a bit iguales después, y una orientación copiada
+// de otra reproduce su valor exacto. Una tolerancia sería apropiada si
+// hubiera alguna fuente de redondeo que absorber; acá no la hay.
 std::size_t distinct_orientation_count(const std::vector<tp2::Particle>& particles) {
-    constexpr double kEqualityTolerance = 1e-12;
     std::vector<double> thetas;
     thetas.reserve(particles.size());
     for (const auto& particle : particles) {
@@ -102,7 +119,7 @@ std::size_t distinct_orientation_count(const std::vector<tp2::Particle>& particl
 
     std::size_t distinct_count = thetas.empty() ? 0 : 1;
     for (std::size_t i = 1; i < thetas.size(); ++i) {
-        if (thetas[i] - thetas[i - 1] > kEqualityTolerance) {
+        if (thetas[i] != thetas[i - 1]) {
             ++distinct_count;
         }
     }

@@ -4,8 +4,14 @@
 //
 // Alcance: ver plan_desarrollo_tp2/03_validaciones.md, sección "3. Número
 // medio inicial de vecinos". No modifica el motor ni la búsqueda de vecinos.
+//
+// Las posiciones iniciales ya no se generan con una función propia de este
+// archivo: se usa el inicializador productivo `tp2::initialize_particles`
+// (`src/core/initialization.hpp`), el mismo que usará la simulación, para
+// que esta validación y el motor nunca diverjan en cómo arranca el estado.
 
 #include "core/model.hpp"
+#include "core/initialization.hpp"
 #include "core/neighbor_search.hpp"
 
 #include <cmath>
@@ -13,7 +19,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -28,25 +33,6 @@ void expect_true(bool condition, const std::string& case_name, const std::string
     }
 }
 
-std::vector<tp2::Particle> uniform_random_particles(std::size_t count,
-                                                     const tp2::Parameters& parameters,
-                                                     std::uint64_t seed) {
-    std::mt19937_64 rng(seed);
-    std::uniform_real_distribution<double> position_distribution(0.0, parameters.box_length);
-
-    std::vector<tp2::Particle> particles;
-    particles.reserve(count);
-    for (std::size_t id = 0; id < count; ++id) {
-        tp2::Particle particle;
-        particle.id = id;
-        particle.x = position_distribution(rng);
-        particle.y = position_distribution(rng);
-        particle.theta = 0.0;
-        particles.push_back(particle);
-    }
-    return particles;
-}
-
 // Promedio global de vecinos externos por partícula, sobre `realizations`
 // inicializaciones uniformes independientes (una semilla explícita por
 // realización, derivada de `seed_offset + realization_index`).
@@ -58,7 +44,7 @@ double measure_mean_neighbors(std::size_t particle_count, const tp2::Parameters&
     for (std::size_t realization = 0; realization < realizations; ++realization) {
         const std::uint64_t seed = seed_offset + static_cast<std::uint64_t>(realization);
         const std::vector<tp2::Particle> particles =
-            uniform_random_particles(particle_count, parameters, seed);
+            tp2::initialize_particles(particle_count, parameters, seed);
 
         const std::vector<std::vector<std::size_t>> neighbors =
             tp2::cell_index_neighbors(particles, parameters);
@@ -75,7 +61,8 @@ double measure_mean_neighbors(std::size_t particle_count, const tp2::Parameters&
 struct DensityCase {
     double rho;
     std::size_t particle_count;
-    double expected_mean;
+    double expected_mean;        // aproximacion de la catedra: rho*pi*rc^2
+    double expected_mean_exact;  // expectativa finita exacta: (N-1)*pi*rc^2/L^2
 };
 
 }  // namespace
@@ -85,11 +72,12 @@ int main() {
     parameters.box_length = 10.0;
     parameters.interaction_radius = 1.0;
 
-    // rho * pi * rc^2, con rc=1: 2*pi, 4*pi, 8*pi.
+    // aproximada = rho*pi*rc^2, con rc=1: 2*pi, 4*pi, 8*pi.
+    // finita exacta = (N-1)*pi*rc^2/L^2, con L=10, rc=1.
     const std::vector<DensityCase> cases = {
-        {2.0, 200, 2.0 * kPi},
-        {4.0, 400, 4.0 * kPi},
-        {8.0, 800, 8.0 * kPi},
+        {2.0, 200, 2.0 * kPi, 199.0 * kPi / 100.0},
+        {4.0, 400, 4.0 * kPi, 399.0 * kPi / 100.0},
+        {8.0, 800, 8.0 * kPi, 799.0 * kPi / 100.0},
     };
 
     // Cantidad de realizaciones independientes por densidad y semilla base
@@ -123,9 +111,10 @@ int main() {
 
         std::cout << "rho=" << static_cast<int>(density_case.rho)
                    << "  N=" << density_case.particle_count
-                   << "  expected=" << density_case.expected_mean << "  measured=" << measured
-                   << "  realizations=" << kRealizations << "  seed_base=" << seed_bases[i]
-                   << "\n";
+                   << "  expected_approx=" << density_case.expected_mean
+                   << "  expected_exact_finite=" << density_case.expected_mean_exact
+                   << "  measured=" << measured << "  realizations=" << kRealizations
+                   << "  seed_base=" << seed_bases[i] << "\n";
 
         const double tolerance = kRelativeTolerance * density_case.expected_mean;
         expect_true(std::abs(measured - density_case.expected_mean) <= tolerance,

@@ -370,13 +370,59 @@ Implementado como validación (no como pieza del motor) en `tests/test_mean_neig
 
 `03_validaciones.md` distingue además, para esta misma validación, entre la aproximación asintótica que usa la cátedra (`rho*pi*rc^2`) y la expectativa finita exacta para vecinos externos en una caja periódica (`(N-1)*pi*rc^2/L^2`); ambas están documentadas ahí junto con la explicación de por qué difieren (una partícula nunca se cuenta a sí misma como vecina). El criterio de aceptación del test no cambió: sigue comparando contra `rho*pi*rc^2`.
 
+Esta validación ya no genera sus propias posiciones: usa el inicializador productivo descripto en la sección "Inicializador productivo del estado" más abajo (`tp2::initialize_particles`), el mismo que usará la simulación.
+
+## Inicializador productivo del estado
+
+Implementado en `src/core/initialization.hpp`. Alcance: únicamente la construcción del estado inicial en memoria (posiciones y orientaciones uniformes, IDs estables). No incluye avance temporal, reglas de orientación ni búsqueda de vecinos, que no se modifican.
+
+### Interfaz implementada
+
+```cpp
+std::vector<Particle> initialize_particles(
+    std::size_t count, const Parameters& parameters, std::uint64_t seed);
+
+std::vector<Particle> initialize_particles_from_density(
+    double rho, const Parameters& parameters, std::uint64_t seed);
+```
+
+`initialize_particles_from_density` no duplica lógica: calcula `count = round(rho * box_length^2)` y delega en `initialize_particles`. Ninguna de las dos funciones modifica `parameters`.
+
+### Generador y distribuciones
+
+- Generador: `std::mt19937_64` (64 bits), sembrado únicamente con `seed` (nunca con el reloj ni ninguna otra fuente no determinista). Se eligió el generador de 64 bits, en vez de `mt19937` de 32 bits, para mantener consistencia con el resto del motor (`derive_step_seed`/`make_particle_rng` en `simulation.hpp`/`rules.hpp` ya trabajan con semillas de 64 bits) y con `tests/test_mean_neighbors.cpp`, que ya usaba `mt19937_64` antes de esta tarea.
+- Distribuciones: `std::uniform_real_distribution<double>` para posición (`[0, box_length)`, independiente en `x` e `y`) y para orientación (`[0, 2*pi)`), ambas independientes entre partículas.
+- Orden de consumo: por cada `id` de `0` a `count-1`, en ese orden, se sortean `x`, `y`, `theta` (siempre en ese orden, tres sorteos por partícula). Esto hace que el estado sea reproducible: misma `seed` y misma `count` dan exactamente el mismo estado; una `seed` distinta puede dar un estado distinto.
+
+### Relación entre `rho`, `N` y `L`
+
+`N = rho * L^2`. Para las tres densidades obligatorias del TP (`rho=2,4,8` con `L=10`), esa relación ya da un entero exacto (`N=200,400,800`), así que `initialize_particles_from_density` no introduce ninguna aproximación para esos casos. La conversión de las densidades bajas (`1/pi`, `1/(2*pi)`, `1/(3*pi)`, que con `L=10` no dan `N` entero) sigue sin resolverse: es una decisión abierta registrada en `DECISIONES_PENDIENTES.md`, y esta tarea no la cierra ni la asume. Llamar a `initialize_particles_from_density` con esas densidades redondearía al entero más cercano (misma regla que cualquier otro `rho`), pero eso no equivale a haber tomado esa decisión.
+
+### Integración con la simulación
+
+`run_simulation` (`src/core/simulation.hpp`) ya recibía `initial_state` como un `const std::vector<Particle>&` genérico, sin ninguna suposición sobre cómo se construyó; el estado devuelto por `initialize_particles`/`initialize_particles_from_density` se le puede pasar directamente sin ninguna adaptación (verificado por test, ver más abajo). No hizo falta cambiar `advance_time_step`, `rules.hpp`, `neighbor_search.hpp` ni `observables.hpp`.
+
+### Integración con la validación de vecinos
+
+`tests/test_mean_neighbors.cpp` ya no tiene su propia función `uniform_random_particles`: usa `tp2::initialize_particles` para generar cada realización. La validación sigue usando `rho=2,4,8` / `N=200,400,800`, 40 realizaciones independientes por densidad con semillas explícitas, comparando contra `rho*pi*rc^2` y mostrando también la expectativa finita exacta `(N-1)*pi*rc^2/L^2`; sigue usando el CIM (nunca fuerza bruta) como método productivo de búsqueda de vecinos. El único cambio de comportamiento es que ahora la orientación inicial de cada partícula es aleatoria uniforme (antes se fijaba en `0.0`), lo cual no afecta este test porque no usa `theta` para nada (solo mide vecindad geométrica).
+
+### Evidencia de los tests
+
+- Implementación de test: `tests/test_initialization.cpp`, registrado en CTest como `initialization`.
+- Casos cubiertos (11): IDs consecutivos y únicos; cantidad correcta de partículas; posiciones en `[0,L)`; orientaciones en `[0,2*pi)`; misma semilla produce estados idénticos; semillas distintas pueden producir estados distintos (verificado sobre 20 semillas); las tres densidades obligatorias producen `N=200,400,800`; la inicialización no modifica `Parameters`; `N=0` (tanto `initialize_particles(0,...)` como `initialize_particles_from_density(0.0,...)`) devuelve un vector vacío sin error; el estado generado se pasa directamente a `run_simulation` (5 pasos de Vicsek con CIM) y el resultado queda en rango; el resultado no depende del reloj (dos llamadas con la misma semilla, separadas por trabajo intermedio no trivial, dan el mismo resultado bit a bit).
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los nueve tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`, `mean_neighbors`, `initialization`) pasan.
+
+### Nota sobre la nomenclatura de la regresión del votante
+
+Se revisó `tests/voter_consensus_regression.cpp` (ver también `03_validaciones.md`, sección "6. Votante"): el criterio de "consenso exacto" pasó de comparar orientaciones con una tolerancia `1e-12` a comparar por **igualdad exacta de punto flotante** (`==`, sin tolerancia). Esto es coherente con `eta=0`: `sample_angular_noise` devuelve `0.0` exactamente sin perturbar la suma, y `normalize_angle` (`std::fmod`) es una operación exacta cuando el argumento ya está en `[0,2*pi)`, que es siempre el caso acá. No había ninguna fuente de redondeo que la tolerancia debiera absorber, así que mantener el nombre "consenso exacto" con una comparación exacta es más preciso que la versión anterior (que ya daba el mismo resultado numérico, pero con una tolerancia innecesaria). El escenario (grafo completo, diagnóstico, no un resultado físico del TP) y el hecho de no ser un test de CTest no cambiaron.
+
 ## Regresión diagnóstica: consenso del votante sin ruido
 
 Herramienta nueva: `tests/voter_consensus_regression.cpp`, compilada como el ejecutable `voter_consensus_regression` (target de CMake, **no** registrado con `add_test`). Verifica, como control de regresión (pedido explícitamente por `AGENTS.md` y por la sección "Caso de validación: votante sin ruido" de `bibliografia/teoria_tp2_automatas_off_lattice.md`), que el modelo votante con `eta=0` puede alcanzar consenso polar exacto en un sistema finito.
 
 - **Escenario elegido**: sistema pequeño (`N=20`) con una búsqueda de vecinos **completa** controlada — una función de vecinos (compatible con `NeighborSearchFunction`, ver `simulation.hpp`) que devuelve a todas las demás partículas como vecinas de cada partícula, sin usar `rc` ni posición. Esto aísla la dinámica de la regla de votante de la conectividad espacial: se descartó deliberadamente usar los parámetros físicos completos del TP (`v=0.03`, `L=10`, vecinos geométricos) con un horizonte largo, porque mezclaría la propiedad de convergencia de la regla con la velocidad de difusión espacial, algo que el TP no pide afirmar como resultado. Reutiliza `tp2::run_simulation` sin modificar `rules.hpp`, `time_step.hpp` ni `simulation.hpp`.
 - **Semillas y horizonte**: 10 semillas explícitas (`700001` a `700010`), 3000 pasos por corrida. Son parámetros de esta regresión puntual, no un protocolo experimental (no se reutilizan como grilla de `eta`, `t_eq` ni cantidad de realizaciones del barrido).
-- **Criterio de consenso**: con `eta=0`, `voter_update` nunca crea una orientación nueva (solo copia una existente), así que el conjunto de orientaciones distintas del sistema nunca puede crecer. Se define consenso exacto como que ese conjunto llegue a tener un único valor (comparación exacta con tolerancia `1e-12`, que solo absorbe redondeo de `normalize_angle`). La herramienta reporta, por semilla: `va` inicial y final, cantidad de orientaciones distintas inicial y final, si hubo consenso exacto y en qué paso ocurrió por primera vez.
+- **Criterio de consenso**: con `eta=0`, `voter_update` nunca crea una orientación nueva (solo copia una existente), así que el conjunto de orientaciones distintas del sistema nunca puede crecer. Se define consenso exacto como que ese conjunto llegue a tener un único valor bajo **igualdad exacta de punto flotante** (`==`, sin tolerancia): con `eta=0`, `sample_angular_noise` devuelve `0.0` exactamente y `normalize_angle` no redondea un valor ya normalizado, así que no hay ninguna fuente de error numérico que una tolerancia debiera absorber (ver revisión de nomenclatura más abajo). La herramienta reporta, por semilla: `va` inicial y final, cantidad de orientaciones distintas inicial y final, si hubo consenso exacto y en qué paso ocurrió por primera vez.
 - **Resultado obtenido** (ver también `03_validaciones.md`, sección "6. Votante"): 10/10 semillas alcanzaron consenso exacto, entre el paso 17 y el paso 64 (muy por debajo del horizonte de 3000). No hizo falta ejercitar la rama diagnóstica para semillas sin consenso.
 - **Por qué no es un test de CTest**: la herramienta no tiene ningún assert rígido sobre alcanzar consenso (solo sobre invariantes que sí serían un bug real: `va` fuera de `[0,1]`, o un aumento en la cantidad de orientaciones distintas). Eso la hace, por diseño, no apta para el pase/fallo automático de CTest sin depender de una casualidad estadística; se ejecuta explícitamente con `./build/voter_consensus_regression` y su salida se documenta como evidencia.
 - **Alcance**: cubre únicamente la propiedad de convergencia de la regla de votante sin ruido en un grafo completo. No valida consenso con los parámetros físicos completos del TP (densidad, `rc`, movimiento real), que sigue pendiente y no se marca como cerrado (ver checklist en `03_validaciones.md`).

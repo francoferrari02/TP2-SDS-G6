@@ -41,6 +41,10 @@ add_executable(test_mean_neighbors tests/test_mean_neighbors.cpp)
 target_link_libraries(test_mean_neighbors PRIVATE tp2_core)
 add_test(NAME mean_neighbors COMMAND test_mean_neighbors)
 
+add_executable(test_initialization tests/test_initialization.cpp)
+target_link_libraries(test_initialization PRIVATE tp2_core)
+add_test(NAME initialization COMMAND test_initialization)
+
 # Regresion diagnostica del consenso del votante sin ruido: se compila pero
 # no se registra con add_test a proposito. No tiene un assert rigido sobre
 # alcanzar consenso (solo sobre invariantes que si serian un bug real), asi

@@ -36,12 +36,13 @@ simulación, derivando una semilla distinta por paso. Todavía faltan la
 escritura de texto y la CLI.
 
 La Etapa 3 también está abierta: ya tiene validadas varias piezas puntuales,
-incluidas la reproducibilidad de la iteración en memoria y el número medio
-inicial de vecinos compatible con la teoría, y ahora también evidencia
-diagnóstica de que el votante sin ruido alcanza consenso exacto en un
-escenario controlado (grafo completo, `N=20`, 10 semillas). Todavía faltan
-la salida reproducible a disco y la validación de consenso con los
-parámetros físicos completos del TP.
+incluidas la reproducibilidad de la iteración en memoria, el número medio
+inicial de vecinos compatible con la teoría (ahora generado con el
+inicializador productivo del estado, en vez de una función propia del
+test), y evidencia diagnóstica de que el votante sin ruido alcanza consenso
+exacto en un escenario controlado (grafo completo, `N=20`, 10 semillas).
+Todavía faltan la salida reproducible a disco y la validación de consenso
+con los parámetros físicos completos del TP.
 
 ### Resumen de avance
 
@@ -56,7 +57,10 @@ Implementado y validado en memoria:
 - número medio inicial de vecinos, comparado contra la predicción teórica
   `rho*pi*rc^2` para las tres densidades obligatorias;
 - consenso exacto del votante sin ruido en un escenario diagnóstico
-  controlado (grafo completo, no los parámetros físicos completos del TP).
+  controlado (grafo completo, no los parámetros físicos completos del TP);
+- inicializador productivo del estado (posiciones y orientaciones uniformes,
+  semilla explícita), reutilizado por la validación de vecinos medios y
+  directamente compatible con el bucle de simulación.
 
 Todavía no implementado o no validado experimentalmente:
 
@@ -651,6 +655,77 @@ Esta prueba valida únicamente la inicialización uniforme y la búsqueda de
 vecinos en el estado inicial; no valida el comportamiento dinámico de la
 simulación (no ejecuta ningún paso de `advance_time_step`).
 
+## Inicialización reproducible del estado
+
+### Cómo se distribuyen inicialmente las partículas
+
+Al arrancar una simulación (o una validación que necesite un estado inicial),
+cada partícula recibe una posición `(x,y)` dentro de la caja y una dirección
+`theta`. La posición se sortea de manera **uniforme** dentro de la caja: cada
+punto de la caja tiene la misma probabilidad de "recibir" una partícula, sin
+favorecer ninguna zona. Esto es lo que corresponde a un gas de partículas sin
+ninguna estructura previa: no hay ninguna razón física, en el instante
+inicial, para que las partículas se agrupen en un lugar particular de la
+caja.
+
+### Por qué las orientaciones son aleatorias
+
+La dirección inicial de cada partícula también se sortea uniforme, esta vez
+sobre todo el círculo (`0` a `360` grados). La idea es la misma: al empezar,
+no hay ninguna dirección preferida. Si se empezara con todas las partículas
+mirando hacia el mismo lado, ya se estaría imponiendo artificialmente el tipo
+de orden (alineación) que se supone que el sistema tiene que desarrollar (o
+no) por sí mismo a medida que avanza la simulación.
+
+### Qué significa usar una semilla
+
+Los sorteos "al azar" de una computadora en realidad no son azarosos: se
+calculan con una fórmula determinista que arranca de un número de partida
+llamado semilla. Usar la misma semilla con la misma configuración vuelve a
+producir, número por número, exactamente el mismo resultado; cambiar la
+semilla cambia toda la secuencia de números generados. Esto es justamente lo
+que permite reproducir una corrida (repetirla exactamente igual para
+verificarla) y, al mismo tiempo, generar corridas distintas cuando hace falta
+(por ejemplo, para tener varias realizaciones independientes). El
+inicializador nunca usa el reloj de la computadora como semilla: la semilla
+siempre la elige y controla quien llama, explícitamente.
+
+### Por qué reutilizar el mismo inicializador
+
+Antes de esta tarea, la validación del número medio de vecinos
+(`tests/test_mean_neighbors.cpp`) tenía su propia función para generar
+posiciones iniciales, separada de cualquier pieza que fuera a usar la
+simulación real. Eso es un riesgo: si en algún momento esas dos formas de
+generar el estado inicial dejaran de coincidir (por ejemplo, un rango
+distinto, una distribución distinta, un orden distinto de sorteo), la
+validación podría seguir "pasando en verde" sin que eso dijera nada real
+sobre cómo arranca la simulación de verdad -- porque estaría validando una
+inicialización distinta de la que efectivamente se usa.
+
+Para evitar ese riesgo se creó un único inicializador productivo
+(`src/core/initialization.hpp`, funciones `initialize_particles` e
+`initialize_particles_from_density`) y se lo conectó en dos lugares: la
+validación de vecinos medios ahora lo usa en vez de tener su propia función,
+y el estado que devuelve se puede pasar directamente a `run_simulation` (el
+bucle de simulación) sin ninguna adaptación. Así, tanto la validación como
+una corrida real arrancan siempre de la misma forma de generar posiciones y
+direcciones, con la misma semilla explícita y reproducible.
+
+El inicializador usa `std::mt19937_64` (generador de 64 bits, no el
+`std::mt19937` de 32 bits) para mantener consistencia con el resto del motor,
+que ya trabaja con semillas de 64 bits en el bucle de simulación y en las
+reglas de orientación.
+
+Se agregó `tests/test_initialization.cpp` (11 casos) que verifica, entre
+otras cosas: que los IDs sean consecutivos y únicos; que las posiciones
+queden en `[0,L)` y las orientaciones en `[0,2*pi)`; que la misma semilla
+reproduzca exactamente el mismo estado y que semillas distintas puedan dar
+estados distintos; que las tres densidades obligatorias (`rho=2,4,8`)
+produzcan `N=200,400,800`; que la inicialización no modifique los
+parámetros; que funcione con `N=0`; que el estado generado se pueda usar
+directamente con `run_simulation`; y que el resultado no dependa del reloj
+de la computadora.
+
 ## Regresión del votante sin ruido
 
 **Consenso polar** significa que, en algún momento, todas las partículas
@@ -686,10 +761,14 @@ disponible. La polarización `va` inicial varió entre `0.089` y `0.334`
 según la semilla, y en todos los casos terminó en `va=1.000000`.
 
 Esto es consenso exacto de orientaciones, no solo una polarización cercana
-a 1: la herramienta compara las orientaciones una por una (con una
-tolerancia mínima que solo absorbe redondeo numérico) y cuenta cuántos
-valores distintos quedan, en vez de confiar únicamente en que `va` se
-acerque a 1 por redondeo de punto flotante. Si alguna semilla no hubiera
+a 1: la herramienta compara las orientaciones una por una por **igualdad
+exacta de punto flotante** (sin ninguna tolerancia) y cuenta cuántos valores
+distintos quedan, en vez de confiar únicamente en que `va` se acerque a 1 por
+redondeo de punto flotante. La comparación exacta es correcta -- no una
+simplificación arriesgada -- precisamente porque `eta=0` elimina toda fuente
+de ruido: la regla del votante, en ese caso, nunca hace una cuenta que pueda
+introducir un error de redondeo, solo copia un valor que ya existía. Si
+alguna semilla no hubiera
 alcanzado consenso dentro del horizonte, la herramienta lo iba a informar
 igual, sin forzar ningún resultado ni modificar la regla de votante: solo
 tiene un assert real sobre invariantes que sí serían un bug (por ejemplo,
@@ -733,10 +812,10 @@ mismos sorteos en cada paso.
 El siguiente desarrollo es la escritura de texto (formato de salida todavía
 sin congelar) y la interfaz de ejecución (CLI), que van a apoyarse en el
 observador de `run_simulation` para registrar `va(t)`/`S(t)` y/o la
-trayectoria sin mezclar esa responsabilidad con el bucle de simulación. Esa
-misma pieza productiva es la que todavía falta conectar con la
-inicialización uniforme ya usada en la validación de vecinos (ver
-"Pendientes y decisiones abiertas" abajo).
+trayectoria sin mezclar esa responsabilidad con el bucle de simulación, y en
+el inicializador productivo (`src/core/initialization.hpp`) ya conectado con
+la simulación y con la validación de vecinos medios (ver sección
+"Inicialización reproducible del estado" arriba).
 
 ## Pendientes y decisiones abiertas
 
@@ -744,11 +823,6 @@ inicialización uniforme ya usada en la validación de vecinos (ver
 - Falta congelar el formato público de los archivos de salida: sigue siendo
   una decisión abierta, no se congeló en esta tarea.
 - Falta la CLI.
-- Falta un inicializador productivo (parte del motor, no de un test) que
-  quede conectado a la misma lógica de generación uniforme que ya usa
-  `tests/test_mean_neighbors.cpp`: hoy esa generación de posiciones vive
-  solamente dentro del test de validación, no en una pieza reutilizable del
-  motor.
 - Falta el protocolo estadístico completo: promedio estacionario de los
   observables, elección de `t_eq`, realizaciones independientes y barras de
   error.
