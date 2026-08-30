@@ -89,6 +89,11 @@ La extensión se aplica al punto D del enunciado: `S(t)` y `<S>` vs. `eta`. La c
 | 9 | [ ] | [`09_informe_presentacion_entrega.md`](09_informe_presentacion_entrega.md) | Informe, exposición, enlaces y ZIP final listos |
 | 10 | [x] | [`10_protocolo_para_agentes.md`](10_protocolo_para_agentes.md) | Reglas de delegación, handoff y definición de terminado establecidas |
 
+### Progreso parcial dentro de etapas todavía abiertas
+
+- **Etapa 2:** en progreso. Están implementadas y probadas la búsqueda de vecinos por fuerza bruta (`src/core/neighbor_search.hpp`, `brute_force_neighbors`, oráculo de referencia), el Cell Index Method (`cell_index_neighbors`, validado exhaustivamente contra el oráculo), las reglas de orientación de Vicsek y votante (`src/core/rules.hpp`, `vicsek_update`/`voter_update`) y el paso temporal sincrónico/backward completo (`src/core/time_step.hpp`, `advance_time_step`, que combina vecinos + orientación + movimiento + borde periódico para ambos modelos). Evidencia: `ctest --test-dir build --output-on-failure` (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, los cinco en verde). Faltan los observables `va`/`S`, la construcción de clusters con `union-find`, la escritura de texto y la CLI. Detalle completo en [`02_motor_y_algoritmos.md`](02_motor_y_algoritmos.md).
+- **Etapa 3:** en progreso. Quedaron cerrados (`[x]`): "CIM contra fuerza bruta" (13 casos), "Vicsek y votante satisfacen reglas distintas" (14 casos sobre el cálculo de orientación, incluyendo invarianza al orden de almacenamiento) y "Sincronía y movimiento backward" (13 casos sobre el paso temporal completo, incluyendo el caso mínimo obligatorio `x_new=0.03, y_new=0, theta_new=pi/2` y la permutación de partículas con ruido no nulo). El resto de las validaciones de la etapa (vecinos medios vs. teoría, `va`/`S`, salida y reproducibilidad de archivos) siguen sin implementarse porque dependen de piezas del motor que todavía no existen (clusters, observables, escritor de texto). Detalle en [`03_validaciones.md`](03_validaciones.md).
+
 ## Decisiones experimentales que la cátedra deja abiertas
 
 El plan no fija números que no aparecen en el material. Antes del barrido definitivo el grupo debe elegir, registrar y mantener constantes:

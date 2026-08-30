@@ -165,6 +165,9 @@ El formato exacto no está fijado. Debe ser simple, estable y documentar como m�
 ## Criterio de cierre
 
 - [ ] Existe un documento/configuración con todas las convenciones anteriores.
+  - Estado: en progreso. Las convenciones del modelo están documentadas; todavía falta congelar mediante evidencia el protocolo experimental y el formato final de salida.
+- [x] La representación base del estado (`Parameters` y `Particle`) fue implementada en `src/core/model.hpp`.
+  - Evidencia: `cmake -S . -B build && cmake --build build` compila la biblioteca base y el test geométrico.
 - [ ] El formato de salida está documentado y permite una animación independiente.
 - [ ] Las semillas son explícitas y el resultado no depende del orden de almacenamiento.
 - [ ] El equipo puede explicar con un ejemplo la diferencia entre mover con `theta(t)` y con `theta(t+1)`.
