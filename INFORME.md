@@ -1139,6 +1139,30 @@ de 16 `eta`, `R=20`, `steps=3000`):
   esa verificación adicional, si se la va a citar en el informe final con
   el mismo peso.
 
+### Grilla fina entre `eta=0` y `eta=0.2`: el "empeoramiento" en `eta=0.2` era ruido estadístico
+
+Al inspeccionar las series temporales de `eta=0.2` se notó un pico seguido de
+una caída antes de asentarse (por ejemplo `rho=2` llegaba a `~0.80` hacia
+`t≈1650` y bajaba después). Para confirmar si era un transitorio sin
+terminar o solo ruido de muestreo, se corrió una grilla fina dedicada
+(`eta={0,0.05,0.1,0.15,0.2}`, mismas `rho=2,4,8`, `R=20`, pero
+`steps=5000`): 300 corridas, 0 fallos. Herramientas:
+`python/voter_eta_fine_lowrange_run.py` / `voter_eta_fine_lowrange_plot.py`.
+Resultados en `data/summary/voter_eta_fine_lowrange_1_*.csv` y
+`figures/voter_eta_fine_lowrange_1/*.png`.
+
+La caída de `<va>` en esa zona es suave y monótona (sin saltos): de `1.0` en
+`eta=0` a `0.72/0.65/0.52` en `eta=0.2` para `rho=2/4/8` respectivamente. Y
+comparando `<va>` en `eta=0.2` entre la corrida de 3000 pasos y esta de 5000
+pasos (semillas independientes), los valores coinciden dentro del margen de
+error (`0.708` vs `0.723` en `rho=2`, `0.663` vs `0.650` en `rho=4`, `0.514`
+vs `0.517` en `rho=8`), y la nueva serie no repite el pico-y-caída tan
+marcado de la corrida anterior. Conclusión: ese patrón era mayormente
+fluctuación estadística de una muestra de 20 realizaciones en una zona donde
+orden y ruido compiten de forma pareja, no un transitorio sin terminar; el
+valor de equilibrio ya estaba bien capturado a los 3000 pasos. Detalle
+completo en `plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`.
+
 ## Próximos pasos
 
 Con el estudio dedicado del votante ya ejecutado (grilla refinada de 16

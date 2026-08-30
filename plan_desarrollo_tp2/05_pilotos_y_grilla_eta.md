@@ -215,6 +215,22 @@ Para las densidades bajas, esa heurística marcó `sin_evidencia` (o un `t_eq` p
 
 `S` (fracción del cluster más grande) cae de forma monótona con `eta`, desde `~0.86-0.98` en `eta=0` hasta `~0.17-0.22` en `eta=6`, muy por debajo de 1 en todo el barrido y con las tres densidades bajas casi superpuestas entre sí. Esto contrasta con `rho=2,4,8`, donde `S` se mantiene siempre cerca de 1: es la evidencia de que estas densidades bajas (`rho*pi*rc^2` del orden de `1, 0.5, 0.33` vecinos medios) están por debajo del umbral de percolación de un disco de radio `rc=1`, así que la red de vecinos queda fragmentada en varios clusters chicos en vez de formar una única componente gigante. Detalle completo en `data/summary/voter_lowrho_cluster_study_1_by_combo.csv` y `figures/voter_lowrho_cluster_study_1/S_vs_eta.png`.
 
+## Grilla fina entre eta=0 y eta=0.2 (2026-08-30): revisión del "empeoramiento" transitorio
+
+Al inspeccionar `figures/voter_eta_study_1/va_t_rho_*.png` se notó que, en `eta=0.2`, la serie `va(t)` promediada entre realizaciones mostraba un pico transitorio (por ejemplo `~0.80` en `rho=2` alrededor de `t≈1650`) seguido de una caída hacia un valor más bajo hacia el final de los 3000 pasos, en vez de asentarse limpiamente. Esto motivó un estudio dedicado: grilla fina `eta={0, 0.05, 0.1, 0.15, 0.2}`, mismas `rho=2,4,8`, mismo `R=20`, pero `steps=5000` (más que los 3000 del estudio principal, para descartar que fuera un transitorio sin terminar). Herramientas: `python/voter_eta_fine_lowrange_run.py` / `voter_eta_fine_lowrange_plot.py`. 300 corridas, 0 fallos, ~307s. Datos en `data/pilots/voter_eta_fine_lowrange_1/` (fuera de git), resumen en `data/summary/voter_eta_fine_lowrange_1_*.csv`, gráficos en `figures/voter_eta_fine_lowrange_1/*.png`.
+
+**Resultado de la grilla fina**: la caída de `<va>` entre `eta=0` y `eta=0.2` es suave y monótona, sin ningún salto — `1.0 -> 0.72` (`rho=2`), `1.0 -> 0.65` (`rho=4`), `0.99 -> 0.52` (`rho=8`) — y las tres densidades se separan progresivamente a medida que crece `eta` (mayor densidad cae más rápido en esta zona).
+
+**Sobre el pico-y-caída observado antes**: comparando `<va>` en `eta=0.2` entre la corrida de 3000 pasos (estudio principal) y esta de 5000 pasos, con semillas independientes:
+
+| densidad | `<va>` (steps=3000) | `<va>` (steps=5000) |
+|---|---:|---:|
+| rho=2 | 0.708 | 0.723 |
+| rho=4 | 0.663 | 0.650 |
+| rho=8 | 0.514 | 0.517 |
+
+Los valores coinciden dentro del margen de error. Además, la nueva serie temporal (semillas distintas) muestra una meseta ruidosa sin el pico marcado seguido de caída que se había observado antes. Conclusión: el pico-y-caída visto en la corrida original de `eta=0.2` fue mayormente **fluctuación estadística de esa muestra particular de 20 realizaciones** (el promedio entre pocas realizaciones no termina de suavizar del todo esas oscilaciones en la zona donde el orden y el ruido compiten de forma más pareja), no un transitorio sin terminar ni un artefacto del motor: el valor de equilibrio ya estaba bien capturado a los 3000 pasos. No corresponde citar esa forma de pico-y-caída como un resultado físico reproducible sin promediar sobre más realizaciones para confirmarlo.
+
 ## Criterio de cierre
 
 - [ ] Hay varios valores de `eta` y situaciones de bajo/alto ruido.
