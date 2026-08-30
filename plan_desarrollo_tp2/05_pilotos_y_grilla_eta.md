@@ -165,6 +165,56 @@ Los 108 `observables.csv` crudos (y cualquier archivo bajo `data/pilots/`) **no*
 - Las densidades bajas (`1/pi,1/(2pi),1/(3pi)`) no se pilotaron todavía (conversión a `N` sin resolver).
 - Los valores productivos de stride para el barrido definitivo (más allá de confirmar que `stride=1` en observables es liviano) siguen sin decidirse.
 
+## Estudio dedicado del votante (2026-08-30): grilla refinada, R=20, 3000 pasos
+
+> Estado: protocolo acordado con el usuario para el votante (el grupo decidió enfocarse únicamente en este modelo). Grilla de `eta`, `R` y `steps` ya fijados para esta línea de trabajo; sigue pendiente la definición de barra de error (desvío vs. error estándar) y la elección explícita de `t_eq` por combinación.
+
+### Grilla y protocolo
+
+- **Grilla de `eta` refinada** (reemplaza a la exploratoria `{0,1,2,3,4,6}` del piloto anterior, densificada entre `eta=2` y `eta=4` por la caída rápida observada ahí): `{0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6}` (11 puntos).
+- **Realizaciones**: `R=20`, elegido a partir de la varianza observada en el piloto anterior (con `R=3`, desvío `±0.18` cerca de la transición, comparable al propio valor medio). Con `R=20` el error estándar del peor caso observado bajó a un orden de `0.01-0.05` (ver `voter_eta_study_1_by_combo.csv`).
+- **Duración**: `steps=3000` (frente a los `600` del piloto exploratorio), porque el votante con `eta` bajo no se estabilizaba en 600 pasos con los parámetros físicos reales del TP.
+- **Densidades obligatorias** (`rho=2,4,8`): herramienta `python/voter_eta_study_run.py` / `python/voter_eta_study_analyze.py` / `python/voter_eta_study_plot.py`. 660 corridas (3 densidades x 11 etas x 20 realizaciones), 0 fallos, ~305s de cómputo total (paralelizado). Resultados en `data/summary/voter_eta_study_1_*.csv` y `figures/voter_eta_study_1/*.png`.
+- **Densidades bajas del estudio de clusters** (`1/pi,1/(2pi),1/(3pi)` -> `N=32,16,11`, redondeo al entero más cercano, ver README): herramienta `python/voter_lowrho_cluster_study_run.py` (mismo protocolo: misma grilla de `eta`, mismo `R=20`). Se corrieron dos duraciones para decidir `steps`:
+  - `voter_lowrho_cluster_study_1` (steps=3000): 660 corridas, 0 fallos, ~9s.
+  - `voter_lowrho_cluster_study_2` (steps=6000): 660 corridas, 0 fallos, ~18s.
+
+### Por qué 3000 pasos alcanzan para las densidades bajas (evidencia, no solo criterio automático)
+
+El motivo por el que se corrió también a 6000 pasos fue descartar que el sistema siguiera en transitorio a los 3000. La comparación directa de `<va>` estacionario entre ambas duraciones, para `rho=1/pi` (N=32), da:
+
+| eta | `<va>` (steps=3000) | `<va>` (steps=6000) |
+|---:|---:|---:|
+| 0 | 1.0000 | 1.0000 |
+| 0.5 | 0.5737 | 0.6252 |
+| 1 | 0.4092 | 0.3977 |
+| 1.5 | 0.2858 | 0.2909 |
+| 2 | 0.2357 | 0.2386 |
+| 2.5 | 0.2050 | 0.2053 |
+| 3 | 0.1842 | 0.1878 |
+| 3.5 | 0.1712 | 0.1729 |
+| 4 | 0.1645 | 0.1652 |
+| 5 | 0.1591 | 0.1585 |
+| 6 | 0.1565 | 0.1570 |
+
+Duplicar la duración no desplazó la estimación (la mayor diferencia, en `eta=0.5`, es `0.057`, del orden del propio desvío entre realizaciones en ese punto). Si el sistema hubiera seguido relajando entre `t=3000` y `t=6000`, el valor medido a 6000 pasos tendría que haberse corrido sistemáticamente respecto del de 3000 pasos; no lo hizo. Esto es evidencia directa (no una suposición) de que **el régimen ya era estacionario a los 3000 pasos**, y de que no hace falta correr más para esta línea de trabajo.
+
+### Por qué la heurística automática de `t_eq` no es confiable para estas densidades, y qué hacer en su lugar
+
+`pilot_analyze.py`/`voter_eta_study_analyze.py` calculan una estimación automática de `t_eq`: recorren la serie temporal muestreada y devuelven el primer `t` tal que, desde ahí en adelante, **todos** los puntos siguientes quedan a menos de `0.03` del promedio de la ventana final; si ningún punto cumple eso, informan `sin_evidencia`.
+
+Para las densidades bajas, esa heurística marcó `sin_evidencia` (o un `t_eq` pegado al último paso, es decir, "recién se cumplió al final por casualidad") en varias combinaciones, incluso después de duplicar la duración a 6000 pasos, mientras que la tabla de arriba muestra que el valor medio ya era estable desde los 3000. La razón es puramente de **tamaño finito**, no de falta de equilibración:
+
+- Con `N=11,16,32`, cada partícula pesa una fracción grande del sistema (`1/N` entre `0.03` y `0.09`). En el modelo de votante, cada paso puede cambiar la orientación de una fracción no despreciable de partículas de una sola vez (copian a un vecino), así que la polarización `va` de una corrida individual fluctúa con una amplitud que no se achica con más pasos: es una propiedad de la dinámica en un sistema chico, no un transitorio que "todavía falta terminar".
+- El promedio entre las `R=20` realizaciones reduce esa fluctuación, pero no la elimina: el error estándar de ese promedio, en varios puntos, queda en el mismo orden que la tolerancia fija de `0.03` que usa la heurística. Como la heurística exige que **todos** los puntos muestreados posteriores queden dentro de esa tolerancia, alcanza con que una sola fluctuación estadística la exceda (algo casi garantizado cuando hay muchos puntos muestreados, como con `steps=6000`) para que el criterio automático informe "no hay evidencia de estacionario", aunque el promedio real ya esté establecido.
+- Esto explica también por qué correr más pasos no mejoró el diagnóstico automático: más pasos muestreados significa más oportunidades de que una fluctuación puntual rompa la condición estricta de la heurística, no una serie que realmente siga sin asentarse.
+
+**Consecuencia para el informe**: para las densidades bajas del estudio de clusters, `t_eq` no se puede justificar citando el número que devuelve el script automático (fue calibrado pensando en la escala de ruido de `rho=2,4,8`, donde las fluctuaciones de tamaño finito son mucho menores). Hay que justificarlo por **inspección visual de la serie temporal completa** (los gráficos `va_t_rho_1_over_*.png` en `figures/voter_lowrho_cluster_study_1/` y `_2/`): mostrar que, salvo por el ruido esperable de un sistema chico, el nivel medio de la curva ya se estabiliza tempranamente (para la mayoría de los `eta`, dentro de los primeros 500-1000 pasos; el caso `eta=0`, que converge a consenso exacto, se estabiliza incluso antes, entre `t≈650` y `t≈1600` según la densidad), y acompañarlo con la evidencia cuantitativa de la tabla de arriba (comparación 3000 vs. 6000 pasos) como respaldo de que la ventana estacionaria elegida no depende de dónde se corte la corrida.
+
+### Resultado físico del estudio de clusters con densidades bajas
+
+`S` (fracción del cluster más grande) cae de forma monótona con `eta`, desde `~0.86-0.98` en `eta=0` hasta `~0.17-0.22` en `eta=6`, muy por debajo de 1 en todo el barrido y con las tres densidades bajas casi superpuestas entre sí. Esto contrasta con `rho=2,4,8`, donde `S` se mantiene siempre cerca de 1: es la evidencia de que estas densidades bajas (`rho*pi*rc^2` del orden de `1, 0.5, 0.33` vecinos medios) están por debajo del umbral de percolación de un disco de radio `rc=1`, así que la red de vecinos queda fragmentada en varios clusters chicos en vez de formar una única componente gigante. Detalle completo en `data/summary/voter_lowrho_cluster_study_1_by_combo.csv` y `figures/voter_lowrho_cluster_study_1/S_vs_eta.png`.
+
 ## Criterio de cierre
 
 - [ ] Hay varios valores de `eta` y situaciones de bajo/alto ruido.
