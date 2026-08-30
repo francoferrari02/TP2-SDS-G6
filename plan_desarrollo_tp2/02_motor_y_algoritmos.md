@@ -15,7 +15,8 @@ Implementar un motor correcto y reutilizable. La optimización se apoya en un or
 7. Paso sincrónico/backward.
 8. Polarización.
 9. Componente gigante.
-10. Escritura de texto y CLI.
+10. Bucle de simulación (encadenar pasos, semillas por paso).
+11. Escritura de texto y CLI.
 
 ### Estado de implementación
 
@@ -24,7 +25,7 @@ Implementar un motor correcto y reutilizable. La optimización se apoya en un or
 - [x] Geometría periódica inicial en `src/core/periodic_geometry.hpp`.
   - Evidencia: `ctest --test-dir build --output-on-failure` verifica `wrap`, distancia mínima en borde y esquina, y los casos `d=rc` y `d>rc`.
 - [ ] Búsqueda de vecinos, reglas, actualización, observables, salida y CLI.
-  - Estado: en progreso. Se implementaron la búsqueda de vecinos por fuerza bruta (`brute_force_neighbors`) y el Cell Index Method (`cell_index_neighbors`), las reglas de orientación de Vicsek y votante (`src/core/rules.hpp`) y el paso temporal sincrónico/backward completo (`src/core/time_step.hpp`, `advance_time_step`, ver sección "Paso sincrónico/backward" más abajo). Faltan los observables `va`/`S`, la construcción de clusters, la escritura de texto y la CLI.
+  - Estado: en progreso. Se implementaron la búsqueda de vecinos por fuerza bruta (`brute_force_neighbors`) y el Cell Index Method (`cell_index_neighbors`), las reglas de orientación de Vicsek y votante (`src/core/rules.hpp`), el paso temporal sincrónico/backward completo (`src/core/time_step.hpp`, `advance_time_step`, ver sección "Paso sincrónico/backward" más abajo), los observables `va`/`S` (`src/core/observables.hpp`, ver sección "Observables: polarización y componente gigante" más abajo) y el bucle de simulación (`src/core/simulation.hpp`, `run_simulation`, ver sección "Bucle de simulación" más abajo). Faltan la escritura de texto y la CLI.
 
 #### Búsqueda de vecinos por fuerza bruta (oráculo de referencia)
 
@@ -57,7 +58,7 @@ Requisitos:
 ### Estado de implementación del CIM
 
 - [x] `cell_index_neighbors(particles, parameters)` implementado en `src/core/neighbor_search.hpp`, junto a `brute_force_neighbors` (sin modificar el oráculo existente).
-- [ ] Integración con `union(i,j)` para clusters: todavía no corresponde a esta tarea; el CIM por ahora solo devuelve listas de vecinos, igual que el oráculo. La construcción de componentes conexas queda para cuando se implemente el punto "Clusters" de esta misma etapa.
+- [x] Integración con `union-find` para clusters: `largest_cluster_size`/`largest_cluster_fraction` (`src/core/observables.hpp`) consumen sin cambios las listas de vecinos devueltas por `cell_index_neighbors` (o por `brute_force_neighbors`); ver sección "Observables: polarización y componente gigante" más abajo.
 
 #### Diseño de la grilla de celdas
 
@@ -170,7 +171,7 @@ Con este diseño, la orientación nueva de la partícula `id=k` depende únicame
   13. Promedio vectorial de Vicsek al cruzar `0/2*pi` con otro par de ángulos (`350°` y `10°`), da cerca de `0°`.
   14. Invarianza al orden de almacenamiento: con la misma `seed`, permutar el vector de partículas (y las listas de vecinos correspondientes, siempre expresadas en `id`) da, para cada `id`, exactamente la misma orientación nueva en ambas reglas. Este caso se agregó durante la tarea del paso temporal (ver más abajo), al detectar con el test de `time_step` que el diseño original (un único `std::mt19937&` compartido, consumido en orden de índice de vector) no lo garantizaba.
 - La función auxiliar `angular_distance` mide distancia angular mínima (en `[0,pi]`) para comparar orientaciones sin ambigüedad de wraparound, y las comparaciones de rango usan desigualdades con tolerancia numérica (`1e-6`/`1e-9`), nunca igualdad exacta de números de punto flotante salvo cuando la semilla y la distribución están completamente controladas (por ejemplo `eta=0`, o comparación de dos corridas con la misma semilla).
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los cinco tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
 
 ## Paso sincrónico/backward
 
@@ -225,18 +226,143 @@ std::vector<Particle> advance_time_step(
   12. Los `id` se conservan en el estado nuevo, en la misma posición del vector de entrada.
   13. Cadena de dos pasos: se verifica que el segundo paso construye sus vecinos a partir de la posición resultante del primer paso (no de la posición original), moviendo dos partículas hasta quedar vecinas recién después del primer paso.
 - Al escribir el test 5 con el generador original (`std::mt19937&` compartido) se detectó que el resultado sí dependía del orden de almacenamiento, contradiciendo el requisito de sincronía/permutación de `03_validaciones.md` sección 7. Esto llevó a rediseñar `vicsek_update`/`voter_update` para derivar un sub-generador por `id` (ver `02_motor_y_algoritmos.md`, sección "Generador aleatorio y orden de almacenamiento" dentro de "Reglas de orientación", y el caso 14 agregado a `test_rules.cpp`).
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los cinco tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
 
-## Clusters
+## Observables: polarización y componente gigante
 
-El cluster es conectividad transitiva, no “todas las partículas dentro de un mismo disco”. A partir de las aristas de vecinos se obtienen las componentes conexas y luego:
+Implementados en `src/core/observables.hpp`: `polarization(particles)`, `largest_cluster_size(neighbors, particles)` y `largest_cluster_fraction(neighbors, particles)`. Alcance de esta sección: únicamente el cálculo de estos dos observables sobre un estado ya dado (`particles` + `neighbors`); no incluye el bucle de simulación, la elección de `t_eq`, promedios entre realizaciones, semillas por paso, salida de texto ni CLI.
+
+### Interfaz implementada
+
+```cpp
+double polarization(const std::vector<Particle>& particles);
+
+std::size_t largest_cluster_size(
+    const std::vector<std::vector<std::size_t>>& neighbors,
+    const std::vector<Particle>& particles);
+
+double largest_cluster_fraction(
+    const std::vector<std::vector<std::size_t>>& neighbors,
+    const std::vector<Particle>& particles);
+```
+
+Ninguna de las tres funciones modifica `particles` ni `neighbors`; ambas reciben el estado por `const&` y solo leen.
+
+### Polarización
+
+```text
+va = hypot(sum cos(theta_i), sum sin(theta_i)) / N
+```
+
+- No usa la velocidad: como todos los módulos valen `v` (constante del TP), dividir por `v` sería redundante y solo agregaría error numérico; `va` se define directamente a partir de las orientaciones.
+- No promedia ángulos directamente; usa `std::hypot(sum_cos, sum_sin)` (equivalente a `sqrt(sum_cos^2 + sum_sin^2)` pero numéricamente más estable) sobre la suma de `cos`/`sin`, análogo al promedio circular ya usado en `vicsek_update`.
+- **Convención para `N=0`**: se documenta en el propio header y se devuelve `0.0` (no hay bandada que alinear; evita dividir por cero).
+- Resultado esperado en `[0,1]` salvo error numérico de punto flotante despreciable (no se recorta el valor artificialmente).
+
+### Componente gigante (`S`)
+
+Un cluster es una componente conexa de la red de vecinos: si `i` es vecino de `j` hay una arista entre ambos, y la conectividad es transitiva (si `A`-`B` y `B`-`C` son aristas, `A`, `B` y `C` están en el mismo cluster aunque `A` y `C` no sean vecinos directos). `neighbors` debe venir ya calculado con el criterio periódico `d <= rc` (de `brute_force_neighbors` o `cell_index_neighbors`); `largest_cluster_size`/`largest_cluster_fraction` no recalculan ninguna distancia, solo recorren las aristas que reciben.
 
 ```text
 n_max = tamaño de la componente más grande
 S = n_max/N
 ```
 
-La guía teórica admite BFS/DFS sobre la lista de vecinos o `union-find`. El plan no impone una de esas alternativas; se elige la más simple de integrar y se valida con casos conocidos. El borde periódico debe estar resuelto al generar las aristas.
+**Algoritmo elegido: Union-Find (Disjoint Set Union)**, con compresión de camino y unión por rango, en `tp2::detail::DisjointSet` (privado del header, no expuesto en la interfaz pública). Se eligió por sobre BFS/DFS porque la entrada ya llega como una lista de aristas (cada partícula con sus vecinos) en vez de como un grafo pensado para recorrer nodo por nodo con una pila/cola explícita: con DSU cada arista `(i,j)` se procesa una única vez con `unite(i,j)`, en `O(alpha(N))` amortizado por operación, sin estructuras auxiliares de recorrido. Al final se cuenta el tamaño de cada componente (`find(i)` por cada partícula, acumulado en un mapa `raíz -> tamaño`) y se toma el máximo.
+
+**Tratamiento de IDs**: igual que en `rules.hpp`, `neighbors[i]` contiene `id` de vecinos, no índices de vector, y los `id` no tienen por qué ser consecutivos ni coincidir con la posición de almacenamiento (se probó explícitamente con `id in {7, 20, 99}`). Antes de unir componentes se construye un mapa `id -> índice` (`std::unordered_map`) recorriendo `particles` una vez, igual que hace `vicsek_update`/`voter_update`, así que `largest_cluster_size` nunca asume `id == índice`.
+
+**Convención para `N=0`**: se documenta en el header y se devuelve `largest_cluster_size = 0` / `largest_cluster_fraction = 0.0` (no hay partículas, no hay cluster).
+
+El mismo algoritmo se ejecuta sin cambios sobre vecinos generados por `brute_force_neighbors` o por `cell_index_neighbors`; como ambas ya están validadas como equivalentes (etapa 2, sección CIM), el tamaño del cluster más grande también coincide entre ambas (verificado por test, ver más abajo).
+
+### Evidencia de los tests
+
+- Implementación de test: `tests/test_observables.cpp`, registrado en CTest como `observables`.
+- Casos de polarización cubiertos (8):
+  1. Una sola partícula: `va=1`.
+  2. Todas las orientaciones iguales (4 partículas): `va=1`.
+  3. Dos partículas con orientaciones opuestas (`0` y `pi`): `va=0`.
+  4. Cuatro direcciones balanceadas (`0, pi/2, pi, 3*pi/2`): `va=0`.
+  5. Resultado analítico conocido: `theta = 0` y `pi/2` en dos partículas da `va = sqrt(2)/2` exacto.
+  6. Estado aleatorio de 100 partículas: `va` queda en `[0,1]`.
+  7. El cálculo no modifica `x`, `y` ni `theta` de las partículas de entrada.
+  8. `N=0`: `va=0`, según la convención documentada.
+- Casos de clusters cubiertos (10), todos con resultados esperados derivados a mano de la definición de componente conexa, no por comparación entre dos implementaciones:
+  1. Todas las partículas aisladas (sin vecinos): `S = 1/N`.
+  2. Clique completo (todas conectadas entre sí): `S = 1`.
+  3. Cadena `A-B-C` donde `A` y `C` no son vecinos directos: `S = 1` (verifica transitividad).
+  4. Componentes de tamaños 3, 2 y 1 (`N=6`): `S = 3/6`.
+  5. Vecinos que cruzan el borde periódico: partículas en `x=9.9` y `x=0.1` (separadas `0.2` a través del borde, con `L=10`), vecinos obtenidos con `cell_index_neighbors`; se verifica que quedan en el mismo cluster de tamaño 2, sin incluir a una tercera partícula lejana.
+  6. La misma configuración aleatoria (`N=60`) da el mismo cluster más grande usando `brute_force_neighbors` y `cell_index_neighbors`.
+  7. `N=0`: `largest_cluster_size=0`, `largest_cluster_fraction=0`, según la convención documentada.
+  8. IDs no consecutivos (`7, 20, 99`): se verifica que el algoritmo usa `id` y no la posición en el vector para resolver la vecindad.
+  9. `largest_cluster_size` no modifica la lista de vecinos de entrada.
+  10. Transitividad verificada explícitamente y no solo la cantidad de vecinos directos: cadena `A-B`, `B-C`, `C-D` (cada partícula con a lo sumo 2 vecinos directos) debe dar un único cluster de tamaño 4.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+
+## Bucle de simulación
+
+Implementado en `src/core/simulation.hpp`, función `run_simulation`, junto a `derive_step_seed` y el alias `StateObserver`. Alcance: únicamente la iteración en memoria que encadena muchos pasos de `advance_time_step` manteniendo sincronía, movimiento backward, reproducibilidad, invariancia al orden de almacenamiento y aleatoriedad distinta entre pasos. No incluye escritura de texto, CLI, promedios estacionarios, `t_eq` ni realizaciones independientes; el formato de salida y la CLI siguen siendo decisiones abiertas y no se congelan acá.
+
+### Interfaz implementada
+
+```cpp
+using StateObserver = std::function<void(std::size_t step, const std::vector<Particle>& state)>;
+
+std::uint64_t derive_step_seed(std::uint64_t base_seed, std::size_t step);
+
+std::vector<Particle> run_simulation(
+    const std::vector<Particle>& initial_state, const Parameters& parameters,
+    double eta, InteractionRule rule, std::size_t steps, std::uint64_t base_seed,
+    const NeighborSearchFunction& neighbor_search,
+    const StateObserver& observer = {});
+```
+
+`initial_state` no se modifica (se copia internamente a una variable local `state` que se va reemplazando). `rule` y `neighbor_search` se usan sin cambios en todos los pasos de la corrida: el mismo modelo (Vicsek o votante) y la misma búsqueda de vecinos (fuerza bruta o CIM) durante toda la simulación. `run_simulation` no duplica lógica de `advance_time_step`: se limita a llamarlo `steps` veces con una semilla de paso distinta cada vez y a encadenar su salida como entrada del siguiente.
+
+### Ciclo de vida de los estados y definición de los pasos observados
+
+- **`step=0`** es `initial_state`, tal cual, antes de cualquier avance. No corresponde a ningún sorteo aleatorio: es el punto de partida, no el resultado de una regla de orientación. Si se pasa `observer`, se lo llama una única vez con `(0, initial_state)` antes de ejecutar el primer paso.
+- Para cada `t` de `1` a `steps`: se deriva `step_seed = derive_step_seed(base_seed, t)` y se llama `advance_time_step(state, parameters, eta, rule, step_seed, neighbor_search)` sobre el `state` que dejó el paso anterior (nunca sobre `initial_state`, salvo en `t=1`, donde coinciden). El resultado reemplaza `state`. Si se pasa `observer`, se lo llama inmediatamente después con `(t, state)`.
+- **`steps=0`** es un caso válido y explícitamente soportado: no se ejecuta ningún avance, `observer` (si existe) se llama solo con `step=0`, y la función devuelve `initial_state` sin cambios.
+- El valor de retorno es siempre el estado después de `steps` avances (o `initial_state` si `steps=0`); es el mismo estado que se le pasó al observador en la última llamada, cuando hay observador.
+- El observador recibe el estado por `const std::vector<Particle>&`; no tiene forma de modificar el estado interno de la simulación (no se le entrega ninguna referencia no-const ni un puntero al buffer interno).
+
+### Estrategia de derivación de semillas: `(base_seed, step, id)`
+
+El requisito es que el sorteo de cada partícula en cada paso dependa de la terna completa `(base_seed, step, id)`, nunca de la posición de almacenamiento ni de una semilla repetida entre pasos. Esto se resuelve en dos niveles, sin volver a tocar `rules.hpp`:
+
+1. **`derive_step_seed(base_seed, step)`** (nuevo, en `simulation.hpp`): combina `base_seed` y `step` con un mezclado determinista (variante del finalizador de MurmurHash3/splitmix64, con constantes distintas de las de `make_particle_rng` en `rules.hpp` para que ambos mezclados no queden correlacionados entre sí) y devuelve una `step_seed` de tipo `std::uint64_t`.
+2. **`make_particle_rng(step_seed, id)`** (ya existente en `rules.hpp`, sin cambios): combina esa `step_seed` con el `id` de cada partícula dentro de `vicsek_update`/`voter_update`, exactamente como ya hacía para un único paso.
+
+El resultado neto es que el sub-generador de la partícula `id` en el paso `t` queda determinado por `make_particle_rng(derive_step_seed(base_seed, t), id)`, es decir, por la terna completa `(base_seed, t, id)`. No hizo falta cambiar la firma de `vicsek_update`/`voter_update` ni de `advance_time_step`: alcanzó con que el bucle nunca reutilice la misma `seed` en dos llamadas a `advance_time_step`.
+
+Consecuencias verificadas por test (ver más abajo):
+
+- Misma `base_seed` y misma configuración ⇒ misma corrida exacta, en cualquier cantidad de pasos.
+- Dos pasos consecutivos de la misma corrida no repiten el mismo sorteo (se usan `step_seed` distintas).
+- Una `base_seed` distinta puede cambiar la corrida completa (con `eta>0`).
+- Permutar el orden de almacenamiento de las partículas iniciales, con la misma `base_seed`, da exactamente el mismo resultado por `id` después de varios pasos (se hereda de la invariancia al orden ya garantizada en `rules.hpp`/`time_step.hpp`, y se vuelve a comprobar explícitamente a nivel del bucle completo).
+
+**Nota documentada explícitamente**: `step=0` corresponde al estado inicial observado (sin sorteo asociado); el primer avance real (el que produce el estado de `step=1`) usa `derive_step_seed(base_seed, 1)`, no `base_seed` directamente ni una semilla de "paso 0".
+
+### Evidencia de los tests
+
+- Implementación de test: `tests/test_simulation.cpp`, registrado en CTest como `simulation`.
+- Casos cubiertos (10):
+  1. `steps=0`: devuelve exactamente `initial_state`; el observador recibe una única llamada, con `step=0`.
+  2. `steps=1` coincide exactamente con una llamada directa a `advance_time_step` usando `derive_step_seed(base_seed, 1)`; probado para Vicsek y para votante.
+  3. Varios pasos (`N=30`, 8 pasos, Vicsek): se conserva el tamaño del estado, los `id` (en la misma posición), las posiciones quedan en `[0,L)` y las orientaciones en `[0,2*pi)`.
+  4. Observador: recibe `steps+1` llamadas en orden creciente de `step`; el estado observado en cada `step=t` coincide exactamente con reconstruir la corrida a mano llamando `advance_time_step` `t` veces con las `step_seed` correspondientes; el estado devuelto coincide con la última llamada observada; el vector de estado inicial de entrada no se modifica.
+  5. Reproducibilidad: dos corridas con la misma configuración y `base_seed` son bit a bit idénticas; se prueban 39 `base_seed` distintas con `eta>0` y se verifica que al menos una produce una corrida distinta.
+  6. Semillas por paso: partícula aislada con votante (para que la diferencia entre pasos consecutivos aísle directamente el sorteo de ruido de ese paso) y `eta=0.6`; se verifica que el incremento angular del paso 1 y el del paso 2 no coinciden exactamente, sin asumir valores concretos.
+  7. Invariancia al orden: se permutan 4 partículas iniciales, se corren 5 pasos con la misma `base_seed`, y se compara por `id` (no por posición) que posiciones y orientaciones finales coinciden; probado para Vicsek y para votante.
+  8. Búsqueda de vecinos: la misma corrida (`N=35`, 6 pasos, Vicsek) con `brute_force_neighbors` y con `cell_index_neighbors` da el mismo estado final y los mismos estados observados en cada paso.
+  9. Partícula aislada con `eta=0` (votante): conserva exactamente su orientación en todos los pasos, y su posición en cada paso sigue la ecuación `x0 + v*cos(theta)*dt*step` (verificado paso a paso, no solo al final).
+  10. Cadena de pasos: dos partículas separadas `1.02` en `x` (fuera de `rc=1`) que se acercan; en el primer paso todavía no son vecinas (conservan su `theta` propia, votante con `eta=0`) y quedan separadas por `0.96` (dentro de `rc`); en el segundo paso, calculado ya con las posiciones actualizadas del primero, sí se ven como vecinas y cada una copia la orientación de la otra. Prueba que el paso `t` usa las posiciones de `t-1`, no las iniciales.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+- Alcance exacto de este cierre: cubre la iteración en memoria del bucle completo (sincronía, backward, reproducibilidad, invariancia al orden, semillas por paso, compatibilidad Vicsek/votante y fuerza bruta/CIM). No incluye escritura de texto, CLI, promedios estacionarios, `t_eq` ni realizaciones independientes, que siguen pendientes.
 
 ## Paso del motor
 
@@ -251,21 +377,7 @@ La fase de orientación no escribe el estado viejo. La fase de movimiento usa ú
 
 Un diseño válido puede guardar un solo vector de partículas y buffers auxiliares, siempre que ningún campo viejo se sobrescriba antes de haber calculado todas las salidas que dependen de él.
 
-## Observables en el motor
-
-Polarización:
-
-```text
-va = hypot(sum cos(theta_i), sum sin(theta_i)) / N
-```
-
-Componente gigante:
-
-```text
-S = n_max/N
-```
-
-Calcular `va(t)` y `S(t)` sobre el mismo estado temporal. Si el paso reconstruye vecinos desde `x(t)` pero ya confirmó `x(t+1)`, no reutilizar una lista desfasada para rotular `S(t+1)`. La opción más clara es medir antes de avanzar o exponer una operación `measure_current_state()` que garantice sincronía.
+**Nota sobre sincronía de la medición** (todavía no implementada, queda para el bucle de simulación): calcular `va(t)` y `S(t)` sobre el mismo estado temporal. Si el paso reconstruye vecinos desde `x(t)` pero ya confirmó `x(t+1)`, no reutilizar una lista desfasada para rotular `S(t+1)`. La opción más clara es medir antes de avanzar o exponer una operación `measure_current_state()` que garantice sincronía; esta decisión se toma cuando se implemente el bucle completo, no en esta tarea.
 
 ## Salidas y costo
 
@@ -290,8 +402,9 @@ Calcular `va(t)` y `S(t)` sobre el mismo estado temporal. Si el paso reconstruye
 - [x] Ambos modelos comparten el mismo motor y solo bifurcan en la regla de orientación.
   - Evidencia: `advance_time_step` (`src/core/time_step.hpp`) es una única función que ejecuta el paso completo (vecinos, movimiento, borde periódico) para ambos modelos; el único punto donde se bifurca es la elección entre `vicsek_update`/`voter_update` según el parámetro `InteractionRule rule`. `tests/test_time_step.cpp` ejercita ambas ramas sobre el mismo `advance_time_step`.
 - [x] El CIM coincide exactamente con fuerza bruta en configuraciones pequeñas.
-  - Evidencia: `tests/test_neighbor_search_cim.cpp` compara listas completas de IDs en 13 familias de casos; `ctest --test-dir build --output-on-failure` pasa los cinco tests registrados.
-- [ ] `S` usa las mismas aristas periódicas que la interacción.
+  - Evidencia: `tests/test_neighbor_search_cim.cpp` compara listas completas de IDs en 13 familias de casos; `ctest --test-dir build --output-on-failure` pasa los siete tests registrados.
+- [x] `S` usa las mismas aristas periódicas que la interacción.
+  - Evidencia: `largest_cluster_size`/`largest_cluster_fraction` (`src/core/observables.hpp`) reciben las listas de vecinos ya calculadas por `brute_force_neighbors`/`cell_index_neighbors` (que ya aplican `d <= rc` con distancia mínima periódica) y no recalculan ninguna distancia; `tests/test_observables.cpp` incluye un caso explícito de vecinos cruzando el borde periódico (`x=9.9`/`x=0.1`) y otro que compara el resultado usando fuerza bruta y CIM sobre el mismo estado.
 - [ ] Se puede ejecutar sin trayectoria y con log escalar.
 - [ ] Todas las salidas incluyen parámetros y semilla.
 - [ ] El código queda listo para la suite de la etapa 3, pero todavía no se autoriza producción.

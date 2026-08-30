@@ -4,6 +4,11 @@ Este archivo funciona como bitácora acumulativa del desarrollo del Trabajo
 Práctico 2 de Simulación de Sistemas. Registra qué se implementó, cómo se
 verificó y qué partes todavía no se desarrollaron.
 
+El informe se actualiza por bloques a medida que avanza el proyecto. Las
+secciones de implementación y validación describen el estado alcanzado en
+cada momento; por eso una frase histórica puede mencionar una tarea que luego
+se desarrolla en una sección posterior.
+
 ## Objetivo del trabajo
 
 El TP consiste en simular bandadas de partículas que se mueven en un espacio
@@ -17,13 +22,53 @@ Las densidades principales son `rho=2,4,8`, equivalentes a `N=200,400,800`.
 
 ## Estado actual
 
-La Etapa 1 está documentada y la Etapa 2 se encuentra en progreso. Además de
+La especificación base de la Etapa 1 está documentada, aunque su cierre formal
+sigue pendiente porque todavía falta congelar el formato de salida y el
+protocolo experimental. La Etapa 2 se encuentra en progreso. Además de
 la búsqueda de vecinos por fuerza bruta (oráculo de referencia) y el Cell
 Index Method (CIM, el algoritmo eficiente de búsqueda de vecinos), ya están
-implementadas y validadas las dos reglas de orientación (Vicsek y votante) y
+implementadas y validadas las dos reglas de orientación (Vicsek y votante),
 el paso temporal completo que las conecta con el movimiento de las
-partículas, respetando la sincronía y el borde periódico. Todavía faltan los
-observables, la construcción de clusters, la escritura de texto y la CLI.
+partículas (respetando la sincronía y el borde periódico), los dos
+observables principales del TP (la polarización `va` y la fracción `S` del
+cluster más grande) y un bucle reutilizable que encadena muchos pasos de
+simulación, derivando una semilla distinta por paso. Todavía faltan la
+escritura de texto y la CLI.
+
+La Etapa 3 también está abierta: ya tiene validadas varias piezas puntuales,
+incluida la reproducibilidad de la iteración en memoria, pero todavía faltan
+los vecinos medios compatibles con la teoría, la salida reproducible a disco
+y las validaciones de corridas largas (por ejemplo, el consenso del votante).
+
+### Resumen de avance
+
+Implementado y validado en memoria:
+
+- estado, parámetros y geometría periódica;
+- búsqueda de vecinos por fuerza bruta y Cell Index Method;
+- reglas de Vicsek y votante;
+- paso temporal sincrónico con movimiento backward;
+- bucle de simulación con observador y semillas dependientes del paso;
+- polarización `va` y componente conexa más grande `S`.
+
+Todavía no implementado o no validado experimentalmente:
+
+- salida de texto y CLI;
+- series temporales persistidas de `va(t)` y `S(t)`;
+- promedios estacionarios, `t_eq`, realizaciones y barras de error;
+- pilotos, barridos, figuras y animaciones;
+- benchmark contra TP1 y entregables finales.
+
+La suite actual contiene siete tests y debe seguir pasando completa después de
+cada cambio del motor.
+
+## Criterio de interpretación
+
+Una funcionalidad se considera implementada en este informe cuando existe
+código y un test reproducible que la verifica. Esto no equivale a tener lista
+la simulación experimental: todavía falta guardar series `va(t)` y `S(t)` a
+disco, elegir el estacionario y repetir las corridas con un protocolo
+estadístico.
 
 ## Implementación realizada
 
@@ -176,6 +221,10 @@ distintas de decidir eso:
 
 En los dos casos se agrega después un poco de ruido al azar, para que el
 movimiento no sea perfectamente determinista.
+
+En la implementación, `eta <= 0` se trata como ausencia de ruido. Para el TP
+se usarán valores no negativos de `eta`; esta convención solo evita un
+comportamiento ambiguo en casos de test o entradas inválidas.
 
 Un detalle técnico importante de Vicsek: promediar ángulos directamente
 (sumar los números y dividir por la cantidad) da resultados absurdos cerca
@@ -336,10 +385,209 @@ Resultado: `100% tests passed, 0 tests failed out of 5`.
 
 Con esto se completa, dentro de la Etapa 3, el punto "Sincronía y
 movimiento backward". La Etapa 2 y la Etapa 3 siguen abiertas en general:
-todavía faltan los observables, los clusters, la salida de texto y la CLI
-(ver "Pendientes y decisiones abiertas" al final de este archivo).
+en ese momento todavía faltaban los observables, los clusters, la salida de
+texto y la CLI. Los dos primeros se documentan en la sección siguiente; la
+salida de texto y la CLI siguen pendientes.
 
-## Revisión de lo realizado por Claude
+## Observables: polarización y cluster más grande
+
+### Qué es, en lenguaje sencillo
+
+Con el paso temporal ya funcionando, hacen falta números que resuman qué tan
+"ordenada" está la bandada en un instante dado. El TP pide dos:
+
+- **Polarización `va`**: mide cuánto apuntan las partículas en una dirección
+  común. Se calcula sumando vectorialmente todas las direcciones (como
+  flechas) y viendo qué tan larga queda la flecha resultante en relación a
+  la cantidad de partículas. Si todas apuntan igual, la suma da una flecha
+  larga: `va` cercano a 1 (bandada alineada). Si las direcciones se
+  cancelan entre sí, la suma da una flecha corta o nula: `va` cercano a 0
+  (direcciones que se cancelan, no hay orden colectivo).
+- **Fracción `S` del cluster más grande**: mide qué proporción de partículas
+  pertenece al grupo conectado más grande. Un cluster se arma por
+  conexiones entre vecinos (si dos partículas están a distancia `rc` o
+  menos, están conectadas), y esas conexiones pueden encadenarse: si A está
+  conectada con B y B con C, las tres partículas forman un mismo cluster
+  aunque A y C no sean vecinas directas entre sí. `S` es simplemente el
+  tamaño del cluster más grande dividido por el total de partículas.
+
+### Ejemplos simples
+
+- Cuatro flechas apuntando exactamente igual: `va=1` (alineación perfecta).
+- Dos flechas opuestas (una hacia el este, otra hacia el oeste): `va=0` (se
+  cancelan por completo).
+- Tres partículas conectadas en cadena, A con B y B con C, sin que A y C
+  sean vecinas directas: igual forman un único cluster de tamaño 3, así que
+  `S=1` para ese sistema (todas están en el mismo grupo, por transitividad).
+- Dos grupos separados: por ejemplo, un grupo de 3 partículas conectadas
+  entre sí y otro grupo de 2 conectadas entre sí, sin ningún vecino en
+  común entre ambos grupos, sobre un total de 5. El cluster más grande es
+  el de 3, así que `S=3/5`.
+
+### Qué se implementó y cómo se validó
+
+En `src/core/observables.hpp` se agregaron `polarization` (recibe el estado
+de partículas y devuelve `va`) y `largest_cluster_size`/
+`largest_cluster_fraction` (reciben las listas de vecinos ya calculadas —
+por fuerza bruta o por CIM, da lo mismo — y el estado de partículas, y
+devuelven el tamaño del cluster más grande o la fracción `S`). Ninguna de
+las tres funciones modifica el estado ni las listas de vecinos que recibe.
+
+Para encontrar los clusters se usa un algoritmo llamado **union-find**: cada
+partícula arranca en su propio grupo, y por cada par de vecinos se van
+"fusionando" los grupos a los que pertenecen. Al final, se cuenta cuántas
+partículas quedaron en el grupo más grande. Se eligió por sobre recorrer el
+grafo con una búsqueda en profundidad/anchura porque encaja mejor con la
+forma en que ya vienen los datos (una lista de conexiones, no un grafo
+pensado para recorrer nodo por nodo), y es más simple de leer.
+
+Un detalle importante: las listas de vecinos identifican a cada partícula
+por su `id`, no por la posición en la que está guardada en el vector (los
+`id` ni siquiera tienen que ser consecutivos). El código arma primero un
+mapa de `id` a posición antes de fusionar grupos, para no confundir nunca a
+una partícula con otra.
+
+**Convención cuando no hay partículas (`N=0`)**: se documentó explícitamente
+que `va=0` y `S=0` en ese caso, en vez de dejar un comportamiento indefinido
+o un error de división por cero.
+
+Los tests de `tests/test_observables.cpp` (registrados en CTest como
+`observables`) verifican, entre otras cosas:
+
+- que una sola partícula o todas las partículas con la misma dirección dan
+  `va=1`;
+- que direcciones opuestas o balanceadas en cuatro direcciones distintas dan
+  `va=0`;
+- un caso con resultado numérico exacto conocido de antemano (`va=sqrt(2)/2`
+  para dos partículas mirando al este y al norte);
+- que un estado con direcciones al azar siempre da un `va` entre 0 y 1;
+- que ninguna de las dos funciones modifica el estado que recibe;
+- que la cadena A-B-C (donde A y C no son vecinas directas) forma un único
+  cluster de tamaño 3, probando explícitamente la transitividad y no solo
+  contando vecinos directos;
+- que partículas conectadas cruzando el borde de la caja (una cerca de
+  `x=0` y otra cerca de `x=L`) quedan en el mismo cluster, usando vecinos
+  calculados con el CIM;
+- que el cluster más grande da el mismo resultado usando fuerza bruta o CIM;
+- que el algoritmo usa correctamente el `id` de cada partícula aunque los
+  IDs no sean consecutivos (por ejemplo `7, 20, 99`).
+
+### Qué resultado se obtuvo
+
+Los 18 casos pedidos para esta tarea (8 de polarización, 10 de clusters)
+pasaron. La suite completa de tests (`periodic_geometry`,
+`neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`,
+`observables`) corre en verde:
+
+```text
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Resultado: `100% tests passed, 0 tests failed out of 6`.
+
+Con esto se completa, dentro de la Etapa 3, el punto "`va` y `S` dentro de
+límites y casos manuales correctos". La Etapa 2 y la Etapa 3 siguen abiertas
+en general: todavía falta el bucle completo de simulación, la salida de
+texto y la CLI (ver "Pendientes y decisiones abiertas" al final de este
+archivo).
+
+## Bucle de simulación y semillas por paso
+
+### Qué es, en lenguaje sencillo
+
+Hasta ahora se sabía cómo dar *un* paso de simulación: buscar vecinos,
+decidir la nueva dirección de cada partícula y moverlas, todo de forma
+sincrónica. Una simulación de verdad no es un solo paso: es repetir ese
+mismo paso muchas veces, una tras otra. Cada paso nuevo tiene que partir del
+estado que dejó el paso anterior (las posiciones y direcciones ya movidas),
+nunca del estado original con el que arrancó todo.
+
+Hay un detalle importante sobre el ruido al azar: si cada paso usara
+exactamente la misma semilla aleatoria, se repetiría artificialmente el
+mismo sorteo de ruido una y otra vez, como si el generador de números
+aleatorios "no avanzara" entre pasos. Eso no es lo que se espera de una
+simulación real: el ruido tiene que variar de un paso a otro. Por eso la
+semilla que se usa para sortear el ruido de cada partícula tiene que
+depender también de en qué paso está la simulación, no solo de la semilla
+general de la corrida ni del `id` de la partícula.
+
+### Qué se implementó y cómo se validó
+
+En `src/core/simulation.hpp` se agregó `run_simulation`, que recibe el
+estado inicial, la cantidad de pasos a ejecutar y una semilla base, y
+devuelve el estado final después de ejecutar todos esos pasos. Internamente
+no hace nada nuevo en cada paso: llama a `advance_time_step` (ya
+implementado) una vez por paso, encadenando la salida de un paso como
+entrada del siguiente.
+
+Para resolver el problema de la semilla repetida, se agregó
+`derive_step_seed(base_seed, step)`, que combina la semilla base y el
+número de paso en una nueva semilla distinta para cada paso. Esa semilla de
+paso se usa después exactamente igual que antes: se combina con el `id` de
+cada partícula (esa parte ya existía, sin cambios). El resultado es que el
+sorteo de ruido de una partícula en un paso dado depende de tres cosas: la
+semilla general de la corrida, el número de paso, y el `id` de la
+partícula — nunca de dónde está guardada esa partícula en la memoria.
+
+También se agregó un "observador" opcional: una función que, si se provee,
+se llama después de cada paso (y una vez al principio, con el estado
+inicial) para poder mirar el estado en ese momento sin modificarlo. Por
+ahora no hace nada con esa información (no calcula `va`/`S` ni escribe
+nada), pero deja preparado el enganche para que, en una tarea futura, algo
+externo a este bucle pueda ir registrando esos observables o escribiéndolos
+a disco sin que el bucle de simulación tenga que saber nada de eso: cada
+pieza sigue haciendo una sola cosa.
+
+Los tests de `tests/test_simulation.cpp` (registrados en CTest como
+`simulation`) verifican, entre otras cosas:
+
+- que ejecutar cero pasos devuelve el estado inicial sin cambios;
+- que ejecutar un paso da exactamente el mismo resultado que llamar una vez
+  a `advance_time_step` con la semilla derivada del paso 1;
+- que después de varios pasos se conservan la cantidad de partículas, sus
+  `id`, y que las posiciones y direcciones siguen siendo válidas;
+- que el observador recibe el estado correcto en cada paso, en el orden
+  correcto, sin modificar el estado inicial;
+- que la misma configuración y semilla base dan exactamente la misma
+  corrida, y que una semilla distinta puede dar una corrida distinta;
+- que el ruido de dos pasos consecutivos de la misma partícula no es
+  idéntico (prueba directa de que la semilla efectivamente cambia entre
+  pasos);
+- que reordenar las partículas iniciales no cambia el resultado de cada una
+  (identificada por `id`) después de varios pasos;
+- que la corrida da el mismo resultado usando fuerza bruta o CIM para
+  buscar vecinos;
+- que una partícula aislada sin ruido conserva su dirección y se mueve
+  según esa dirección en cada paso;
+- que el segundo paso de una cadena usa las posiciones ya actualizadas por
+  el primero (dos partículas que no eran vecinas al principio pasan a serlo
+  recién después de moverse un paso).
+
+### Qué resultado se obtuvo
+
+Los 10 casos pedidos para esta tarea pasaron. La suite completa de tests
+(`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`,
+`rules`, `time_step`, `observables`, `simulation`) corre en verde:
+
+```text
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Resultado: `100% tests passed, 0 tests failed out of 7`.
+
+Con esto se completa, dentro de la Etapa 3, el punto "bucle de simulación,
+semillas por paso y reproducibilidad en memoria". Queda cubierta la
+reproducibilidad de la iteración en memoria (mismo `base_seed`, misma
+corrida); todavía falta la reproducibilidad de la salida a disco, que
+depende de la escritura de texto (ver "Pendientes y decisiones abiertas" al
+final de este archivo). Tampoco se congeló en esta tarea el formato de
+salida ni la CLI.
+
+## Revisiones técnicas acumuladas
 
 La implementación revisada es correcta para el alcance de esta tarea. No se
 detectaron errores en el algoritmo de fuerza bruta ni en los casos de prueba.
@@ -350,6 +598,13 @@ existente: la coincidencia CIM/fuerza bruta y la validación de la geometría.
 Esto no cierra las etapas completas, porque todavía faltan otras piezas del
 motor y validaciones.
 
+La implementación de `polarization` y de los componentes conexos con
+`union-find` también fue revisada y es correcta para el alcance declarado.
+Los tests cubren los casos analíticos, la transitividad, el borde periódico,
+IDs no consecutivos y las convenciones para `N=0`. Se agregó únicamente el
+include explícito de `<utility>` en `observables.hpp`, requerido por
+`std::swap`; no se modificó la lógica del algoritmo.
+
 Queda registrado un riesgo para la siguiente integración: la semilla actual se
 combina con el `id` de la partícula, pero `advance_time_step` todavía no recibe
 el número de paso. El bucle que ejecute muchos pasos deberá derivar una semilla
@@ -359,19 +614,37 @@ mismos sorteos en cada paso.
 
 ## Próximos pasos
 
-El siguiente desarrollo es la construcción de clusters (componente gigante,
-sobre las aristas de vecinos que ya calcula el CIM), los observables
-`va`/`S`, la salida de texto y la interfaz de ejecución.
+El siguiente desarrollo es la escritura de texto (formato de salida todavía
+sin congelar) y la interfaz de ejecución (CLI), que van a apoyarse en el
+observador de `run_simulation` para registrar `va(t)`/`S(t)` y/o la
+trayectoria sin mezclar esa responsabilidad con el bucle de simulación.
 
 ## Pendientes y decisiones abiertas
 
-- Falta la construcción de clusters (componente conexa/`union-find`) sobre
-  las aristas de vecinos; el CIM por ahora solo devuelve listas de vecinos,
-  no componentes.
-- Faltan los observables `va` y `S`, la salida de texto y la CLI.
+- Falta la escritura de texto (salida a disco): el formato público de los
+  archivos todavía es una decisión abierta y no se congeló en esta tarea.
+- Falta la CLI.
+- Falta el protocolo estadístico completo: promedio estacionario de los
+  observables, elección de `t_eq`, realizaciones independientes y barras de
+  error.
+- Faltan las corridas largas (por ejemplo, para observar el consenso del
+  votante sin ruido) y los pilotos que sirven para elegir la grilla de
+  `eta` y la duración de las corridas.
+- Faltan los barridos definitivos y las figuras.
 - Siguen abiertas las decisiones experimentales sobre `eta`, duración,
   realizaciones, semillas, barras de error y formato final de salida.
-- Antes de implementar el bucle de corrida hay que resolver cómo derivar la
-  aleatoriedad por paso (`paso`, `id`) sin perder reproducibilidad ni la
-  invariancia al orden de almacenamiento.
-- No se puede iniciar todavía el barrido definitivo.
+- Falta verificar el número medio inicial de vecinos contra
+  `rho*pi*rc^2` para `rho=2,4,8`.
+- Falta decidir, antes del barrido de clusters, cómo convertir las densidades
+  bajas `1/pi`, `1/(2*pi)` y `1/(3*pi)` a un número entero de partículas.
+- Falta confirmar si esas densidades bajas también deben incluirse en el
+  gráfico `<va>` vs. `<S>` del punto E, o solamente en el estudio de clusters
+  del punto D.
+- Falta definir el protocolo de benchmark contra TP1: tamaños, cantidad de
+  pasos, realizaciones, entorno y tramo exacto que se cronometrará.
+- Falta confirmar los datos administrativos, nombres de archivos y enlaces
+  requeridos para la entrega.
+- Falta confirmar las indicaciones visuales que no aparecen explícitamente en
+  la guía escrita, como el tratamiento de grillas y la separación visual de
+  `va` y `S`.
+- No se pueden iniciar todavía los barridos definitivos ni las figuras.

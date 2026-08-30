@@ -28,3 +28,11 @@ add_test(NAME rules COMMAND test_rules)
 add_executable(test_time_step tests/test_time_step.cpp)
 target_link_libraries(test_time_step PRIVATE tp2_core)
 add_test(NAME time_step COMMAND test_time_step)
+
+add_executable(test_observables tests/test_observables.cpp)
+target_link_libraries(test_observables PRIVATE tp2_core)
+add_test(NAME observables COMMAND test_observables)
+
+add_executable(test_simulation tests/test_simulation.cpp)
+target_link_libraries(test_simulation PRIVATE tp2_core)
+add_test(NAME simulation COMMAND test_simulation)
