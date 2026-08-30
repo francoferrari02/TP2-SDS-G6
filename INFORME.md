@@ -864,6 +864,63 @@ nueva pero sin `observables.csv` actualizado. La función nunca informa éxito
 en ese caso, y la forma de recuperarse es simplemente volver a correr la
 misma corrida con `--overwrite`.
 
+## Pilotos y protocolo estadístico (propuesta preliminar)
+
+Con el escritor de salida y la CLI ya validados, se ejecutó un primer lote de
+corridas piloto: 108 corridas pequeñas (`2` modelos x `3` densidades
+obligatorias x `6` valores exploratorios de `eta` x `3` realizaciones,
+`steps=600`, CIM, sin trayectoria salvo una corrida de inspección puntual),
+lanzadas y analizadas con dos herramientas nuevas de solo biblioteca
+estándar de Python: `python/pilot_run.py` (lanza la grilla invocando el
+binario `simulate` ya existente, con semillas explícitas y deterministas) y
+`python/pilot_analyze.py` (relee cada `observables.csv` de forma
+independiente, sin confiar en el lanzador, verifica el formato y agrega
+tablas de resumen). El detalle completo -- grilla, comandos, tablas de
+`<va>` por combinación, series temporales muestreadas y las propuestas
+preliminares que surgen -- está en
+`plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`, sección "Piloto ejecutado
+(2026-08-30)".
+
+En resumen, sin repetir aquí las tablas completas:
+
+- Los 108 `observables.csv` generados pasaron la verificación independiente
+  de formato (t ordenado, `va`/`S` en `[0,1]`, `t=0` y paso final presentes,
+  metadatos completos): 108/108 válidos.
+- `<va>` decrece monótonamente con `eta` en ambos modelos y las tres
+  densidades, como espera la teoría; `S` se mantiene cerca de 1 en casi
+  todos los casos con `rho=2,4,8` (estas densidades ya superan holgadamente
+  el umbral de percolación de un disco de radio `rc=1`).
+- Vicsek se estabiliza rápido (dentro de los primeros 100-200 pasos de los
+  600 usados) para `eta<=2` en las tres densidades. El votante con `eta=0`,
+  en cambio, **no** se estabiliza dentro de los 600 pasos usados en ninguna
+  de las tres densidades: la serie sigue subiendo al final de la corrida, a
+  diferencia de la regresión diagnóstica de grafo completo (ver sección
+  "Regresión del votante sin ruido" más abajo), que alcanza consenso rápido
+  solo porque asume conectividad total, no la densidad real del TP. Con el
+  mismo protocolo para ambos modelos, esta es evidencia directa de que el
+  votante necesita sustancialmente más pasos que Vicsek para relajar con los
+  parámetros físicos reales.
+- Con solo 3 realizaciones, el desvío entre ellas es grande cerca de la
+  transición orden/desorden (por ejemplo `vicsek rho=2 eta=3`: `±0.18`,
+  comparable al propio valor medio), lo que indica que 3 realizaciones no
+  van a alcanzar para un error chico en esa zona del barrido definitivo.
+
+Estos resultados son evidencia preliminar, no una grilla de `eta`, un `t_eq`,
+una cantidad de realizaciones ni una definición de barras de error
+definitivos: esas decisiones siguen abiertas en `DECISIONES_PENDIENTES.md`,
+ahora con esta evidencia registrada junto a cada ítem. No se ejecutó el
+barrido definitivo, no se generó ninguna figura final y no se pilotaron
+todavía las densidades bajas (`1/pi,1/(2pi),1/(3pi)`, conversión a `N`
+pendiente).
+
+Los datos crudos de las 108 corridas quedan fuera de control de versiones
+(`data/pilots/`, agregado a `.gitignore`, junto con `data/raw/` para la
+futura producción); lo que se versiona son las tablas de resumen livianas
+(`data/summary/pilot_grid_1_manifest.csv`,
+`pilot_grid_1_by_realization.csv`, `pilot_grid_1_by_combo.csv`,
+`pilot_grid_1_series_sampled.csv`) y las dos herramientas de
+`python/`.
+
 ## Regresión del votante sin ruido
 
 **Consenso polar** significa que, en algún momento, todas las partículas
@@ -947,35 +1004,43 @@ mismos sorteos en cada paso.
 
 ## Próximos pasos
 
-El siguiente desarrollo es el protocolo estadístico (grilla de `eta`, `t_eq`,
-realizaciones, semillas, barras de error y valores productivos de stride),
-que se va a apoyar en la escritura de texto y la CLI ya implementadas
-(`src/core/text_output.hpp`, `src/cli/simulate_cli.hpp`/`simulate.cpp`, ver
-"Escritor de salida y CLI" arriba) y en el inicializador productivo
-(`src/core/initialization.hpp`) ya conectado con la simulación y con la
-validación de vecinos medios (ver sección "Inicialización reproducible del
-estado" arriba). Recién con ese protocolo decidido corresponde ejecutar
-pilotos y, después, el barrido definitivo.
+Con el primer piloto ya ejecutado (ver "Pilotos y protocolo estadístico"
+arriba), el siguiente paso es refinar la grilla de `eta` en la zona de
+transición, pilotar específicamente el votante con `eta` bajo durante más
+pasos (para poder proponerle un `t_eq`), y pilotar por separado las
+densidades bajas (`1/pi,1/(2pi),1/(3pi)`, conversión a `N` pendiente). Recién
+con la grilla final, `t_eq`, la cantidad de realizaciones y la definición de
+barras de error decididas y registradas corresponde ejecutar el barrido
+definitivo (etapa 6) y después las figuras (etapa 7).
 
 ## Pendientes y decisiones abiertas
 
 - Falta el protocolo estadístico completo: promedio estacionario de los
   observables, elección de `t_eq`, realizaciones independientes y barras de
-  error.
+  error. Ahora hay un primer piloto (ver "Pilotos y protocolo estadístico"
+  arriba) que aporta evidencia preliminar para cada uno de esos puntos, pero
+  ninguno está cerrado.
 - Falta decidir los valores productivos de stride (`--observables-stride`,
   `--trajectory-stride`) que se usarán en el barrido definitivo: el
-  mecanismo ya está implementado y probado, pero no los números concretos.
+  mecanismo ya está implementado y probado, y el piloto confirma que
+  `--observables-stride 1` es liviano incluso con `N=800`, pero no se
+  fijaron los números concretos de producción.
 - Falta validar el consenso del votante sin ruido con los parámetros
   físicos completos del TP (densidad, `rc`, movimiento real): existe
-  evidencia diagnóstica nueva en un escenario simplificado (grafo completo,
-  `N=20`, ver "Regresión del votante sin ruido" arriba), pero no reemplaza
-  esa validación con los parámetros reales.
-- Faltan los pilotos que sirven para elegir la grilla de `eta` y la
-  duración de las corridas.
+  evidencia diagnóstica en un escenario simplificado (grafo completo,
+  `N=20`, ver "Regresión del votante sin ruido" abajo), y ahora también
+  evidencia piloto con los parámetros reales que muestra que 600 pasos
+  **no alcanzan** para ver consenso con densidad y movimiento reales (ver
+  "Pilotos y protocolo estadístico" arriba); falta un piloto dedicado más
+  largo para ese caso específico.
+- Falta refinar la grilla de `eta` (el piloto sugiere agregar puntos entre
+  `eta=2` y `eta=4`) y pilotar por separado las densidades bajas
+  (`1/pi,1/(2pi),1/(3pi)`, conversión a `N` sin resolver).
 - Faltan los barridos definitivos y las figuras.
 - Siguen abiertas las decisiones experimentales sobre `eta`, duración,
   realizaciones, semillas y barras de error (el formato de salida ya está
-  congelado e implementado).
+  congelado e implementado; ahora hay evidencia preliminar de piloto para
+  cada una, registrada en `DECISIONES_PENDIENTES.md`).
 - Falta decidir, antes del barrido de clusters, cómo convertir las densidades
   bajas `1/pi`, `1/(2*pi)` y `1/(3*pi)` a un número entero de partículas.
 - Falta confirmar si esas densidades bajas también deben incluirse en el

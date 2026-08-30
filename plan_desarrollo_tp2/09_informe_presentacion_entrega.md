@@ -4,6 +4,12 @@
 
 Cerrar el trabajo con una narrativa fiel a los datos, una exposición de 13 minutos y un ZIP de código pequeño y reproducible.
 
+## Progreso parcial (2026-08-30)
+
+- [x] Se generó una síntesis interna del estado para ubicar al grupo frente al enunciado: `output/pdf/estado_actual_tp2_explicado.pdf`. Explica el alcance, motor, validaciones, piloto de 108 corridas, decisiones tomadas y pendientes, y la secuencia que falta hasta la entrega.
+  - Evidencia: el PDF se renderizó y revisó en cinco páginas A4; `pdfinfo` confirmó cinco páginas y la extracción de texto confirmó contenido en todas. En la misma revisión se ejecutó `cmake --build build` y `ctest --test-dir build --output-on-failure`, con 11/11 pruebas aprobadas.
+  - Alcance: artefacto de orientación interna. No reemplaza el informe final, la presentación ni los resultados definitivos y por ello los criterios de cierre de esta etapa permanecen abiertos.
+
 ## Estructura narrativa sugerida
 
 1. Sistema y pregunta: cómo ruido, densidad y regla de interacción afectan orden y conectividad.

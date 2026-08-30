@@ -32,18 +32,22 @@ Estas decisiones deben proponerse después de las corridas preliminares de la et
 - [ ] **Grilla final de valores de `eta`.**
   - Evidencia necesaria: corridas preliminares que muestren regímenes de ruido diferenciados y resolución suficiente de las curvas.
   - Bloquea: etapa 6.
+  - Evidencia preliminar (2026-08-30): piloto de 108 corridas (`plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`, sección "Piloto ejecutado") con grilla exploratoria `eta={0,1,2,3,4,6}`, ambos modelos, `rho=2,4,8`. La grilla ya separa regímenes cualitativos (orden casi perfecto, transición, desorden), pero la caída de `<va>` entre `eta=2` y `eta=4` sugiere que la grilla definitiva necesitará más puntos en esa zona. No se fija todavía la grilla final.
 
 - [ ] **Cantidad de pasos de transitorio y de medición / criterio de `t_eq`.**
   - Evidencia necesaria: series `va(t)` y `S(t)` con relajación y ventana estacionaria identificables.
   - Bloquea: promedios definitivos de etapas 6-7.
+  - Evidencia preliminar (2026-08-30): con `steps=600` y CIM, Vicsek se estabiliza dentro de los primeros 100-200 pasos para `eta<=2` en las tres densidades (ver tabla y estimación heurística de `t_eq` en `05_pilotos_y_grilla_eta.md`). El votante con `eta=0` **no** se estabiliza dentro de 600 pasos en ninguna de las tres densidades (la serie sigue creciendo al final de la corrida): ese caso queda explícitamente sin propuesta de `t_eq`, a diferencia de la regresión diagnóstica de grafo completo (`tests/voter_consensus_regression.cpp`), que sí alcanza consenso rápido pero con conectividad total, no representativa de la densidad real. No se fija todavía un `t_eq` de cierre para ningún caso.
 
 - [ ] **Cantidad de realizaciones independientes y semillas.**
   - Evidencia necesaria: variabilidad observada en pilotos y presupuesto de cómputo.
   - Bloquea: etapa 6.
+  - Evidencia preliminar (2026-08-30): el piloto usó 3 realizaciones con un esquema de semillas explícito y determinista (`seed = 800000 + offset(modelo) + offset(rho) + 100*indice_eta + realizacion`, ver `python/pilot_run.py`). Cerca de la transición orden/desorden (por ejemplo `vicsek rho=2 eta=3`) el desvío entre esas 3 realizaciones es grande (±0.18, mayor que muchos de los propios valores medios), lo que indica que 3 realizaciones no van a alcanzar para un error chico en esa zona del barrido definitivo. No se fija todavía un número definitivo de realizaciones.
 
 - [ ] **Definición de barras de error.**
   - Opciones admitidas por la guía: desvío entre realizaciones o error estándar.
   - Bloquea: agregación y figuras definitivas.
+  - Evidencia preliminar (2026-08-30): `data/summary/pilot_grid_1_by_combo.csv` ya calcula ambas cantidades (desvío entre realizaciones y error estándar) para cada combinación piloteada, para cuando se tome esta decisión. No se elige todavía ninguna de las dos opciones.
 
 - [ ] **Frecuencia productiva de muestreo (valores concretos de `--observables-stride`/`--trajectory-stride`).**
   - Contexto: el *formato* de salida y el *mecanismo* de stride ya están implementados y aprobados (ver "Decisiones resueltas" más abajo). Lo que sigue abierto es qué valores concretos de stride se van a usar en el barrido definitivo (por ejemplo, escribir observables en cada paso pero trayectoria cada 10 o 50 pasos).
