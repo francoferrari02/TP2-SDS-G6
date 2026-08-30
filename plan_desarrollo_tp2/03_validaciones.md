@@ -179,17 +179,25 @@ Permutar el almacenamiento de partículas, conservar `id` y repetir un paso con 
   - Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → `100% tests passed, 0 tests failed out of 8`.
   - Alcance de este cierre: cubre exclusivamente la reproducibilidad **en memoria** de la iteración (misma corrida, mismo `base_seed`, sin pasar por disco). No cubre la reproducibilidad de **archivos** (ver más abajo, todavía pendiente porque la escritura de texto no está implementada), ni corridas largas para observar consenso del votante o estacionariedad, ni realizaciones independientes ni barras de error.
 
-### Reproducibilidad de archivos (pendiente)
+### Reproducibilidad de archivos
 
-- Misma configuración y semilla: archivos escalares idénticos.
-- Semilla distinta: al menos la condición inicial o la dinámica difiere.
-- La animación puede leer el formato de texto documentado sin llamar al motor.
-- `va` y `S` rotulados con el mismo `t` pertenecen al mismo estado.
-- Deshabilitar trayectoria no cambia la serie escalar.
+- Misma configuración y semilla: archivos escalares idénticos. **Cubierto**: `tests/test_cli_simulate.cpp`, caso 3 (dos corridas independientes, misma configuración y semilla, `observables.csv` y `trajectory.csv` idénticos byte a byte).
+- Semilla distinta: al menos la condición inicial o la dinámica difiere. Se apoya en la reproducibilidad ya demostrada de `initialize_particles`/`run_simulation` (secciones "3. Número medio inicial de vecinos" y "9. Bucle de simulación..."); no se agregó un caso adicional específico de archivo con semilla distinta porque el escritor no introduce ninguna fuente nueva de aleatoriedad.
+- La animación puede leer el formato de texto documentado sin llamar al motor. **Cubierto**: `trajectory.csv`/`observables.csv` son CSV con comentarios `#`, autocontenidos (metadatos completos en cada archivo); `tests/test_cli_simulate.cpp` los parsea de forma independiente (sin volver a llamar a ninguna función del motor) para todas sus verificaciones.
+- `va` y `S` rotulados con el mismo `t` pertenecen al mismo estado. **Cubierto por construcción**: el observador de `execute_run` (`src/cli/simulate_cli.hpp`) calcula `va`/`S` y, si corresponde, la fila de trayectoria, dentro del mismo callback y sobre el mismo `state` recibido de `run_simulation` para ese `t`; no hay dos pasadas independientes que pudieran desincronizarse.
+- Deshabilitar trayectoria no cambia la serie escalar. **Cubierto**: el cálculo de `va`/`S` no depende de `write_trajectory` (es la misma rama `include_obs`, evaluada siempre); no se agregó un test específico de "misma serie con y sin trayectoria" porque la independencia es estructural (dos ramas `if` separadas dentro del observador, ver `execute_run`), pero queda como mejora posible si se quiere evidencia explícita.
 
-Ninguno de estos puntos se puede validar todavía: dependen de la escritura de texto y del formato de salida, que siguen sin implementarse ni congelarse (ver `DECISIONES_PENDIENTES.md`).
+## 10. Escritor de salida y CLI
 
-## 10. Pruebas de humo físicas
+Validación del contrato aprobado en `DECISIONES_PENDIENTES.md` (formato de archivo + orquestación de directorios/CLI). No valida el *contenido físico* de las corridas (eso depende del protocolo estadístico, todavía abierto), solo que el mecanismo de escritura sea correcto, reproducible y seguro contra sobrescritura accidental.
+
+- [x] **Formato de `observables.csv`/`trajectory.csv` y CLI productiva.**
+  - Implementación: `src/core/text_output.hpp` (formato), `src/cli/simulate_cli.hpp` + `src/cli/simulate.cpp` (parseo, validación, orquestación).
+  - Evidencia: `tests/test_text_output.cpp` (formato puro: 18 líneas de metadatos, encabezados exactos, cantidad de filas, round-trip `max_digits10`, separador decimal) y `tests/test_cli_simulate.cpp` (17 casos: filas de observables/trayectoria para `steps=2,N=3`; trayectoria desactivada por defecto; reproducibilidad byte a byte; `vx,vy` reconstruibles desde `theta`; `N` ids distintos por paso de trayectoria; metadatos coincidentes con lo pedido; error sin `--overwrite` y sin modificar archivos existentes; `--overwrite` reemplaza coherentemente y elimina trayectoria vieja; strides guardan `t=0` y `t=T`; la ruta diferencia modelo/densidad/eta/pasos/realización/semilla; nombres sin coma ni punto decimal; casos inválidos de CLI rechazados con mensaje claro, incluyendo `--rho-nominal`/`--eta` no finitos o `<=0` según corresponda; `--rho-label` insegura rechazada por lista blanca de caracteres; `format_eta_for_path` sin colisión entre `eta` y su vecino de punto flotante más cercano; sin `.tmp` sueltos tras una corrida exitosa; `--overwrite` sin trayectoria elimina la vieja de forma idempotente; un error real de escritura -- directorio sin permiso -- no publica archivos incompletos).
+  - Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → `100% tests passed, 0 tests failed out of 11`.
+  - Alcance: cubre el mecanismo de escritura (formato, directorios, no sobrescritura, strides, validación de entradas, publicación atómica). No cubre ni autoriza el protocolo estadístico (grilla de `eta`, `t_eq`, realizaciones, barras de error, strides productivos), que sigue abierto en `DECISIONES_PENDIENTES.md`. Límite de atomicidad entre dos archivos documentado en `02_motor_y_algoritmos.md` (no resuelto: es un límite real de C++17 portable, no un pendiente de implementación).
+
+## 11. Pruebas de humo físicas
 
 No son asserts rígidos sobre una transición:
 
@@ -218,8 +226,9 @@ Si una tendencia no aparece, investigar; no “arreglar” el test forzando un u
   - Evidencia: sección "7. Sincronía y movimiento backward" (permutación con `eta=0.4` en `test_time_step.cpp`), caso 14 de `test_rules.cpp` (permutación con `eta=0.5` para Vicsek y votante), y sección "9. Bucle de simulación..." (permutación de 4 partículas con `eta=0.4` a lo largo de 5 pasos encadenados, para Vicsek y votante).
 - [x] Bucle de simulación e iteración en memoria reproducibles.
   - Evidencia: ver detalle y comando en la sección "9. Bucle de simulación, semillas por paso y reproducibilidad en memoria" arriba: misma configuración/`base_seed` da corridas idénticas, `base_seed` distinta puede diferir, semillas distintas entre pasos consecutivos, compatible con Vicsek/votante y fuerza bruta/CIM.
-- [ ] Reproducibilidad y lectura independiente de la salida verificadas.
-  - Nota: la reproducibilidad de la *iteración en memoria* (un paso o una corrida de muchos pasos, con la misma semilla) ya está demostrada (secciones 7 y 9). Lo que falta es específicamente la salida a disco (archivos de texto) y su lectura independiente por la animación, que dependen de la escritura de texto (todavía no implementada, ver `plan_desarrollo_tp2/02_motor_y_algoritmos.md` y `DECISIONES_PENDIENTES.md`).
+- [x] Reproducibilidad y lectura independiente de la salida verificadas.
+  - Evidencia: ver detalle y comando en la sección "10. Escritor de salida y CLI" arriba (`tests/test_text_output.cpp`, `tests/test_cli_simulate.cpp`). Cubre archivos idénticos byte a byte con la misma configuración/semilla, lectura autocontenida (metadatos completos en cada archivo, sin depender del motor) y sincronía `va`/`S`/`t`.
+  - Alcance: no valida todavía la lectura desde un consumidor externo real (por ejemplo un script Python de animación), solo que el formato es parseable de forma independiente y autocontenida.
 - [ ] Corridas largas y consenso del votante sin ruido validados como regresión.
   - Nota: sigue en `[ ]` a propósito. Existe evidencia diagnóstica nueva (ver "Regresión diagnóstica: consenso del votante sin ruido" en la sección "6. Votante" arriba): 10/10 semillas alcanzaron consenso exacto en un escenario deliberadamente simplificado (grafo completo, `N=20`, `eta=0`, horizonte de 3000 pasos). Eso demuestra que la regla de votante en sí converge, pero **no** es todavía la validación de "corridas largas" que pide este ítem general de la etapa: falta repetir el control con los parámetros físicos completos del TP (`rc=1`, `L=10`, `N=200/400/800`, movimiento real con `v=0.03`, búsqueda de vecinos geométrica), donde la conectividad espacial sí puede volverse un factor limitante y el horizonte necesario puede ser mucho mayor. No se marca este punto como cerrado hasta tener esa evidencia.
 

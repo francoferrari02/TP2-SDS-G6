@@ -416,6 +416,70 @@ std::vector<Particle> initialize_particles_from_density(
 
 Se revisó `tests/voter_consensus_regression.cpp` (ver también `03_validaciones.md`, sección "6. Votante"): el criterio de "consenso exacto" pasó de comparar orientaciones con una tolerancia `1e-12` a comparar por **igualdad exacta de punto flotante** (`==`, sin tolerancia). Esto es coherente con `eta=0`: `sample_angular_noise` devuelve `0.0` exactamente sin perturbar la suma, y `normalize_angle` (`std::fmod`) es una operación exacta cuando el argumento ya está en `[0,2*pi)`, que es siempre el caso acá. No había ninguna fuente de redondeo que la tolerancia debiera absorber, así que mantener el nombre "consenso exacto" con una comparación exacta es más preciso que la versión anterior (que ya daba el mismo resultado numérico, pero con una tolerancia innecesaria). El escenario (grafo completo, diagnóstico, no un resultado físico del TP) y el hecho de no ser un test de CTest no cambiaron.
 
+## Escritor de salida y CLI productiva
+
+Implementación del contrato aprobado en `plan_desarrollo_tp2/DECISIONES_PENDIENTES.md` (sección "Decisiones resueltas"): dos piezas nuevas, separadas por responsabilidad.
+
+### `src/core/text_output.hpp`: formato de archivo
+
+Solo serialización a un `std::ostream` ya abierto; no toca el sistema de archivos (eso es responsabilidad de la CLI, ver abajo), lo que permite testearlo con un `std::ostringstream` en memoria.
+
+```cpp
+struct RunMetadata { /* model, box_length, interaction_radius, time_step, speed,
+                         rho_label, rho_nominal, particle_count, rho_effective,
+                         eta, base_seed, realization, steps,
+                         observables_stride, trajectory_stride */ };
+struct ObservableRow  { std::size_t t; double va; double s; };
+struct TrajectoryRow  { std::size_t t; std::size_t id; double x, y, theta; };
+
+void write_metadata_header(std::ostream&, const RunMetadata&);
+void write_observables_csv(std::ostream&, const RunMetadata&, const std::vector<ObservableRow>&);
+void write_trajectory_csv(std::ostream&, const RunMetadata&, const std::vector<TrajectoryRow>&);
+```
+
+Cada archivo lleva el mismo bloque de 18 líneas `# clave=valor` (`schema_version`, `model`, `L`, `rc`, `dt`, `v`, `periodic`, `rho_label`, `rho_nominal`, `N`, `rho_effective`, `eta`, `noise_convention`, `base_seed`, `realization`, `steps`, `observables_stride`, `trajectory_stride`), seguido de una única línea de encabezado CSV (`t,va,S` o `t,id,x,y,theta`) y los datos. El stream se imbuye explícitamente con `std::locale::classic()` (separador decimal `.` garantizado, sin importar el locale del sistema); los `double` se escriben con `std::setprecision(std::numeric_limits<double>::max_digits10)`, suficiente para reconstruir el valor exacto al volver a parsearlo.
+
+### `src/cli/simulate_cli.hpp` + `src/cli/simulate.cpp`: CLI productiva
+
+`simulate_cli.hpp` separa dos funciones puras, testeables sin subproceso:
+
+- `parse_arguments(const std::vector<std::string>&) -> ParseResult`: interpreta y valida los argumentos (tipos, signos, la interfaz completa está en `01_especificacion_y_arquitectura.md`, sección "Interfaz de ejecución"). No toca disco.
+- `execute_run(const RunRequest&) -> RunOutcome`: dado un `RunRequest` ya válido, corre la simulación en memoria y escribe los archivos.
+
+`src/cli/simulate.cpp` es un `main()` deliberadamente fino: arma `std::vector<std::string>` desde `argv`, llama a las dos funciones de arriba e informa el resultado.
+
+**Reutilización del motor** (sin modificarlo): `initialize_particles` para el estado inicial (a partir de `--N`, nunca recalculado desde `rho-nominal`), `run_simulation` con un `StateObserver` que en cada paso observado calcula `polarization` y `largest_cluster_fraction` (con `cell_index_neighbors`, nunca fuerza bruta) para `observables.csv`, y opcionalmente vuelca el estado ordenado por `id` a `trajectory.csv`. `L`, `rc`, `dt`, `v` no son opciones de la CLI: se usan los valores por defecto de `Parameters` (las "reglas que no se negocian" del TP).
+
+**Directorio por corrida y no sobrescritura por defecto**: `compute_run_directory` arma `output/<modelo>/<rho_label>/eta_<eta>/steps_<T>/realization_<R>_seed_<SEED>/`. `execute_run` comprueba si ese directorio ya existe *antes* de tocar cualquier archivo; sin `--overwrite` falla ahí mismo sin crear ni modificar nada.
+
+**Semántica de strides**: el motor ejecuta todos los pasos igual, sin importar el stride (el stride solo decide qué se escribe). `observables-stride` por defecto es `1`; la trayectoria está desactivada por defecto, y si se activa sin indicar `trajectory-stride` también usa `1`. `t=0` y `t=steps` se guardan siempre, sean o no múltiplos del stride correspondiente.
+
+**Formateo de nombres de ruta**: `format_eta_for_path` usa `std::numeric_limits<double>::max_digits10` (17 dígitos, con locale `C`) y reemplaza `.`/`,` por `p`, `-` por `m`, y elimina el `+` de exponentes en notación científica (`0.5` → `0p5`, `1.0` → `1`). `format_realization_for_path` rellena con ceros a 3 dígitos (`realization_003`).
+
+### Validación de entradas (revisión de robustez)
+
+`parse_arguments` rechaza, además de las validaciones de tipo/signo originales:
+
+- `--rho-nominal`/`--eta` no finitos (`NaN`, `+inf`, `-inf`), con `std::isfinite`; `--rho-nominal` debe ser estrictamente mayor que cero (antes se aceptaba `<= 0`).
+- `--rho-label` insegura: la validación pasó de una lista negra (rechazar `/`, `\`, espacios) a una lista blanca (`is_safe_path_label`, solo letras, dígitos, `_` y `-`). Esto excluye por construcción `.`, `..` y cualquier secuencia de escape de directorio (`../algo`), sin necesitar casos especiales para cada uno.
+
+### Publicación atómica de archivos (revisión de robustez)
+
+`execute_run` prepara ambos archivos requeridos completos como `.tmp` (abrir, escribir, `flush`, `close`, verificando el estado del stream en cada paso mediante `detail::write_temp_file`) **antes** de publicar nada. Recién después de que ambos `.tmp` están completos y verificados, se publican con `std::filesystem::rename`: primero `trajectory.csv` (si corresponde), `observables.csv` al final (es, por contrato, la señal de que la corrida terminó). Si cualquier paso de escritura, `flush`, `close` o `rename` falla, se limpian los `.tmp` que hayan llegado a crearse (`detail::remove_if_exists_best_effort`, que no ignora un error de limpieza: lo agrega al mensaje de error) y no se toca ningún archivo final. Al sobrescribir sin trayectoria (`--overwrite` sin `--write-trajectory`), la eliminación de un `trajectory.csv` viejo ahora comprueba el resultado del borrado (antes se ignoraba `std::error_code`); si falla, se devuelve error sin publicar nada nuevo.
+
+**Límite de atomicidad documentado, no resuelto**: `std::filesystem::rename` no ofrece una transacción atómica portable entre *dos* archivos en C++17. Si el proceso se interrumpe exactamente entre publicar `trajectory.csv` y publicar `observables.csv`, el directorio puede quedar con una trayectoria nueva pero sin `observables.csv` actualizado. La función nunca informa éxito (`RunOutcome::ok=true`) en ese caso; la recuperación es volver a correr con `--overwrite`. Detalle completo en el comentario de `execute_run` (`src/cli/simulate_cli.hpp`).
+
+### Evidencia de los tests
+
+- `tests/test_text_output.cpp` (registrado en CTest como `text_output`): formato puro sobre `std::ostringstream` — las 18 líneas de metadatos con el prefijo `#` correcto, encabezados exactos `t,va,S`/`t,id,x,y,theta`, cantidad de filas de datos, round-trip exacto de un `double` fraccionario vía `max_digits10`, separador decimal `.`.
+- `tests/test_cli_simulate.cpp` (registrado en CTest como `cli_simulate`): 17 casos sobre `parse_arguments`/`execute_run` reales (sin subproceso, con el sistema de archivos real bajo un directorio temporal). Los 12 casos originales (filas de observables/trayectoria, trayectoria desactivada por defecto, reproducibilidad byte a byte, `vx,vy` reconstruibles, `N` ids distintos por paso, metadatos coincidentes, no sobrescritura sin modificar archivos existentes, `--overwrite` coherente, strides con `t=0`/`t=T`, ruta diferenciada, nombres sin coma ni punto decimal, casos inválidos de CLI) más cinco nuevos de esta revisión: (13) `--rho-label` insegura (`.`, `..`, `../escape`, `rho/2`, `rho 2`, `rho\2`, vacía) rechazada, y etiquetas legítimas (`rho_2`, `rho_1_over_pi`, `rho_1_over_2pi`, `rho-2`, `RHO2`) aceptadas; (14) `format_eta_for_path` no colisiona entre `eta` y `std::nextafter(eta, 1.0)`, y es determinístico; (15) no queda ningún `.tmp` y el directorio tiene exactamente los 2 archivos esperados tras una corrida exitosa; (16) `--overwrite` sin trayectoria elimina la vieja, y repetirlo cuando ya no hay trayectoria que borrar no falla; (17) un error real de escritura (directorio sin permiso de escritura) no publica `observables.csv` ni deja un `.tmp` (se omite la aseveración estricta si el entorno ignora permisos, por ejemplo root en CI). El caso 12 se extendió con `--rho-nominal nan/inf/-1/0` y `--eta nan/inf/-inf`.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los once tests (sin targets nuevos: la revisión amplió `test_cli_simulate.cpp`, no agregó binarios) pasan. `git diff --check` sin errores.
+- Ejecución manual del binario `simulate`: configuración válida (éxito), `--eta nan` (rechazado con mensaje claro), `--rho-nominal inf` (rechazado), `--rho-label ..` (rechazado), repetición sin `--overwrite` (falla sin modificar nada), repetición con `--overwrite` (reemplaza correctamente).
+
+### Alcance no cubierto por esta pieza
+
+No se decidieron valores productivos de stride, ni la grilla de `eta`, `t_eq`, cantidad de realizaciones/semillas ni la definición de barras de error (siguen `[ ]` en `DECISIONES_PENDIENTES.md`). No se resolvió la conversión de las densidades bajas a `N` entero: la CLI la acepta (`--rho-nominal`/`--N` explícitos, sin recalcular), pero no decide qué valores usar en producción. El límite de atomicidad entre dos archivos descrito arriba tampoco se resolvió (es un límite real de la plataforma, documentado, no un pendiente de implementación).
+
 ## Regresión diagnóstica: consenso del votante sin ruido
 
 Herramienta nueva: `tests/voter_consensus_regression.cpp`, compilada como el ejecutable `voter_consensus_regression` (target de CMake, **no** registrado con `add_test`). Verifica, como control de regresión (pedido explícitamente por `AGENTS.md` y por la sección "Caso de validación: votante sin ruido" de `bibliografia/teoria_tp2_automatas_off_lattice.md`), que el modelo votante con `eta=0` puede alcanzar consenso polar exacto en un sistema finito.
@@ -444,10 +508,10 @@ Un diseño válido puede guardar un solo vector de partículas y buffers auxilia
 
 ## Salidas y costo
 
-- El escritor de trayectoria se puede apagar por completo.
-- El log escalar puede escribirse cada paso o con *stride*; para justificar estacionariedad conviene cada paso en pilotos.
-- Comprobar errores de apertura/escritura.
-- El motor no crea gráficos ni depende de Matplotlib.
+- El escritor de trayectoria se puede apagar por completo. **Implementado**: `trajectory.csv` solo se escribe con `--write-trajectory`; `observables.csv` se escribe siempre (ver "Escritor de salida y CLI productiva" arriba).
+- El log escalar puede escribirse cada paso o con *stride*; para justificar estacionariedad conviene cada paso en pilotos. **Implementado**: `--observables-stride`/`--trajectory-stride`, con `t=0` y `t=steps` garantizados siempre. Los valores concretos a usar en producción siguen sin decidirse.
+- Comprobar errores de apertura/escritura. **Implementado**: `execute_run` revisa `std::ofstream`/`std::error_code` en cada apertura y `rename`, y falla con un mensaje explícito sin dejar archivos a medio escribir (se escribe a `.tmp` primero).
+- El motor no crea gráficos ni depende de Matplotlib. Sigue siendo así: ni `text_output.hpp` ni la CLI dependen de ninguna biblioteca de graficación.
 
 ## Riesgos específicos
 
@@ -468,6 +532,9 @@ Un diseño válido puede guardar un solo vector de partículas y buffers auxilia
   - Evidencia: `tests/test_neighbor_search_cim.cpp` compara listas completas de IDs en 13 familias de casos; `ctest --test-dir build --output-on-failure` pasa los ocho tests registrados.
 - [x] `S` usa las mismas aristas periódicas que la interacción.
   - Evidencia: `largest_cluster_size`/`largest_cluster_fraction` (`src/core/observables.hpp`) reciben las listas de vecinos ya calculadas por `brute_force_neighbors`/`cell_index_neighbors` (que ya aplican `d <= rc` con distancia mínima periódica) y no recalculan ninguna distancia; `tests/test_observables.cpp` incluye un caso explícito de vecinos cruzando el borde periódico (`x=9.9`/`x=0.1`) y otro que compara el resultado usando fuerza bruta y CIM sobre el mismo estado.
-- [ ] Se puede ejecutar sin trayectoria y con log escalar.
-- [ ] Todas las salidas incluyen parámetros y semilla.
+- [x] Se puede ejecutar sin trayectoria y con log escalar.
+  - Evidencia: `tests/test_cli_simulate.cpp`, caso 2 (sin `--write-trajectory`, `trajectory.csv` no existe y `observables.csv` sí); ejecución manual documentada arriba.
+- [x] Todas las salidas incluyen parámetros y semilla.
+  - Evidencia: `write_metadata_header` escribe las 18 claves obligatorias (incluyendo `base_seed`, `realization`, `L`, `rc`, `dt`, `v`, `eta`, `rho_nominal`/`rho_effective`) en ambos archivos; `tests/test_cli_simulate.cpp` caso 6 compara esos metadatos contra la configuración pedida.
 - [ ] El código queda listo para la suite de la etapa 3, pero todavía no se autoriza producción.
+  - Estado: el escritor y la CLI están implementados y probados, pero el protocolo experimental (grilla de `eta`, `t_eq`, realizaciones, barras de error, strides productivos) sigue sin decidirse; no se autoriza ningún barrido definitivo todavía.

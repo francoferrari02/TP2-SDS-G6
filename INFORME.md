@@ -23,26 +23,28 @@ Las densidades principales son `rho=2,4,8`, equivalentes a `N=200,400,800`.
 ## Estado actual
 
 La especificación base de la Etapa 1 está documentada, aunque su cierre formal
-sigue pendiente porque todavía falta congelar el formato de salida y el
-protocolo experimental. La Etapa 2 se encuentra en progreso. Además de
-la búsqueda de vecinos por fuerza bruta (oráculo de referencia) y el Cell
-Index Method (CIM, el algoritmo eficiente de búsqueda de vecinos), ya están
-implementadas y validadas las dos reglas de orientación (Vicsek y votante),
-el paso temporal completo que las conecta con el movimiento de las
-partículas (respetando la sincronía y el borde periódico), los dos
-observables principales del TP (la polarización `va` y la fracción `S` del
-cluster más grande) y un bucle reutilizable que encadena muchos pasos de
-simulación, derivando una semilla distinta por paso. Todavía faltan la
-escritura de texto y la CLI.
+sigue pendiente porque todavía falta congelar el protocolo experimental (el
+formato de salida sí quedó congelado e implementado en esta tarea). La Etapa 2
+se encuentra en progreso. Además de la búsqueda de vecinos por fuerza bruta
+(oráculo de referencia) y el Cell Index Method (CIM, el algoritmo eficiente de
+búsqueda de vecinos), ya están implementadas y validadas las dos reglas de
+orientación (Vicsek y votante), el paso temporal completo que las conecta con
+el movimiento de las partículas (respetando la sincronía y el borde
+periódico), los dos observables principales del TP (la polarización `va` y la
+fracción `S` del cluster más grande), un bucle reutilizable que encadena
+muchos pasos de simulación derivando una semilla distinta por paso, y ahora
+también el escritor de salida (`observables.csv`/`trajectory.csv`) y una CLI
+productiva (`simulate`) que lo conecta todo. Todavía falta decidir el
+protocolo estadístico que se va a correr con esa CLI.
 
 La Etapa 3 también está abierta: ya tiene validadas varias piezas puntuales,
 incluidas la reproducibilidad de la iteración en memoria, el número medio
 inicial de vecinos compatible con la teoría (ahora generado con el
 inicializador productivo del estado, en vez de una función propia del
-test), y evidencia diagnóstica de que el votante sin ruido alcanza consenso
-exacto en un escenario controlado (grafo completo, `N=20`, 10 semillas).
-Todavía faltan la salida reproducible a disco y la validación de consenso
-con los parámetros físicos completos del TP.
+test), evidencia diagnóstica de que el votante sin ruido alcanza consenso
+exacto en un escenario controlado (grafo completo, `N=20`, 10 semillas), y la
+reproducibilidad/lectura independiente de los archivos de salida. Todavía
+falta la validación de consenso con los parámetros físicos completos del TP.
 
 ### Resumen de avance
 
@@ -60,26 +62,32 @@ Implementado y validado en memoria:
   controlado (grafo completo, no los parámetros físicos completos del TP);
 - inicializador productivo del estado (posiciones y orientaciones uniformes,
   semilla explícita), reutilizado por la validación de vecinos medios y
-  directamente compatible con el bucle de simulación.
+  directamente compatible con el bucle de simulación;
+- escritor de salida (`observables.csv`/`trajectory.csv`, dos archivos CSV
+  autocontenidos por corrida) y CLI productiva (`simulate`), con directorio
+  propio por corrida, trayectoria opcional, strides configurables y
+  protección contra sobrescritura accidental.
 
 Todavía no implementado o no validado experimentalmente:
 
-- salida de texto y CLI;
-- series temporales persistidas de `va(t)` y `S(t)`;
 - promedios estacionarios, `t_eq`, realizaciones y barras de error;
+- valores productivos concretos de stride, grilla de `eta` y semillas;
 - pilotos, barridos, figuras y animaciones;
 - benchmark contra TP1 y entregables finales.
 
-La suite actual contiene ocho tests y debe seguir pasando completa después de
-cada cambio del motor.
+La suite actual contiene once tests (`periodic_geometry`,
+`neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`,
+`observables`, `simulation`, `mean_neighbors`, `initialization`,
+`text_output`, `cli_simulate`) y debe seguir pasando completa después de cada
+cambio del motor.
 
 ## Criterio de interpretación
 
 Una funcionalidad se considera implementada en este informe cuando existe
 código y un test reproducible que la verifica. Esto no equivale a tener lista
-la simulación experimental: todavía falta guardar series `va(t)` y `S(t)` a
-disco, elegir el estacionario y repetir las corridas con un protocolo
-estadístico.
+la simulación experimental: aunque ya se pueden guardar series `va(t)` y
+`S(t)` a disco con la CLI, todavía falta elegir el estacionario y repetir las
+corridas con un protocolo estadístico completo.
 
 ## Implementación realizada
 
@@ -395,10 +403,10 @@ ctest --test-dir build --output-on-failure
 Resultado: `100% tests passed, 0 tests failed out of 5`.
 
 Con esto se completa, dentro de la Etapa 3, el punto "Sincronía y
-movimiento backward". La Etapa 2 y la Etapa 3 siguen abiertas en general:
-en ese momento todavía faltaban los observables, los clusters, la salida de
-texto y la CLI. Los dos primeros se documentan en la sección siguiente; la
-salida de texto y la CLI siguen pendientes.
+movimiento backward". Esta sección conserva el estado histórico de esa
+tarea: en ese momento todavía faltaban los observables, los clusters, la
+salida de texto y la CLI. Esas piezas se implementaron posteriormente y su
+estado actual se resume en las secciones correspondientes de este informe.
 
 ## Observables: polarización y cluster más grande
 
@@ -499,10 +507,10 @@ ctest --test-dir build --output-on-failure
 Resultado: `100% tests passed, 0 tests failed out of 6`.
 
 Con esto se completa, dentro de la Etapa 3, el punto "`va` y `S` dentro de
-límites y casos manuales correctos". La Etapa 2 y la Etapa 3 siguen abiertas
-en general: todavía falta el bucle completo de simulación, la salida de
-texto y la CLI (ver "Pendientes y decisiones abiertas" al final de este
-archivo).
+límites y casos manuales correctos". Esta sección describe el estado de la
+tarea cuando se implementaron los observables; posteriormente se agregaron
+el bucle completo de simulación, la salida de texto y la CLI. Ver sus
+secciones específicas y el resumen final para conocer el estado vigente.
 
 ## Bucle de simulación y semillas por paso
 
@@ -591,12 +599,10 @@ ctest --test-dir build --output-on-failure
 Resultado: `100% tests passed, 0 tests failed out of 7`.
 
 Con esto se completa, dentro de la Etapa 3, el punto "bucle de simulación,
-semillas por paso y reproducibilidad en memoria". Queda cubierta la
-reproducibilidad de la iteración en memoria (mismo `base_seed`, misma
-corrida); todavía falta la reproducibilidad de la salida a disco, que
-depende de la escritura de texto (ver "Pendientes y decisiones abiertas" al
-final de este archivo). Tampoco se congeló en esta tarea el formato de
-salida ni la CLI.
+semillas por paso y reproducibilidad en memoria". Esta sección registra el
+estado de esa tarea antes de implementar la salida a disco; posteriormente
+se congeló e implementó el formato de salida y la CLI, cuya evidencia figura
+en la sección "Escritor de salida y CLI".
 
 ## Validación del número medio de vecinos
 
@@ -726,6 +732,138 @@ parámetros; que funcione con `N=0`; que el estado generado se pueda usar
 directamente con `run_simulation`; y que el resultado no dependa del reloj
 de la computadora.
 
+## Escritor de salida y CLI
+
+Esta sección describía originalmente una **propuesta** de formato de salida.
+Esa propuesta ya fue aprobada e **implementada**: existe un escritor de
+archivos (`src/core/text_output.hpp`) y una interfaz de línea de comandos
+productiva (`src/cli/simulate_cli.hpp`, `src/cli/simulate.cpp`, ejecutable
+`simulate`). El detalle completo, con las alternativas comparadas y el
+razonamiento de cada elección, además del registro formal de la decisión
+aprobada, está en `plan_desarrollo_tp2/DECISIONES_PENDIENTES.md`.
+
+En lenguaje simple, la idea implementada es: cada corrida (una combinación de
+modelo, densidad, `eta`, semilla y número de realización) produce su propio
+directorio con **dos** archivos de texto separados, nunca uno solo y nunca
+mezclados con otra corrida:
+
+- un archivo de **observables**, chico, con una línea por paso de tiempo:
+  el paso `t`, la polarización `va(t)` y la fracción del cluster más grande
+  `S(t)`. Esto es lo único que hace falta para las curvas de series
+  temporales y para las curvas `<va>` vs. `eta`, `<S>` vs. `eta` y `<va>`
+  vs. `<S>` que pide el enunciado;
+- un archivo de **trayectoria**, potencialmente mucho más grande, con una
+  línea por cada partícula en cada paso: el paso `t`, el `id` de la
+  partícula, su posición `x,y` y su orientación `theta`. Esto es lo único
+  que necesita el módulo de animación para dibujar el vector velocidad de
+  cada partícula (no hace falta guardar `vx,vy` por separado, porque la
+  velocidad se reconstruye a partir de `theta` y de la velocidad fija `v`,
+  que queda registrada en el propio archivo).
+
+El archivo de trayectoria es opcional: está desactivado por defecto, y se
+activa explícitamente con `--write-trajectory` en la CLI, sin dejar de
+escribir el archivo de observables. Así, un barrido grande con muchas
+combinaciones y realizaciones puede evitar generar una cantidad enorme de
+datos de trayectoria, y esa trayectoria completa se reserva solo para los
+pocos casos elegidos para animar.
+
+Ambos archivos empiezan con dieciocho líneas de comentario (con `#`) que
+identifican de forma autocontenida qué corrida los produjo: modelo, `L`,
+`rc`, `dt`, `v`, densidad nominal, `N`, densidad efectiva, `eta`, semilla
+base, número de realización y más. Esto es justamente lo que garantiza que un
+archivo, aislado, sea reproducible y legible sin depender de ningún otro
+archivo ni de recordar cómo se llamó el programa que lo generó. El separador
+es la coma (formato CSV), el más simple de leer sin ambigüedad tanto desde
+Python (`pandas.read_csv`) como desde C++ o cualquier otra herramienta; el
+separador decimal es siempre el punto, sin importar la configuración regional
+de la computadora donde corra el motor.
+
+Cada corrida escribe en su propio directorio, con una estructura que ya deja
+diferenciados el modelo, la densidad, `eta`, la cantidad de pasos, el número
+de realización y la semilla, por ejemplo:
+
+```text
+output/vicsek/rho_2/eta_0p5/steps_2000/realization_003_seed_12345/
+  observables.csv
+  trajectory.csv
+```
+
+Si ese directorio ya existe, la CLI se niega a escribir nada (ni siquiera lo
+crea) salvo que se pida explícitamente `--overwrite`; con `--overwrite`, si la
+corrida nueva no pide trayectoria, se elimina cualquier `trajectory.csv` viejo
+para que no queden datos de una corrida anterior mezclados con los nuevos.
+Los archivos se escriben primero con un nombre temporal y recién se renombran
+al terminar, para no dejar nunca un archivo a medio escribir si algo falla en
+el medio.
+
+Se compararon brevemente tres alternativas para el formato de archivo: un
+único archivo que mezclara observables y trayectoria (descartada por
+desperdiciar espacio y mezclar dos tipos de fila muy distintos en el mismo
+archivo), un archivo separado por cada paso de tiempo al estilo de algunos
+simuladores de partículas (descartada como formato general porque,
+multiplicada por todas las combinaciones y realizaciones del barrido,
+generaría una cantidad de archivos difícil de manejar), y los dos archivos
+por corrida descritos arriba, que fue la alternativa elegida.
+
+Lo que todavía no está decidido es la **frecuencia productiva** de muestreo:
+la CLI ya acepta un "stride" (cada cuántos pasos se guarda una fila) tanto
+para observables como para trayectoria, y garantiza guardar siempre el primer
+y el último paso aunque no sean múltiplos del stride, pero qué valores
+concretos de stride se van a usar en el barrido definitivo sigue siendo una
+decisión pendiente (ver "Pendientes y decisiones abiertas").
+
+### Revisión de robustez (validación de entradas y publicación de archivos)
+
+Después de implementar el escritor y la CLI, se hizo una revisión enfocada
+en qué pasa con entradas raras o con fallas del sistema de archivos, sin
+tocar el formato público ni agregar ninguna funcionalidad nueva. Se
+corrigieron cuatro puntos:
+
+1. **Valores numéricos sin sentido físico.** `--rho-nominal` y `--eta` ahora
+   rechazan explícitamente `NaN`, `+infinito` y `-infinito` (antes solo se
+   comprobaba el signo); `--rho-nominal` además tiene que ser estrictamente
+   mayor que cero (antes se aceptaba cero o negativo).
+2. **Nombres de densidad peligrosos.** `--rho-label` (la etiqueta que se usa
+   tal cual como nombre de carpeta, por ejemplo `rho_2`) antes solo
+   rechazaba espacios y barras; ahora solo acepta letras, números, `_` y
+   `-`. Con esa restricción, valores como `.`, `..` o `../escape` quedan
+   excluidos automáticamente, sin tener que pensar en cada caso raro por
+   separado: si no está en la lista de caracteres permitidos, se rechaza.
+3. **Colisión de nombres por redondeo.** El segmento `eta_...` del nombre de
+   carpeta se arma redondeando `eta` a una cantidad de dígitos. Antes esa
+   cantidad era fija (10 dígitos), lo que en teoría podía hacer que dos
+   valores de `eta` distintos pero muy cercanos terminaran generando el
+   mismo nombre de carpeta y se mezclaran sin darse cuenta. Ahora se usa la
+   misma cantidad de dígitos que ya se usaba dentro de los archivos (17,
+   suficiente para que cualquier número de punto flotante se pueda
+   reconstruir exactamente), así que dos valores distintos de `eta` nunca
+   producen el mismo nombre.
+4. **Publicación de archivos más cuidadosa.** Antes, la CLI escribía el
+   archivo temporal de observables y lo renombraba al nombre final, y recién
+   después hacía lo mismo con la trayectoria. Eso significaba que, si la
+   escritura de la trayectoria fallaba a mitad de camino, ya podía haber
+   quedado publicado un `observables.csv` nuevo sin su `trajectory.csv`
+   correspondiente. Ahora se escriben y verifican **los dos** archivos
+   temporales completos primero (comprobando que se pudieron abrir, escribir
+   y cerrar sin errores), y recién después se publican con el nombre final:
+   primero la trayectoria, y `observables.csv` al final (porque
+   `observables.csv` es, por contrato, la señal de que la corrida terminó
+   bien). Si algo falla en cualquier paso, se borran los archivos temporales
+   que se hayan llegado a crear y no se toca ningún archivo final. Si
+   `--overwrite` tiene que borrar una trayectoria vieja porque la corrida
+   nueva no pide trayectoria, ahora se comprueba que el borrado haya
+   funcionado; si falla, se informa error en vez de seguir adelante como si
+   nada.
+
+**Límite real que queda documentado, no resuelto**: no existe en C++17
+portable una forma de renombrar dos archivos como una única operación
+atómica. Si el programa se interrumpiera exactamente entre publicar
+`trajectory.csv` y publicar `observables.csv` (por ejemplo, un corte de luz
+en ese instante preciso), el directorio podría quedar con una trayectoria
+nueva pero sin `observables.csv` actualizado. La función nunca informa éxito
+en ese caso, y la forma de recuperarse es simplemente volver a correr la
+misma corrida con `--overwrite`.
+
 ## Regresión del votante sin ruido
 
 **Consenso polar** significa que, en algún momento, todas las partículas
@@ -809,23 +947,24 @@ mismos sorteos en cada paso.
 
 ## Próximos pasos
 
-El siguiente desarrollo es la escritura de texto (formato de salida todavía
-sin congelar) y la interfaz de ejecución (CLI), que van a apoyarse en el
-observador de `run_simulation` para registrar `va(t)`/`S(t)` y/o la
-trayectoria sin mezclar esa responsabilidad con el bucle de simulación, y en
-el inicializador productivo (`src/core/initialization.hpp`) ya conectado con
-la simulación y con la validación de vecinos medios (ver sección
-"Inicialización reproducible del estado" arriba).
+El siguiente desarrollo es el protocolo estadístico (grilla de `eta`, `t_eq`,
+realizaciones, semillas, barras de error y valores productivos de stride),
+que se va a apoyar en la escritura de texto y la CLI ya implementadas
+(`src/core/text_output.hpp`, `src/cli/simulate_cli.hpp`/`simulate.cpp`, ver
+"Escritor de salida y CLI" arriba) y en el inicializador productivo
+(`src/core/initialization.hpp`) ya conectado con la simulación y con la
+validación de vecinos medios (ver sección "Inicialización reproducible del
+estado" arriba). Recién con ese protocolo decidido corresponde ejecutar
+pilotos y, después, el barrido definitivo.
 
 ## Pendientes y decisiones abiertas
 
-- Falta la escritura de texto (salida a disco).
-- Falta congelar el formato público de los archivos de salida: sigue siendo
-  una decisión abierta, no se congeló en esta tarea.
-- Falta la CLI.
 - Falta el protocolo estadístico completo: promedio estacionario de los
   observables, elección de `t_eq`, realizaciones independientes y barras de
   error.
+- Falta decidir los valores productivos de stride (`--observables-stride`,
+  `--trajectory-stride`) que se usarán en el barrido definitivo: el
+  mecanismo ya está implementado y probado, pero no los números concretos.
 - Falta validar el consenso del votante sin ruido con los parámetros
   físicos completos del TP (densidad, `rc`, movimiento real): existe
   evidencia diagnóstica nueva en un escenario simplificado (grafo completo,
@@ -835,7 +974,8 @@ la simulación y con la validación de vecinos medios (ver sección
   duración de las corridas.
 - Faltan los barridos definitivos y las figuras.
 - Siguen abiertas las decisiones experimentales sobre `eta`, duración,
-  realizaciones, semillas, barras de error y formato final de salida.
+  realizaciones, semillas y barras de error (el formato de salida ya está
+  congelado e implementado).
 - Falta decidir, antes del barrido de clusters, cómo convertir las densidades
   bajas `1/pi`, `1/(2*pi)` y `1/(3*pi)` a un número entero de partículas.
 - Falta confirmar si esas densidades bajas también deben incluirse en el

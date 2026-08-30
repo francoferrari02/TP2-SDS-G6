@@ -132,43 +132,51 @@ No duplicar dos motores. `model` cambia únicamente la regla de orientación.
 - La implementación debe respetar actualización sincrónica y no depender del orden de almacenamiento.
 - La forma concreta de organizar los generadores aleatorios es una decisión interna, siempre que pase esas verificaciones.
 
-## Interfaz de ejecución sugerida
+## Interfaz de ejecución (implementada)
 
 ```text
-simulate --model vicsek|voter --rho RHO --eta ETA --steps T --seed S
-         --scalar-out PATH [--trajectory-out PATH|none]
-         [--scalar-stride K] [--trajectory-stride K]
+simulate
+  --model vicsek|voter
+  --rho-nominal RHO
+  --rho-label LABEL
+  --N N
+  --eta ETA
+  --steps T
+  --base-seed SEED
+  --realization R
+  --output-dir PATH
+  [--write-trajectory]
+  [--observables-stride K]
+  [--trajectory-stride K]
+  [--overwrite]
 ```
 
-Los nombres de opciones no son fijados por la cátedra. Lo obligatorio es ejecutar de forma reproducible ambos modelos con los parámetros pedidos y registrar ruido, densidad, duración y semilla.
+Implementada en `src/cli/simulate.cpp` (ejecutable `simulate`) sobre la lógica reutilizable de `src/cli/simulate_cli.hpp` (`parse_arguments`/`execute_run`). `L`, `rc`, `dt` y `v` no son opciones: son las "reglas que no se negocian" del TP y se usan los valores por defecto de `Parameters`. `N` se recibe explícitamente y nunca se recalcula a partir de `rho-nominal` (solo se verifica consistencia para `rho=2,4,8`). Una revisión posterior reforzó la validación de entradas (`--rho-nominal`/`--eta` rechazan `NaN`/`inf`; `--rho-label` usa una lista blanca de caracteres seguros para nombre de directorio) y la robustez de la publicación de archivos (ver "Publicación atómica de archivos" en `02_motor_y_algoritmos.md`, incluida la limitación de atomicidad entre dos archivos que queda documentada, no resuelta). Detalle completo de la interfaz, validaciones y ejemplo de ejecución en `02_motor_y_algoritmos.md`.
 
-## Formatos de texto
+## Formatos de texto (implementado)
 
-### Escalares sugeridos
+Formato congelado (decisión resuelta, ver `DECISIONES_PENDIENTES.md`, sección "Decisiones resueltas"). Los esbozos anteriores de esta sección (`t va S` separado por espacios y `t id x y vx vy`) quedan reemplazados por el contrato real:
+
+Cada corrida escribe su propio directorio:
 
 ```text
-t va S
-0 0.0712 0.84
-1 0.0831 0.86
+output/<modelo>/<rho_label>/eta_<eta>/steps_<T>/realization_<R>_seed_<SEED>/
+  observables.csv
+  trajectory.csv
 ```
 
-### Trayectoria obligatoria en texto
+`observables.csv` siempre existe; `trajectory.csv` solo si se pidió `--write-trajectory`. Ambos son CSV UTF-8 (separador `,`, punto decimal, locale `C`), con un bloque de metadatos `# clave=valor` autocontenido (18 claves) seguido del encabezado (`t,va,S` o `t,id,x,y,theta`) y los datos. `theta` reemplaza a `vx,vy` (se reconstruye con `v`, ya en la cabecera). Implementado en `src/core/text_output.hpp` (serialización) y `src/cli/simulate_cli.hpp`/`src/cli/simulate.cpp` (orquestación: directorios, no sobrescritura por defecto, escritura atómica). Detalle completo, con los 18 metadatos, la semántica de strides y la interfaz de la CLI, en `02_motor_y_algoritmos.md`.
 
-```text
-t id x y vx vy
-0 0 ...
-0 1 ...
-```
-
-El formato exacto no está fijado. Debe ser simple, estable y documentar como mínimo el tiempo y las posiciones/velocidades necesarias para que la animación reconstruya cada cuadro sin ejecutar el motor. Para el barrido pueden guardarse solo las series escalares y reservar las trayectorias completas para los casos animados.
+Lo que sigue sin definir es la **frecuencia productiva** de muestreo (qué valores concretos de stride se usarán en el barrido definitivo), no el formato en sí.
 
 ## Criterio de cierre
 
 - [ ] Existe un documento/configuración con todas las convenciones anteriores.
-  - Estado: en progreso. Las convenciones del modelo están documentadas; todavía falta congelar mediante evidencia el protocolo experimental y el formato final de salida.
+  - Estado: en progreso. Las convenciones del modelo y el formato de salida están documentados y congelados; todavía falta el protocolo experimental (grilla de `eta`, `t_eq`, realizaciones, barras de error, valores productivos de stride).
 - [x] La representación base del estado (`Parameters` y `Particle`) fue implementada en `src/core/model.hpp`.
   - Evidencia: `cmake -S . -B build && cmake --build build` compila la biblioteca base y el test geométrico.
-- [ ] El formato de salida está documentado y permite una animación independiente.
+- [x] El formato de salida está documentado y permite una animación independiente.
+  - Evidencia: `src/core/text_output.hpp`, `src/cli/simulate_cli.hpp`, `src/cli/simulate.cpp`; `tests/test_text_output.cpp` y `tests/test_cli_simulate.cpp` (17 casos en la versión actual), registrados en CTest. `trajectory.csv` guarda `t,id,x,y,theta` por partícula y paso, suficiente para reconstruir cada cuadro de la animación sin ejecutar el motor (ver `02_motor_y_algoritmos.md`).
 - [ ] Las semillas son explícitas y el resultado no depende del orden de almacenamiento.
 - [ ] El equipo puede explicar con un ejemplo la diferencia entre mover con `theta(t)` y con `theta(t+1)`.
 - [ ] No queda ninguna decisión de modelo heredada implícitamente del TP1 o del repositorio externo.

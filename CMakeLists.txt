@@ -53,3 +53,14 @@ add_test(NAME initialization COMMAND test_initialization)
 # y 03_validaciones.md).
 add_executable(voter_consensus_regression tests/voter_consensus_regression.cpp)
 target_link_libraries(voter_consensus_regression PRIVATE tp2_core)
+
+add_executable(simulate src/cli/simulate.cpp)
+target_link_libraries(simulate PRIVATE tp2_core)
+
+add_executable(test_text_output tests/test_text_output.cpp)
+target_link_libraries(test_text_output PRIVATE tp2_core)
+add_test(NAME text_output COMMAND test_text_output)
+
+add_executable(test_cli_simulate tests/test_cli_simulate.cpp)
+target_link_libraries(test_cli_simulate PRIVATE tp2_core)
+add_test(NAME cli_simulate COMMAND test_cli_simulate)
