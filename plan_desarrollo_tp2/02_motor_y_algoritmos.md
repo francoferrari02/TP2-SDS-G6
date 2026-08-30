@@ -171,7 +171,7 @@ Con este diseño, la orientación nueva de la partícula `id=k` depende únicame
   13. Promedio vectorial de Vicsek al cruzar `0/2*pi` con otro par de ángulos (`350°` y `10°`), da cerca de `0°`.
   14. Invarianza al orden de almacenamiento: con la misma `seed`, permutar el vector de partículas (y las listas de vecinos correspondientes, siempre expresadas en `id`) da, para cada `id`, exactamente la misma orientación nueva en ambas reglas. Este caso se agregó durante la tarea del paso temporal (ver más abajo), al detectar con el test de `time_step` que el diseño original (un único `std::mt19937&` compartido, consumido en orden de índice de vector) no lo garantizaba.
 - La función auxiliar `angular_distance` mide distancia angular mínima (en `[0,pi]`) para comparar orientaciones sin ambigüedad de wraparound, y las comparaciones de rango usan desigualdades con tolerancia numérica (`1e-6`/`1e-9`), nunca igualdad exacta de números de punto flotante salvo cuando la semilla y la distribución están completamente controladas (por ejemplo `eta=0`, o comparación de dos corridas con la misma semilla).
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los ocho tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`, `mean_neighbors`) pasan.
 
 ## Paso sincrónico/backward
 
@@ -226,7 +226,7 @@ std::vector<Particle> advance_time_step(
   12. Los `id` se conservan en el estado nuevo, en la misma posición del vector de entrada.
   13. Cadena de dos pasos: se verifica que el segundo paso construye sus vecinos a partir de la posición resultante del primer paso (no de la posición original), moviendo dos partículas hasta quedar vecinas recién después del primer paso.
 - Al escribir el test 5 con el generador original (`std::mt19937&` compartido) se detectó que el resultado sí dependía del orden de almacenamiento, contradiciendo el requisito de sincronía/permutación de `03_validaciones.md` sección 7. Esto llevó a rediseñar `vicsek_update`/`voter_update` para derivar un sub-generador por `id` (ver `02_motor_y_algoritmos.md`, sección "Generador aleatorio y orden de almacenamiento" dentro de "Reglas de orientación", y el caso 14 agregado a `test_rules.cpp`).
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los ocho tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`, `mean_neighbors`) pasan.
 
 ## Observables: polarización y componente gigante
 
@@ -299,7 +299,7 @@ El mismo algoritmo se ejecuta sin cambios sobre vecinos generados por `brute_for
   8. IDs no consecutivos (`7, 20, 99`): se verifica que el algoritmo usa `id` y no la posición en el vector para resolver la vecindad.
   9. `largest_cluster_size` no modifica la lista de vecinos de entrada.
   10. Transitividad verificada explícitamente y no solo la cantidad de vecinos directos: cadena `A-B`, `B-C`, `C-D` (cada partícula con a lo sumo 2 vecinos directos) debe dar un único cluster de tamaño 4.
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los ocho tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`, `mean_neighbors`) pasan.
 
 ## Bucle de simulación
 
@@ -361,8 +361,25 @@ Consecuencias verificadas por test (ver más abajo):
   8. Búsqueda de vecinos: la misma corrida (`N=35`, 6 pasos, Vicsek) con `brute_force_neighbors` y con `cell_index_neighbors` da el mismo estado final y los mismos estados observados en cada paso.
   9. Partícula aislada con `eta=0` (votante): conserva exactamente su orientación en todos los pasos, y su posición en cada paso sigue la ecuación `x0 + v*cos(theta)*dt*step` (verificado paso a paso, no solo al final).
   10. Cadena de pasos: dos partículas separadas `1.02` en `x` (fuera de `rc=1`) que se acercan; en el primer paso todavía no son vecinas (conservan su `theta` propia, votante con `eta=0`) y quedan separadas por `0.96` (dentro de `rc`); en el segundo paso, calculado ya con las posiciones actualizadas del primero, sí se ven como vecinas y cada una copia la orientación de la otra. Prueba que el paso `t` usa las posiciones de `t-1`, no las iniciales.
-- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los siete tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`) pasan.
+- Comando ejecutado: `cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure` → los ocho tests (`periodic_geometry`, `neighbor_search_bruteforce`, `neighbor_search_cim`, `rules`, `time_step`, `observables`, `simulation`, `mean_neighbors`) pasan.
 - Alcance exacto de este cierre: cubre la iteración en memoria del bucle completo (sincronía, backward, reproducibilidad, invariancia al orden, semillas por paso, compatibilidad Vicsek/votante y fuerza bruta/CIM). No incluye escritura de texto, CLI, promedios estacionarios, `t_eq` ni realizaciones independientes, que siguen pendientes.
+
+## Validación estadística: número medio inicial de vecinos
+
+Implementado como validación (no como pieza del motor) en `tests/test_mean_neighbors.cpp`, registrado en CTest como `mean_neighbors`. No modifica `cell_index_neighbors` ni ninguna otra pieza de `neighbor_search.hpp`: solo genera posiciones uniformes iniciales con semillas explícitas y mide el promedio de vecinos externos con el CIM, para las tres densidades obligatorias (`rho=2,4,8` -> `N=200,400,800`, `L=10`, `rc=1`), 40 realizaciones independientes por densidad. Los valores medidos quedan dentro de un 5% del valor teórico `rho*pi*rc^2` y respetan el orden estricto `mean_k(2)<mean_k(4)<mean_k(8)`. Detalle completo (semillas, criterio de aceptación y justificación de la tolerancia) en `03_validaciones.md`, sección "3. Número medio inicial de vecinos". No se modificó el algoritmo de vecinos: no fue necesario, ya que no se encontró ningún error de geometría, periodicidad o radio en esta validación.
+
+`03_validaciones.md` distingue además, para esta misma validación, entre la aproximación asintótica que usa la cátedra (`rho*pi*rc^2`) y la expectativa finita exacta para vecinos externos en una caja periódica (`(N-1)*pi*rc^2/L^2`); ambas están documentadas ahí junto con la explicación de por qué difieren (una partícula nunca se cuenta a sí misma como vecina). El criterio de aceptación del test no cambió: sigue comparando contra `rho*pi*rc^2`.
+
+## Regresión diagnóstica: consenso del votante sin ruido
+
+Herramienta nueva: `tests/voter_consensus_regression.cpp`, compilada como el ejecutable `voter_consensus_regression` (target de CMake, **no** registrado con `add_test`). Verifica, como control de regresión (pedido explícitamente por `AGENTS.md` y por la sección "Caso de validación: votante sin ruido" de `bibliografia/teoria_tp2_automatas_off_lattice.md`), que el modelo votante con `eta=0` puede alcanzar consenso polar exacto en un sistema finito.
+
+- **Escenario elegido**: sistema pequeño (`N=20`) con una búsqueda de vecinos **completa** controlada — una función de vecinos (compatible con `NeighborSearchFunction`, ver `simulation.hpp`) que devuelve a todas las demás partículas como vecinas de cada partícula, sin usar `rc` ni posición. Esto aísla la dinámica de la regla de votante de la conectividad espacial: se descartó deliberadamente usar los parámetros físicos completos del TP (`v=0.03`, `L=10`, vecinos geométricos) con un horizonte largo, porque mezclaría la propiedad de convergencia de la regla con la velocidad de difusión espacial, algo que el TP no pide afirmar como resultado. Reutiliza `tp2::run_simulation` sin modificar `rules.hpp`, `time_step.hpp` ni `simulation.hpp`.
+- **Semillas y horizonte**: 10 semillas explícitas (`700001` a `700010`), 3000 pasos por corrida. Son parámetros de esta regresión puntual, no un protocolo experimental (no se reutilizan como grilla de `eta`, `t_eq` ni cantidad de realizaciones del barrido).
+- **Criterio de consenso**: con `eta=0`, `voter_update` nunca crea una orientación nueva (solo copia una existente), así que el conjunto de orientaciones distintas del sistema nunca puede crecer. Se define consenso exacto como que ese conjunto llegue a tener un único valor (comparación exacta con tolerancia `1e-12`, que solo absorbe redondeo de `normalize_angle`). La herramienta reporta, por semilla: `va` inicial y final, cantidad de orientaciones distintas inicial y final, si hubo consenso exacto y en qué paso ocurrió por primera vez.
+- **Resultado obtenido** (ver también `03_validaciones.md`, sección "6. Votante"): 10/10 semillas alcanzaron consenso exacto, entre el paso 17 y el paso 64 (muy por debajo del horizonte de 3000). No hizo falta ejercitar la rama diagnóstica para semillas sin consenso.
+- **Por qué no es un test de CTest**: la herramienta no tiene ningún assert rígido sobre alcanzar consenso (solo sobre invariantes que sí serían un bug real: `va` fuera de `[0,1]`, o un aumento en la cantidad de orientaciones distintas). Eso la hace, por diseño, no apta para el pase/fallo automático de CTest sin depender de una casualidad estadística; se ejecuta explícitamente con `./build/voter_consensus_regression` y su salida se documenta como evidencia.
+- **Alcance**: cubre únicamente la propiedad de convergencia de la regla de votante sin ruido en un grafo completo. No valida consenso con los parámetros físicos completos del TP (densidad, `rc`, movimiento real), que sigue pendiente y no se marca como cerrado (ver checklist en `03_validaciones.md`).
 
 ## Paso del motor
 
@@ -402,7 +419,7 @@ Un diseño válido puede guardar un solo vector de partículas y buffers auxilia
 - [x] Ambos modelos comparten el mismo motor y solo bifurcan en la regla de orientación.
   - Evidencia: `advance_time_step` (`src/core/time_step.hpp`) es una única función que ejecuta el paso completo (vecinos, movimiento, borde periódico) para ambos modelos; el único punto donde se bifurca es la elección entre `vicsek_update`/`voter_update` según el parámetro `InteractionRule rule`. `tests/test_time_step.cpp` ejercita ambas ramas sobre el mismo `advance_time_step`.
 - [x] El CIM coincide exactamente con fuerza bruta en configuraciones pequeñas.
-  - Evidencia: `tests/test_neighbor_search_cim.cpp` compara listas completas de IDs en 13 familias de casos; `ctest --test-dir build --output-on-failure` pasa los siete tests registrados.
+  - Evidencia: `tests/test_neighbor_search_cim.cpp` compara listas completas de IDs en 13 familias de casos; `ctest --test-dir build --output-on-failure` pasa los ocho tests registrados.
 - [x] `S` usa las mismas aristas periódicas que la interacción.
   - Evidencia: `largest_cluster_size`/`largest_cluster_fraction` (`src/core/observables.hpp`) reciben las listas de vecinos ya calculadas por `brute_force_neighbors`/`cell_index_neighbors` (que ya aplican `d <= rc` con distancia mínima periódica) y no recalculan ninguna distancia; `tests/test_observables.cpp` incluye un caso explícito de vecinos cruzando el borde periódico (`x=9.9`/`x=0.1`) y otro que compara el resultado usando fuerza bruta y CIM sobre el mismo estado.
 - [ ] Se puede ejecutar sin trayectoria y con log escalar.

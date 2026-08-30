@@ -36,9 +36,12 @@ simulación, derivando una semilla distinta por paso. Todavía faltan la
 escritura de texto y la CLI.
 
 La Etapa 3 también está abierta: ya tiene validadas varias piezas puntuales,
-incluida la reproducibilidad de la iteración en memoria, pero todavía faltan
-los vecinos medios compatibles con la teoría, la salida reproducible a disco
-y las validaciones de corridas largas (por ejemplo, el consenso del votante).
+incluidas la reproducibilidad de la iteración en memoria y el número medio
+inicial de vecinos compatible con la teoría, y ahora también evidencia
+diagnóstica de que el votante sin ruido alcanza consenso exacto en un
+escenario controlado (grafo completo, `N=20`, 10 semillas). Todavía faltan
+la salida reproducible a disco y la validación de consenso con los
+parámetros físicos completos del TP.
 
 ### Resumen de avance
 
@@ -49,7 +52,11 @@ Implementado y validado en memoria:
 - reglas de Vicsek y votante;
 - paso temporal sincrónico con movimiento backward;
 - bucle de simulación con observador y semillas dependientes del paso;
-- polarización `va` y componente conexa más grande `S`.
+- polarización `va` y componente conexa más grande `S`;
+- número medio inicial de vecinos, comparado contra la predicción teórica
+  `rho*pi*rc^2` para las tres densidades obligatorias;
+- consenso exacto del votante sin ruido en un escenario diagnóstico
+  controlado (grafo completo, no los parámetros físicos completos del TP).
 
 Todavía no implementado o no validado experimentalmente:
 
@@ -59,7 +66,7 @@ Todavía no implementado o no validado experimentalmente:
 - pilotos, barridos, figuras y animaciones;
 - benchmark contra TP1 y entregables finales.
 
-La suite actual contiene siete tests y debe seguir pasando completa después de
+La suite actual contiene ocho tests y debe seguir pasando completa después de
 cada cambio del motor.
 
 ## Criterio de interpretación
@@ -587,6 +594,115 @@ depende de la escritura de texto (ver "Pendientes y decisiones abiertas" al
 final de este archivo). Tampoco se congeló en esta tarea el formato de
 salida ni la CLI.
 
+## Validación del número medio de vecinos
+
+Cada partícula busca sus vecinos dentro de un círculo de radio `rc`
+alrededor de su posición (sin contarse a sí misma). Si las posiciones son
+uniformes en la caja, el número esperado de vecinos que caen dentro de ese
+círculo depende de dos cosas: cuántas partículas hay por unidad de área
+(la densidad `rho`) y cuán grande es el círculo (su área, `pi*rc^2`). Por
+eso el valor esperado es el producto `rho*pi*rc^2`: a mayor densidad, más
+partículas caen dentro del mismo círculo, así que el número medio de
+vecinos debe crecer con `rho`.
+
+Este resultado es una propiedad estadística, no una igualdad exacta: una
+única inicialización fluctúa alrededor del valor teórico simplemente por
+azar (algunas partículas caen cerca de otras, otras quedan más aisladas).
+Por eso la validación promedia muchas inicializaciones independientes
+(realizaciones), en vez de confiar en una sola.
+
+Se implementó `tests/test_mean_neighbors.cpp` (registrado en CTest como
+`mean_neighbors`), que genera posiciones uniformes iniciales con semillas
+explícitas para las tres densidades obligatorias del TP y mide el promedio
+de vecinos externos usando el Cell Index Method (CIM), sin modificar el
+algoritmo de vecinos ni el motor. Para cada densidad se promedian 40
+realizaciones independientes.
+
+Hay dos formas válidas de expresar el valor esperado, y conviene no
+confundirlas. La que usa la cátedra es la aproximación asintótica
+`rho*pi*rc^2 = (N/L^2)*pi*rc^2`. Pero, en rigor, para una caja periódica
+(sin efecto de borde) la cuenta exacta de vecinos *externos* (sin contar a
+la propia partícula) tiene un valor esperado ligeramente distinto:
+`(N-1)*pi*rc^2/L^2`, porque cada una de las otras `N-1` partículas (no
+`N`) es la que puede caer dentro del círculo. La diferencia entre ambas es
+exactamente `pi*rc^2/L^2` (≈0.031 para `L=10`, `rc=1`), y se explica
+enteramente porque una partícula nunca puede contarse a sí misma como
+vecina.
+
+| rho | N | aproximada `rho*pi*rc^2` | finita exacta `(N-1)*pi*rc^2/L^2` | medido |
+|---:|---:|---:|---:|---:|
+| 2 | 200 | 6.283 | 6.252 | 6.355 |
+| 4 | 400 | 12.566 | 12.535 | 12.502 |
+| 8 | 800 | 25.133 | 25.101 | 25.123 |
+
+Los tres valores medidos caen cerca de ambas referencias, y se verifica
+además que el promedio crece estrictamente con la densidad
+(`mean_k(rho=2) < mean_k(rho=4) < mean_k(rho=8)`). El criterio de
+aceptación del test no cambió: sigue comparando contra la aproximación de
+la cátedra, con una tolerancia del 5% pensada para absorber tanto la
+fluctuación estadística normal de 40 realizaciones como el corrimiento
+sistemático (y ya explicado) hacia la expectativa finita exacta; un error
+real de geometría, periodicidad, radio o asignación de vecinos produciría
+desvíos mucho mayores o rompería el orden entre densidades. Detalle
+completo (semillas, criterio de aceptación y justificación de la
+tolerancia) en `plan_desarrollo_tp2/03_validaciones.md`.
+
+Esta prueba valida únicamente la inicialización uniforme y la búsqueda de
+vecinos en el estado inicial; no valida el comportamiento dinámico de la
+simulación (no ejecuta ningún paso de `advance_time_step`).
+
+## Regresión del votante sin ruido
+
+**Consenso polar** significa que, en algún momento, todas las partículas
+del sistema terminan apuntando exactamente en la misma dirección. Con el
+modelo votante, cada partícula copia la orientación de otra partícula (o
+conserva la propia si no tiene vecinos) y le suma ruido. Cuando `eta=0`,
+ese ruido desaparece por completo: la regla ya no puede *crear* una
+orientación nueva, solo puede *copiar* una que ya existía. Esto significa
+que, a lo largo de toda la corrida, el conjunto de orientaciones distintas
+presentes en el sistema nunca puede crecer, solo achicarse. Si eso sigue
+pasando el tiempo suficiente, en algún punto solo debería quedar una única
+orientación: consenso exacto.
+
+Para comprobar esto se implementó una herramienta de regresión,
+`tests/voter_consensus_regression.cpp` (ejecutable `voter_consensus_regression`,
+compilado con `cmake --build build`, pero **no** registrado como test
+automático de CTest, ver más abajo por qué). La configuración elegida usa
+un sistema pequeño (`N=20`) con una búsqueda de vecinos "completa": cada
+partícula ve a todas las demás como vecinas, sin depender de la posición
+ni del radio de interacción `rc`. Se eligió este escenario, en vez de
+correr los parámetros físicos completos del TP con un horizonte largo,
+para aislar exclusivamente la propiedad de convergencia de la regla de
+votante en sí, sin mezclarla con la velocidad de difusión espacial del
+sistema (que depende de `v=0.03` y `L=10`, y que el TP no pide demostrar
+en esta prueba puntual).
+
+Se probaron **10 semillas independientes** explícitas (`700001` a
+`700010`), cada una con su propio estado inicial aleatorio, y un horizonte
+de **3000 pasos** por corrida. El resultado: las **10 de 10** corridas
+alcanzaron consenso exacto (una única orientación distinta en todo el
+sistema), en un rango de 17 a 64 pasos, muy por debajo del horizonte
+disponible. La polarización `va` inicial varió entre `0.089` y `0.334`
+según la semilla, y en todos los casos terminó en `va=1.000000`.
+
+Esto es consenso exacto de orientaciones, no solo una polarización cercana
+a 1: la herramienta compara las orientaciones una por una (con una
+tolerancia mínima que solo absorbe redondeo numérico) y cuenta cuántos
+valores distintos quedan, en vez de confiar únicamente en que `va` se
+acerque a 1 por redondeo de punto flotante. Si alguna semilla no hubiera
+alcanzado consenso dentro del horizonte, la herramienta lo iba a informar
+igual, sin forzar ningún resultado ni modificar la regla de votante: solo
+tiene un assert real sobre invariantes que sí serían un bug (por ejemplo,
+que la cantidad de orientaciones distintas aumente, algo que la regla no
+debería permitir nunca con `eta=0`). Por no depender de un resultado
+garantizado en todas las configuraciones posibles, esta herramienta se
+dejó fuera del pase/fallo automático de CTest y se ejecuta explícitamente.
+
+Esta regresión demuestra que la regla de votante en sí converge cuando
+todas las partículas pueden interactuar entre sí. No demuestra todavía que
+el consenso se alcance con los parámetros físicos completos del TP (menor
+conectividad, movimiento real), que sigue pendiente.
+
 ## Revisiones técnicas acumuladas
 
 La implementación revisada es correcta para el alcance de esta tarea. No se
@@ -617,24 +733,35 @@ mismos sorteos en cada paso.
 El siguiente desarrollo es la escritura de texto (formato de salida todavía
 sin congelar) y la interfaz de ejecución (CLI), que van a apoyarse en el
 observador de `run_simulation` para registrar `va(t)`/`S(t)` y/o la
-trayectoria sin mezclar esa responsabilidad con el bucle de simulación.
+trayectoria sin mezclar esa responsabilidad con el bucle de simulación. Esa
+misma pieza productiva es la que todavía falta conectar con la
+inicialización uniforme ya usada en la validación de vecinos (ver
+"Pendientes y decisiones abiertas" abajo).
 
 ## Pendientes y decisiones abiertas
 
-- Falta la escritura de texto (salida a disco): el formato público de los
-  archivos todavía es una decisión abierta y no se congeló en esta tarea.
+- Falta la escritura de texto (salida a disco).
+- Falta congelar el formato público de los archivos de salida: sigue siendo
+  una decisión abierta, no se congeló en esta tarea.
 - Falta la CLI.
+- Falta un inicializador productivo (parte del motor, no de un test) que
+  quede conectado a la misma lógica de generación uniforme que ya usa
+  `tests/test_mean_neighbors.cpp`: hoy esa generación de posiciones vive
+  solamente dentro del test de validación, no en una pieza reutilizable del
+  motor.
 - Falta el protocolo estadístico completo: promedio estacionario de los
   observables, elección de `t_eq`, realizaciones independientes y barras de
   error.
-- Faltan las corridas largas (por ejemplo, para observar el consenso del
-  votante sin ruido) y los pilotos que sirven para elegir la grilla de
-  `eta` y la duración de las corridas.
+- Falta validar el consenso del votante sin ruido con los parámetros
+  físicos completos del TP (densidad, `rc`, movimiento real): existe
+  evidencia diagnóstica nueva en un escenario simplificado (grafo completo,
+  `N=20`, ver "Regresión del votante sin ruido" arriba), pero no reemplaza
+  esa validación con los parámetros reales.
+- Faltan los pilotos que sirven para elegir la grilla de `eta` y la
+  duración de las corridas.
 - Faltan los barridos definitivos y las figuras.
 - Siguen abiertas las decisiones experimentales sobre `eta`, duración,
   realizaciones, semillas, barras de error y formato final de salida.
-- Falta verificar el número medio inicial de vecinos contra
-  `rho*pi*rc^2` para `rho=2,4,8`.
 - Falta decidir, antes del barrido de clusters, cómo convertir las densidades
   bajas `1/pi`, `1/(2*pi)` y `1/(3*pi)` a un número entero de partículas.
 - Falta confirmar si esas densidades bajas también deben incluirse en el

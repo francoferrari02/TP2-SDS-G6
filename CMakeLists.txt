@@ -36,3 +36,16 @@ add_test(NAME observables COMMAND test_observables)
 add_executable(test_simulation tests/test_simulation.cpp)
 target_link_libraries(test_simulation PRIVATE tp2_core)
 add_test(NAME simulation COMMAND test_simulation)
+
+add_executable(test_mean_neighbors tests/test_mean_neighbors.cpp)
+target_link_libraries(test_mean_neighbors PRIVATE tp2_core)
+add_test(NAME mean_neighbors COMMAND test_mean_neighbors)
+
+# Regresion diagnostica del consenso del votante sin ruido: se compila pero
+# no se registra con add_test a proposito. No tiene un assert rigido sobre
+# alcanzar consenso (solo sobre invariantes que si serian un bug real), asi
+# que no corresponde volverla parte del pase/fallo automatico de CTest; se
+# ejecuta explicitamente y se documenta su salida (ver 02_motor_y_algoritmos.md
+# y 03_validaciones.md).
+add_executable(voter_consensus_regression tests/voter_consensus_regression.cpp)
+target_link_libraries(voter_consensus_regression PRIVATE tp2_core)
