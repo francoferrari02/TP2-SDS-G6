@@ -1163,6 +1163,60 @@ orden y ruido compiten de forma pareja, no un transitorio sin terminar; el
 valor de equilibrio ya estaba bien capturado a los 3000 pasos. Detalle
 completo en `plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`.
 
+### Definición de barras de error y de `t_eq`
+
+Con los estudios anteriores ya ejecutados, se cerraron dos decisiones del
+protocolo estadístico (`plan_desarrollo_tp2/DECISIONES_PENDIENTES.md`,
+sección "Decisiones resueltas"):
+
+- **Barra de error**: se usa **error estándar** de la media entre
+  realizaciones (`s/√R`, no el desvío entre realizaciones), en todas las
+  figuras y para ambos observables (`va`, `S`). El desvío mide variabilidad
+  real entre corridas y no se achica con `R`; el error estándar mide qué tan
+  bien determinado está el promedio reportado y sí se achica con `R` (en
+  este caso, `√20≈4.47` veces menor que el desvío), que es lo que interesa
+  comunicar en una curva `⟨va⟩` vs. `eta`. Ambas cantidades quedan
+  igualmente calculadas y disponibles en las tablas `*_by_combo.csv` de
+  `data/summary/`.
+- **`t_eq=1500`** (la segunda mitad de los 3000 pasos usados en todo el
+  estudio del votante), como ventana estacionaria única para todas las
+  combinaciones de densidad y `eta`.
+
+**Gráficos que respaldan la elección de `t_eq=1500`, con su comparativa**:
+
+- `figures/voter_eta_study_1/va_t_rho_2.png`, `va_t_rho_4.png`,
+  `va_t_rho_8.png` (series `va(t)` para varios `eta` representativos, por
+  densidad): en las tres, la mayoría de las curvas ya alcanzaron su nivel
+  estacionario bien antes de `t=1500` (`eta=0` se estabiliza entre
+  `t≈650-1200` según la densidad; `eta≥1.5` se estabiliza casi de
+  inmediato, dentro de los primeros cientos de pasos). Los casos más lentos
+  observados (`eta` cercano a la zona de transición, `~0.5-1`) siguen
+  fluctuando con amplitud considerable incluso después de `t=1500`, pero
+  alrededor de un nivel medio ya estable, no con una tendencia sistemática
+  de subida o bajada -- es la comparativa cuantitativa de la sección
+  anterior (`eta=0.2` a 3000 vs. 5000 pasos, valores coincidentes dentro del
+  margen de error) la que confirma que ese nivel medio ya es el real, no un
+  transitorio a mitad de camino.
+- `figures/voter_lowrho_cluster_study_1/va_t_rho_1_over_pi.png` (y análogos
+  para `rho_1_over_2pi`/`rho_1_over_3pi`): mismo patrón para las densidades
+  bajas, respaldado además por la comparativa 3000 vs. 6000 pasos de la
+  sección "Por qué 3000 pasos alcanzan para las densidades bajas" (arriba),
+  que mostró que duplicar la duración no desplazó el valor medio de `⟨va⟩`
+  en ningún `eta`.
+- `figures/voter_eta_fine_lowrange_1/va_t_rho_2.png` (y análogos para
+  `rho_4`/`rho_8`): para la zona más lenta en relajar (`eta` chico, entre 0
+  y 0.2), confirma el mismo patrón a `steps=5000`: el nivel medio ya está
+  establecido bien antes de `t=1500`, con la comparativa 3000 vs. 5000 pasos
+  en `eta=0.2` (`0.708` vs. `0.723` en `rho=2`, `0.663` vs. `0.650` en
+  `rho=4`, `0.514` vs. `0.517` en `rho=8`) como evidencia cuantitativa de
+  que no hay corrimiento sistemático más allá de `t=1500`.
+
+En conjunto, estos tres grupos de gráficos son la base visual (`va(t)` con
+la relajación ya visible) y las tres comparativas de duración (3000 vs.
+5000, 3000 vs. 6000, y la reproducción independiente a 5000 pasos de
+`eta=0.2`) son la base cuantitativa que respalda `t_eq=1500` como un corte
+conservador y justificado, no solo un número elegido a ojo.
+
 ## Próximos pasos
 
 Con el estudio dedicado del votante ya ejecutado (grilla refinada de 16

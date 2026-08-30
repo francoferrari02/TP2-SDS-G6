@@ -34,20 +34,6 @@ Estas decisiones deben proponerse después de las corridas preliminares de la et
   - Bloquea: etapa 6.
   - Evidencia preliminar (2026-08-30): piloto de 108 corridas (`plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`, sección "Piloto ejecutado") con grilla exploratoria `eta={0,1,2,3,4,6}`, ambos modelos, `rho=2,4,8`. La grilla ya separa regímenes cualitativos (orden casi perfecto, transición, desorden), pero la caída de `<va>` entre `eta=2` y `eta=4` sugiere que la grilla definitiva necesitará más puntos en esa zona. No se fija todavía la grilla final.
 
-- [ ] **Cantidad de pasos de transitorio y de medición / criterio de `t_eq`.**
-  - Evidencia necesaria: series `va(t)` y `S(t)` con relajación y ventana estacionaria identificables.
-  - Bloquea: promedios definitivos de etapas 6-7.
-  - Evidencia preliminar (2026-08-30): con `steps=600` y CIM, Vicsek se estabiliza dentro de los primeros 100-200 pasos para `eta<=2` en las tres densidades (ver tabla y estimación heurística de `t_eq` en `05_pilotos_y_grilla_eta.md`). El votante con `eta=0` **no** se estabiliza dentro de 600 pasos en ninguna de las tres densidades (la serie sigue creciendo al final de la corrida): ese caso queda explícitamente sin propuesta de `t_eq`, a diferencia de la regresión diagnóstica de grafo completo (`tests/voter_consensus_regression.cpp`), que sí alcanza consenso rápido pero con conectividad total, no representativa de la densidad real. No se fija todavía un `t_eq` de cierre para ningún caso.
-
-- [ ] **Cantidad de realizaciones independientes y semillas.**
-  - Evidencia necesaria: variabilidad observada en pilotos y presupuesto de cómputo.
-  - Bloquea: etapa 6.
-  - Evidencia preliminar (2026-08-30): el piloto usó 3 realizaciones con un esquema de semillas explícito y determinista (`seed = 800000 + offset(modelo) + offset(rho) + 100*indice_eta + realizacion`, ver `python/pilot_run.py`). Cerca de la transición orden/desorden (por ejemplo `vicsek rho=2 eta=3`) el desvío entre esas 3 realizaciones es grande (±0.18, mayor que muchos de los propios valores medios), lo que indica que 3 realizaciones no van a alcanzar para un error chico en esa zona del barrido definitivo. No se fija todavía un número definitivo de realizaciones.
-
-- [ ] **Definición de barras de error.**
-  - Opciones admitidas por la guía: desvío entre realizaciones o error estándar.
-  - Bloquea: agregación y figuras definitivas.
-  - Evidencia preliminar (2026-08-30): `data/summary/pilot_grid_1_by_combo.csv` ya calcula ambas cantidades (desvío entre realizaciones y error estándar) para cada combinación piloteada, para cuando se tome esta decisión. No se elige todavía ninguna de las dos opciones.
 
 - [ ] **Frecuencia productiva de muestreo (valores concretos de `--observables-stride`/`--trajectory-stride`).**
   - Contexto: el *formato* de salida y el *mecanismo* de stride ya están implementados y aprobados (ver "Decisiones resueltas" más abajo). Lo que sigue abierto es qué valores concretos de stride se van a usar en el barrido definitivo (por ejemplo, escribir observables en cada paso pero trayectoria cada 10 o 50 pasos).
@@ -157,6 +143,107 @@ Fecha:
 Fundamento/evidencia:
 Etapas y archivos afectados:
 Usuario que aprobó:
+```
+
+- [x] **Cantidad de realizaciones independientes, semillas y duración (`steps`) para el votante.**
+  - Contexto original: "Cantidad de realizaciones independientes y semillas" y "Cantidad de pasos de transitorio y de medición".
+
+```text
+Decisión:
+Para el modelo votante (unico foco del equipo a partir de este punto):
+R=20 realizaciones independientes, steps=3000, para las tres densidades
+obligatorias (rho=2,4,8) y las tres densidades bajas del estudio de
+clusters (1/pi,1/(2pi),1/(3pi) -> N=32,16,11, redondeo al entero mas
+cercano). Semillas explicitas y deterministas por estudio (ver esquemas en
+python/voter_eta_study_run.py, voter_lowrho_cluster_study_run.py,
+voter_eta_refine_run.py, voter_eta_fine_lowrange_run.py).
+Fecha: 2026-08-30
+Fundamento/evidencia: con R=3 (piloto exploratorio inicial) el desvio entre
+realizaciones cerca de la transicion era ±0.18, comparable al propio valor
+medio; con R=20 el error estandar del peor caso observado bajo a un orden
+de 0.01-0.05 (data/summary/voter_eta_study_1_by_combo.csv). La duracion de
+3000 pasos se verifico como suficiente (no supuesta) comparando contra
+corridas de 5000 y 6000 pasos en tres estudios independientes: (1)
+voter_lowrho_cluster_study_2 (steps=6000, densidades bajas): <va> a 3000 y
+6000 pasos coincide dentro del margen de error en todo el barrido de eta;
+(2) voter_eta_fine_lowrange_1 (steps=5000, rho=2,4,8, eta=0..0.2, semillas
+independientes): <va> en eta=0.2 coincide con la corrida de 3000 pasos
+(0.708 vs 0.723 en rho=2, 0.663 vs 0.650 en rho=4, 0.514 vs 0.517 en
+rho=8), y ademas explico que el pico-y-caida visto antes en esa serie era
+ruido estadistico, no un transitorio sin terminar. Detalle completo en
+plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md.
+Etapas y archivos afectados: cierra el criterio de duracion/realizaciones
+para el barrido definitivo del votante (etapa 6). No aplica a Vicsek (fuera
+de alcance del equipo). Las tablas de resumen ya generadas
+(data/summary/voter_eta_study_1_*.csv, voter_lowrho_cluster_study_1_*.csv,
+voter_eta_fine_lowrange_1_*.csv) son la base de datos vigente para figuras;
+no hace falta volver a correrlas si se usa el mismo protocolo.
+Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
+```
+
+- [x] **Definición de la ventana estacionaria (`t_eq`).**
+  - Contexto original: "Cantidad de pasos de transitorio y de medición / criterio de `t_eq`"; la guía pide justificarlo con series temporales, no fijarlo a ciegas.
+
+```text
+Decisión:
+t_eq=1500 (la segunda mitad de los steps=3000 usados en el estudio del
+votante), como ventana estacionaria unica para todas las combinaciones de
+densidad y eta (tanto rho=2,4,8 como las densidades bajas de clusters).
+Fecha: 2026-08-30
+Fundamento/evidencia: series va(t) en figures/voter_eta_study_1/va_t_rho_2.png,
+va_t_rho_4.png, va_t_rho_8.png (densidades obligatorias) y
+figures/voter_lowrho_cluster_study_1/va_t_rho_1_over_*.png (densidades
+bajas) muestran que, para la enorme mayoria de las combinaciones, el nivel
+medio ya se estabiliza bien antes de t=1500 (eta=0 converge entre
+t~650-1200 segun densidad; eta>=1.5 se estabiliza casi de inmediato). La
+zona mas lenta (eta bajo pero distinto de cero, ~0.2-1) sigue fluctuando
+con amplitud considerable incluso despues de t=1500, pero alrededor de un
+nivel medio ya establecido, no con una tendencia sistematica: esto se
+confirmo cuantitativamente con tres comparativas de duracion distinta (ver
+decision anterior de R/steps), que descartaron que ese nivel medio fuera un
+transitorio a mitad de camino. t_eq=1500 es por lo tanto un corte
+conservador (deja 1500 pasos de ventana estacionaria, la mitad de la
+corrida) y justificado visualmente, no un numero elegido a ciegas. Detalle
+completo, con la lista exacta de figuras y comparativas, en INFORME.md
+(seccion "Definición de barras de error y de `t_eq`").
+Etapas y archivos afectados: cierra el criterio de t_eq para el barrido
+definitivo del votante (etapa 6) y las figuras B/D (etapa 7). No se aplico
+a Vicsek (fuera de alcance). Se reconoce como limitacion documentada que la
+heuristica automatica de t_eq (en *_analyze.py) no es confiable para las
+densidades bajas por ruido de tamano finito (ver
+05_pilotos_y_grilla_eta.md); t_eq=1500 se adopta por inspeccion visual, no
+por ese numero automatico.
+Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
+```
+
+- [x] **Definición de barras de error.**
+  - Contexto original: la guía admite desvío entre realizaciones o error estándar; no elegía entre ambas.
+
+```text
+Decisión:
+Se usa error estándar de la media entre realizaciones (s_va/sqrt(R), s_S/sqrt(R))
+como definición de barra de error en todas las figuras del TP, para ambos
+observables (va, S), todas las densidades y todo el barrido de eta. No se
+usa el desvío entre realizaciones como barra (aunque se sigue calculando y
+guardando en las tablas de resumen, por si hace falta discutirlo aparte).
+Fecha: 2026-08-30
+Fundamento/evidencia: se explicó la diferencia conceptual (el desvío mide
+variabilidad real entre corridas y no se achica con R; el error estándar
+mide precisión del promedio reportado y sí se achica con R, en este caso
+~sqrt(20)=4.47 veces menor que el desvío). Para curvas <va> vs. eta interesa
+comunicar qué tan bien determinado está el promedio reportado, y que dos
+puntos con barras de error estándar que no se solapan son evidencia de una
+diferencia real; el desvío entre realizaciones, en cambio, tiende a hacer
+parecer "todo compatible con todo" en zonas de transición. Ambas cantidades
+ya están calculadas y disponibles en las tablas *_by_combo.csv de
+data/summary/ (columnas va_stderr/S_stderr y
+va_stdev_between_realizations/S_stdev_between_realizations) para cualquier
+verificación posterior.
+Etapas y archivos afectados: aplica a todas las figuras B-E de la etapa 7 y
+a la agregación de la etapa 6 (columna a usar como barra: *_stderr, no
+*_stdev_between_realizations). No modifica ningún dato ya generado (las
+tablas ya tienen ambas columnas calculadas desde el estudio del votante).
+Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
 ```
 
 - [x] **Formato público de salida de texto y CLI productiva.**
