@@ -88,6 +88,12 @@ Por combinación:
 model,rho,N,eta,R,va_mean,va_error,S_mean,S_error,error_definition
 ```
 
+## Progreso parcial (2026-08-30): resumen temporal con `S(t)`
+
+`python/pilot_analyze.py` ahora escribe en `data/summary/<run_name>_series_sampled.csv` tanto `va(t)` como `S(t)`, cada uno con desvío entre realizaciones y error estándar (`va_stdev`, `va_stderr`, `S_stdev`, `S_stderr`). Esto corrige la salida real para que coincida con el propósito documentado del analizador y permite regenerar figuras de `S(t)` desde datos livianos versionados, sin depender de `data/pilots/`, que queda fuera de git.
+
+Evidencia: se regeneró `data/summary/vicsek_eta0_6_deta0p5_steps3000_R20_v1_series_sampled.csv` con `780/780` observables válidos, `0` problemas y ventana estacionaria explícita `--t-eq 1500`.
+
 ## Fuera de alcance
 
 No se calcula susceptibilidad ni se estima `eta_c`: son análisis complementarios mencionados en bibliografía, pero no pedidos por el TP.
@@ -99,4 +105,3 @@ No se calcula susceptibilidad ni se estima `eta_c`: son análisis complementario
 - [ ] Primero se promedia en el estacionario y después entre realizaciones.
 - [ ] La cantidad de realizaciones y las semillas están registradas.
 - [ ] Las barras tienen una definición explícita y constante.
-

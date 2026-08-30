@@ -27,6 +27,7 @@ observables.csv crudos quedan fuera de git (data/pilots/ esta en
 
 Uso:
     python3 python/pilot_analyze.py --run-name pilot_grid_1
+    python3 python/pilot_analyze.py --run-name pilot_grid_1 --t-eq 1500
 """
 
 import argparse
@@ -111,17 +112,20 @@ def validate_observables(path: Path, metadata: dict, rows: list) -> list:
     return problems
 
 
-def stationary_window_stats(rows: list, fraction: float = 0.25):
-    """Media y desvio temporal de va/S en el ultimo `fraction` de los pasos.
+def stationary_window_stats(rows: list, fraction: float = 0.25, t_eq=None):
+    """Media y desvio temporal de va/S en la ventana estacionaria elegida.
 
-    Esta ventana NO es una estimacion definitiva de t_eq: es simplemente
-    "el ultimo cuarto de la corrida", usada como resumen provisional para
-    comparar entre combinaciones. La eleccion real de t_eq se discute con
-    las series completas (ver tabla *_series_sampled.csv y el documento de
-    pilotos), no con este numero solo.
+    Si `t_eq` es None se conserva el comportamiento historico del analizador:
+    usar el ultimo `fraction` de los pasos. Si se pasa un entero, se usa esa
+    ventana explicita y queda registrada como `t_window_start` en las tablas.
     """
     t_max = rows[-1]["t"]
-    t_start = t_max - int(round(fraction * t_max))
+    if t_eq is None:
+        t_start = t_max - int(round(fraction * t_max))
+    else:
+        if t_eq < 0 or t_eq > t_max:
+            raise ValueError(f"t_eq={t_eq} queda fuera del rango [0,{t_max}]")
+        t_start = t_eq
     window = [r for r in rows if r["t"] >= t_start]
     va_vals = [r["va"] for r in window]
     s_vals = [r["S"] for r in window]
@@ -159,6 +163,8 @@ def main() -> int:
     parser.add_argument("--run-name", default="pilot_grid_1")
     parser.add_argument("--sample-stride", type=int, default=25,
                          help="cada cuantos pasos muestrear la serie temporal en el resumen")
+    parser.add_argument("--t-eq", type=int, default=None,
+                        help="inicio explicito de la ventana estacionaria; por defecto usa el ultimo 25%")
     args = parser.parse_args()
 
     run_dir = REPO_ROOT / "data" / "pilots" / args.run_name
@@ -182,7 +188,7 @@ def main() -> int:
             problems_found[str(path.relative_to(REPO_ROOT))] = problems
             continue
 
-        stats = stationary_window_stats(rows)
+        stats = stationary_window_stats(rows, t_eq=args.t_eq)
         model = metadata["model"]
         rho_label = metadata["rho_label"]
         rho_nominal = metadata["rho_nominal"]
@@ -206,7 +212,7 @@ def main() -> int:
     by_realization_path = summary_dir / f"{args.run_name}_by_realization.csv"
     with by_realization_path.open("w", newline="") as f:
         fieldnames = list(per_realization_rows[0].keys())
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(per_realization_rows)
 
@@ -232,17 +238,27 @@ def main() -> int:
 
         mean_series_va = []
         for t in t_values:
-            vals = []
+            va_vals = []
+            s_vals = []
             for _, rows, _ in entries:
-                match = next((row["va"] for row in rows if row["t"] == t), None)
+                match = next((row for row in rows if row["t"] == t), None)
                 if match is not None:
-                    vals.append(match)
-            if vals:
-                mean_series_va.append((t, statistics.fmean(vals)))
+                    va_vals.append(match["va"])
+                    s_vals.append(match["S"])
+            if va_vals and s_vals:
+                sample_r = len(va_vals)
+                va_stdev = statistics.pstdev(va_vals) if sample_r > 1 else 0.0
+                s_stdev = statistics.pstdev(s_vals) if sample_r > 1 else 0.0
+                mean_series_va.append((t, statistics.fmean(va_vals)))
                 series_rows.append({
                     "model": model, "rho_label": rho_label, "eta": eta, "t": t,
-                    "va_mean": statistics.fmean(vals),
-                    "va_stdev": statistics.pstdev(vals) if len(vals) > 1 else 0.0,
+                    "realizations": sample_r,
+                    "va_mean": statistics.fmean(va_vals),
+                    "va_stdev": va_stdev,
+                    "va_stderr": va_stdev / math.sqrt(sample_r) if sample_r > 1 else 0.0,
+                    "S_mean": statistics.fmean(s_vals),
+                    "S_stdev": s_stdev,
+                    "S_stderr": s_stdev / math.sqrt(sample_r) if sample_r > 1 else 0.0,
                 })
 
         t_eq_estimate = estimate_t_eq_heuristic(mean_series_va, va_mean)
@@ -258,13 +274,13 @@ def main() -> int:
 
     by_combo_path = summary_dir / f"{args.run_name}_by_combo.csv"
     with by_combo_path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(by_combo_rows[0].keys()))
+        writer = csv.DictWriter(f, fieldnames=list(by_combo_rows[0].keys()), lineterminator="\n")
         writer.writeheader()
         writer.writerows(by_combo_rows)
 
     series_path = summary_dir / f"{args.run_name}_series_sampled.csv"
     with series_path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(series_rows[0].keys()))
+        writer = csv.DictWriter(f, fieldnames=list(series_rows[0].keys()), lineterminator="\n")
         writer.writeheader()
         writer.writerows(series_rows)
 
