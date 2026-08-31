@@ -359,6 +359,45 @@ y se acortaron títulos hasta eliminar wrapping/clipping. Esto cierra la maqueta
 figuras para el borrador, pero no el punto A: siguen sin existir video/GIF, módulo
 animador ni links públicos probados.
 
+## Progreso parcial (2026-08-31): comparación a igual polarización clarificada
+
+Se preservó el borrador original y se exportó
+`output/presentation/TP2_Bandadas_Borrador_Presentacion_clarificada.pptx`. En la
+diapositiva 12 se mantuvo el mismo fotograma comparativo porque los dos estados ya
+habían sido seleccionados con polarización instantánea prácticamente idéntica
+(`va(t=2000)=0.5144` para Vicsek con `eta=3` y `0.5153` para votante con `eta=0.4`).
+Se reescribieron únicamente el título y el bloque lateral para explicitar el criterio,
+identificar los paneles izquierdo/derecho y separar los parámetros comunes. No se
+regeneraron ni alteraron las trayectorias o figuras científicas.
+
+Evidencia: se renderizaron las 33 diapositivas de la copia, se inspeccionó la
+diapositiva 12 a tamaño completo, `slides_test.py` informó `Test passed. No overflow
+detected.` y `check_template_fidelity.mjs` pasó con `0` problemas. El original
+`TP2_Bandadas_Borrador_Presentacion.pptx` permanece intacto.
+
+Alcance: mejora la interpretación del fotograma estático, pero no cierra el punto A:
+siguen faltando las animaciones y sus links probados.
+
+## Progreso parcial (2026-08-31): guía oficial auditada y estructura de la PPT corregida
+
+Se auditó `output/presentation/TP2_Bandadas_Borrador_Presentacion_clarificada.pptx`
+contra `/Users/francoferrari/Downloads/GuiaPresentaciones.pdf` y se generó
+`output/presentation/TP2_Bandadas_Presentacion_reestructurada_guia_catedra.pptx`.
+La guía confirma como requisitos: figuras sin título ni *caption* interno, parámetros
+al costado, fuente interna mínima de 20, marcadores visibles, animaciones integradas en
+la versión de exposición y fotograma con enlace explícito en el PDF.
+
+La primera reestructuración no regeneró datos ni PNG: corrigió separadores, orden de
+secciones y conclusiones, y preservó las 29 imágenes embebidas. El render completo de
+33 diapositivas pasó `slides_test.py` sin overflow y el control de fidelidad de plantilla
+sin problemas. La revisión también detectó que varios bloques metodológicos de resultados
+siguen debajo de las figuras y no estrictamente al costado; por eso el cumplimiento visual
+de este criterio vuelve a quedar abierto hasta una segunda pasada de maquetación.
+
+Alcance: esto no cierra la etapa 7 ni el punto A. Siguen faltando el módulo animador,
+los archivos de animación, sus enlaces públicos probados y la adecuación lateral de
+parámetros en todas las diapositivas de resultados.
+
 ## Criterio de cierre
 
 - [ ] Hay animaciones independientes con vectores coloreados por ángulo.
@@ -375,6 +414,6 @@ animador ni links públicos probados.
   - Estado: cerrado el 2026-08-30 para las figuras finales. Las 36 PNG de `figures/final_production_v1/` usan desvío estándar entre realizaciones (`va_stdev_between_realizations`/`S_stdev_between_realizations` en curvas estacionarias, `va_stdev`/`S_stdev` como banda en series) y ninguna usa `*_stderr`. Las carpetas diagnósticas previas siguen con error estándar y quedan explícitamente fuera de la entrega.
 - [x] Vicsek y votante se comparan bajo el mismo protocolo.
   - Estado: cerrado el 2026-08-30. `comparison_va_vs_eta.png`, `comparison_S_vs_eta_base.png`, `comparison_va_vs_S.png` y `comparison_S_vs_eta_lowrho.png`, con la misma grilla de 14 `eta`, `steps=3000`, `R=20`, `t_eq=1500` y la misma definición de barras en ambos modelos; un panel por densidad para mantener la legibilidad.
-- [x] Las exportaciones para diapositivas cumplen tamaños de fuente, ejes, símbolos y ubicación de parámetros de la guía.
-  - Estado: cerrado para el borrador PPTX el 2026-08-30. Las figuras finales usan fuente interna >=20 pt, no tienen título/caption ni grilla, conservan proporción y muestran parámetros en bloques externos de la diapositiva. Las 33 diapositivas se renderizaron e inspeccionaron; `slides_test.py` no detectó overflow.
+- [ ] Las exportaciones para diapositivas cumplen tamaños de fuente, ejes, símbolos y ubicación de parámetros de la guía.
+  - Estado: en progreso. Las figuras finales usan fuente interna >=20 pt, no tienen título/caption ni grilla y conservan proporción. La auditoría del 2026-08-31 contra la guía oficial confirmó que los parámetros deben ubicarse **al costado**; varios bloques del borrador todavía aparecen debajo de las figuras. El render completo no tiene overflow, pero falta corregir esa maquetación antes de cerrar el criterio.
 - [ ] La versión para exposición integra las animaciones y el PDF usa fotogramas con links probados.

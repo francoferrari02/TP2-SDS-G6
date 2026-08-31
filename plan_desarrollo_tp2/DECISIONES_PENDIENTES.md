@@ -113,7 +113,7 @@ Estas decisiones deben proponerse después de las corridas preliminares de la et
 
 - [ ] **Indicaciones visuales atribuidas a la consulta de clase.**
   - Contexto: el repositorio de referencia actualizado afirma que la cátedra pidió gráficos sin grilla de fondo, `va` y `S` en figuras separadas y resultados de cada modelo por separado antes de la comparación.
-  - Verificado en la guía escrita: sí aparecen la fuente mínima 20, ausencia de título/*caption* dentro de figuras de presentación, parámetros al costado, puntos visibles y animación integrada en vivo/fotograma con link en PDF. Las otras tres indicaciones solo constan como comentario del repositorio externo.
+  - Verificado directamente el 2026-08-31 en `/Users/francoferrari/Downloads/GuiaPresentaciones.pdf`: sí aparecen la fuente mínima 20, ausencia de título/*caption* dentro de figuras de presentación, parámetros al costado, puntos visibles y animación integrada en vivo/fotograma con link en PDF. La guía también exige separadores sin numerar, Implementación limitada al motor y una conclusión sin trabajo pendiente. Las otras tres indicaciones (sin grilla, `va` y `S` separados y cada modelo individual antes de comparar) no aparecen en ese PDF y solo constan como comentario del repositorio externo.
   - Bloquea: congelar el diseño visual final de etapas 7 y 9; no bloquea motor, pilotos ni producción de datos.
   - Decisión del usuario/cátedra: pendiente.
 

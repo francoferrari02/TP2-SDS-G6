@@ -1,0 +1,496 @@
+{"kind":"deck","id":"pr/csnueu","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"SIMULACIÓN DE SISTEMAS · TP2","textShapes":8}
+{"kind":"shape","id":"sh/0bmd476t","slide":1,"bbox":[0,0,24,720]}
+{"kind":"shape","id":"sh/547294r6","slide":1,"bbox":[930,96,214,214]}
+{"kind":"shape","id":"sh/k3yl0zql","slide":1,"bbox":[1000,165,74,74]}
+{"kind":"shape","id":"sh/7qp4be9c","slide":1,"bbox":[873,320,42,14]}
+{"kind":"shape","id":"sh/65g3298r","slide":1,"bbox":[907,348,42,22]}
+{"kind":"shape","id":"sh/ts7md4r2","slide":1,"bbox":[941,376,42,14]}
+{"kind":"shape","id":"sh/sryl4zqx","slide":1,"bbox":[975,320,42,22]}
+{"kind":"shape","id":"sh/fu94fe98","slide":1,"bbox":[1009,348,42,14]}
+{"kind":"shape","id":"sh/utg3698n","slide":1,"bbox":[1043,376,42,22]}
+{"kind":"shape","id":"sh/wn6dc7eh","slide":1,"bbox":[1077,320,42,14]}
+{"kind":"shape","id":"sh/hofulsf2","slide":1,"bbox":[1111,348,42,22]}
+{"kind":"textbox","id":"sh/ul4vaxgb","slide":1,"text":"SIMULACIÓN DE SISTEMAS · TP2","textPreview":"SIMULACIÓN DE SISTEMAS · TP2","textChars":28,"textLines":1,"bbox":[78,72,600,28]}
+{"kind":"textbox","id":"sh/vmdcj2xw","slide":1,"text":"Simulación de bandadas:\nmodelo de Vicsek y modelo de votante","textPreview":"Simulación de bandadas: | modelo de Vicsek y modelo de votante","textChars":60,"textLines":2,"bbox":[78,126,790,155]}
+{"kind":"textbox","id":"sh/4r6dg7et","slide":1,"text":"72.25 — Simulación de Sistemas | Trabajo Práctico 2","textPreview":"72.25 — Simulación de Sistemas | Trabajo Práctico 2","textChars":51,"textLines":1,"bbox":[80,306,780,40]}
+{"kind":"shape","id":"sh/5sfepcfe","slide":1,"bbox":[80,380,330,0]}
+{"kind":"textbox","id":"sh/ipovexwn","slide":1,"text":"Franco Ferrari — Legajo 63094\nMateo Pirola — Legajo 62810\nKatia Menshikoff — Legajo 64396","textPreview":"Franco Ferrari — Legajo 63094 | Mateo Pirola — Legajo 62810 | Katia Menshikoff — Legajo 64396","textChars":89,"textLines":3,"bbox":[80,414,570,112]}
+{"kind":"textbox","id":"sh/3qxwn2x8","slide":1,"text":"04/09/2026","textPreview":"04/09/2026","textChars":10,"textLines":1,"bbox":[80,568,260,32]}
+{"kind":"textbox","id":"sh/sfqdkrep","slide":1,"text":"Grupo / comisión: a completar","textPreview":"Grupo / comisión: a completar","textChars":29,"textLines":1,"bbox":[80,614,360,28]}
+{"kind":"textbox","id":"sh/dgzetcfa","slide":1,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/1cvuxc7e","slide":1,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":"Idea central: Presentar el tema y a los integrantes; no demorar la portada.\nDuración estimada: 0:15.\nPendiente administrativo: reemplazar “Grupo / comisión: a completar” antes de entregar.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n[/Sources]"}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"INTRODUCCIÓN","textShapes":6}
+{"kind":"textbox","id":"sh/65kfmpor","slide":2,"text":"INTRODUCCIÓN","textPreview":"INTRODUCCIÓN","textChars":12,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/9072xkry","slide":2,"text":"Reglas locales pueden producir orden colectivo","textPreview":"Reglas locales pueden producir orden colectivo","textChars":46,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/ozy1ofad","slide":2,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/x4r21kru","slide":2,"text":"Partículas autopropulsadas ajustan su dirección usando información cercana. Sin líder central, la interacción repetida puede organizar el movimiento global.","textPreview":"Partículas autopropulsadas ajustan su dirección usando información cercana. Sin líder central, la interacción repetida puede organizar el...","textChars":156,"textLines":1,"bbox":[66,158,560,150]}
+{"kind":"shape","id":"sh/w3i1sfa9","slide":2,"bbox":[762,196,74,12]}
+{"kind":"shape","id":"sh/r65knqtk","slide":2,"bbox":[902,191,74,20]}
+{"kind":"shape","id":"sh/q5wjelsz","slide":2,"bbox":[1032,246,74,28]}
+{"kind":"shape","id":"sh/ove9o7yd","slide":2,"bbox":[822,321,74,12]}
+{"kind":"shape","id":"sh/9wnqhczy","slide":2,"bbox":[982,376,74,20]}
+{"kind":"shape","id":"sh/mtwrmxg7","slide":2,"bbox":[702,416,74,28]}
+{"kind":"shape","id":"sh/nu58f2hs","slide":2,"bbox":[1092,431,74,12]}
+{"kind":"shape","id":"sh/wjy9sry9","slide":2,"bbox":[770,200,20,20]}
+{"kind":"shape","id":"sh/xk7qlczu","slide":2,"bbox":[910,195,20,20]}
+{"kind":"shape","id":"sh/ahwrqhgj","slide":2,"bbox":[1040,250,20,20]}
+{"kind":"shape","id":"sh/bip8jmho","slide":2,"bbox":[830,325,20,20]}
+{"kind":"shape","id":"sh/cnupgny5","slide":2,"bbox":[990,380,20,20]}
+{"kind":"shape","id":"sh/do3q9szq","slide":2,"bbox":[710,420,20,20]}
+{"kind":"shape","id":"sh/t8byxkn2","slide":2,"bbox":[1100,435,20,20]}
+{"kind":"shape","id":"sh/s72xofmh","slide":2,"bbox":[66,428,560,132]}
+{"kind":"textbox","id":"sh/76twva5c","slide":2,"text":"¿Cómo modifican el ruido, la densidad y la regla local el orden y la conectividad?","textPreview":"¿Cómo modifican el ruido, la densidad y la regla local el orden y la conectividad?","textChars":82,"textLines":1,"bbox":[92,448,508,92]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":"Idea central: Plantear la pregunta que organiza toda la exposición.\nDuración estimada: 0:30.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/enunciado_tp2_guia_de_trabajo.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/teoria_tp2_automatas_off_lattice.md\n[/Sources]"}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"INTRODUCCIÓN","textShapes":10}
+{"kind":"textbox","id":"sh/x8nml0ra","slide":3,"text":"INTRODUCCIÓN","textPreview":"INTRODUCCIÓN","textChars":12,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/cza94vmx","slide":3,"text":"Dos reglas de interacción sobre la misma geometría","textPreview":"Dos reglas de interacción sobre la misma geometría","textChars":50,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/d0jax03i","slide":3,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/3ah8rqlg","slide":3,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/obq90bml","slide":3,"bbox":[310,282,85,0]}
+{"kind":"shape","id":"sh/pcjqtg36","slide":3,"bbox":[885,282,85,0]}
+{"kind":"shape","id":"sh/m5cra54z","slide":3,"bbox":[66,164,545,300]}
+{"kind":"shape","id":"sh/n6ls3alk","slide":3,"bbox":[669,164,545,300]}
+{"kind":"textbox","id":"sh/n2l4fq98","slide":3,"text":"Vicsek","textPreview":"Vicsek","textChars":6,"textLines":1,"bbox":[94,188,180,42]}
+{"kind":"textbox","id":"sh/m1c3mlsn","slide":3,"text":"Promedia vectorialmente todas las direcciones vecinas, incluida la propia partícula.","textPreview":"Promedia vectorialmente todas las direcciones vecinas, incluida la propia partícula.","textChars":84,"textLines":1,"bbox":[94,250,464,112]}
+{"kind":"textbox","id":"sh/943mhgre","slide":3,"text":"Votante ruidoso","textPreview":"Votante ruidoso","textChars":15,"textLines":1,"bbox":[697,188,300,42]}
+{"kind":"textbox","id":"sh/83ulovat","slide":3,"text":"Copia la dirección de otra partícula vecina elegida al azar. Si está aislada, conserva dirección y suma ruido.","textPreview":"Copia la dirección de otra partícula vecina elegida al azar. Si está aislada, conserva dirección y suma ruido.","textChars":110,"textLines":1,"bbox":[697,250,468,132]}
+{"kind":"textbox","id":"sh/v6l4jq94","slide":3,"text":"ξ ~ U[−η/2, η/2]   ·   η en radianes","textPreview":"ξ ~ U[−η/2, η/2]   ·   η en radianes","textChars":36,"textLines":1,"bbox":[266,504,748,48]}
+{"kind":"textbox","id":"sh/a5c3ql8z","slide":3,"text":"Misma caja, radio, velocidad y protocolo","textPreview":"Misma caja, radio, velocidad y protocolo","textChars":40,"textLines":1,"bbox":[330,574,620,34]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":"Idea central: Aislar la única diferencia entre modelos: promedio colectivo frente a copia individual.\nDuración estimada: 0:25.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/teoria_tp2_automatas_off_lattice.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/enunciado_tp2_guia_de_trabajo.md\n[/Sources]"}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"SECCIÓN 1","textShapes":4}
+{"kind":"shape","id":"sh/sna103ap","slide":4,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/1cj2d8b6","slide":4,"text":"SECCIÓN 1","textPreview":"SECCIÓN 1","textChars":9,"textLines":1,"bbox":[92,230,600,28]}
+{"kind":"textbox","id":"sh/0ba143al","slide":4,"text":"Implementación","textPreview":"Implementación","textChars":14,"textLines":1,"bbox":[92,274,1050,100]}
+{"kind":"shape","id":"sh/rm1k7yt4","slide":4,"bbox":[92,400,150,0]}
+{"kind":"textbox","id":"sh/ql8jytsj","slide":4,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/doj29oba","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":"Idea central: Introducir brevemente la implementación.\nDuración estimada: 0:03.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n[/Sources]"}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"IMPLEMENTACIÓN","textShapes":11}
+{"kind":"textbox","id":"sh/tcfel0vu","slide":5,"text":"IMPLEMENTACIÓN","textPreview":"IMPLEMENTACIÓN","textChars":14,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/dgbulwnm","slide":5,"text":"Los resultados quedan desacoplados del visualizador","textPreview":"Los resultados quedan desacoplados del visualizador","textChars":51,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/cf2tcr61","slide":5,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/z2tcnm5s","slide":5,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/yhkbe1o7","slide":5,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/l4bupwny","slide":5,"bbox":[336,328,69,0]}
+{"kind":"shape","id":"sh/032tgr6d","slide":5,"bbox":[785,328,69,0]}
+{"kind":"shape","id":"sh/n6dcr65o","slide":5,"bbox":[76,245,260,166]}
+{"kind":"textbox","id":"sh/m5kbi1oj","slide":5,"text":"Motor C++","textPreview":"Motor C++","textChars":9,"textLines":1,"bbox":[96,274,220,44]}
+{"kind":"textbox","id":"sh/w32dkbuh","slide":5,"text":"simulación","textPreview":"simulación","textChars":10,"textLines":1,"bbox":[94,330,224,48]}
+{"kind":"shape","id":"sh/x4vedgvm","slide":5,"bbox":[405,245,380,166]}
+{"kind":"textbox","id":"sh/ahkvi1cb","slide":5,"text":"Salida de texto","textPreview":"Salida de texto","textChars":15,"textLines":1,"bbox":[425,274,340,44]}
+{"kind":"textbox","id":"sh/v2twb6dw","slide":5,"text":"observables.csv  ·  trajectory.csv","textPreview":"observables.csv  ·  trajectory.csv","textChars":34,"textLines":1,"bbox":[423,330,344,48]}
+{"kind":"shape","id":"sh/k7mxovud","slide":5,"bbox":[854,245,350,166]}
+{"kind":"textbox","id":"sh/58vehgvy","slide":5,"text":"Análisis y visualización","textPreview":"Análisis y visualización","textChars":24,"textLines":1,"bbox":[874,274,310,44]}
+{"kind":"textbox","id":"sh/i54fmlc7","slide":5,"text":"lectura independiente","textPreview":"lectura independiente","textChars":21,"textLines":1,"bbox":[872,330,314,48]}
+{"kind":"shape","id":"sh/j6dwfqds","slide":5,"bbox":[224,477,832,86]}
+{"kind":"textbox","id":"sh/sb6xsvu9","slide":5,"text":"El visualizador lee resultados ya producidos: no controla el avance de la simulación.","textPreview":"El visualizador lee resultados ya producidos: no controla el avance de la simulación.","textChars":85,"textLines":1,"bbox":[250,492,780,54]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":"Idea central: Explicar que la simulación produce archivos estables y la visualización es un consumidor independiente.\nDuración estimada: 0:35.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/enunciado_tp2_guia_de_trabajo.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/09_informe_presentacion_entrega.md\n[/Sources]"}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"IMPLEMENTACIÓN","textShapes":12}
+{"kind":"textbox","id":"sh/bq547yhw","slide":6,"text":"IMPLEMENTACIÓN","textPreview":"IMPLEMENTACIÓN","textChars":14,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/yhg7epsj","slide":6,"text":"Un paso temporal correcto: sincrónico y backward","textPreview":"Un paso temporal correcto: sincrónico y backward","textChars":48,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/zi98nu94","slide":6,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/98rqt4r6","slide":6,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/ml07i9sv","slide":6,"bbox":[250,317,56,0]}
+{"kind":"shape","id":"sh/7m98ru9g","slide":6,"bbox":[480,317,56,0]}
+{"kind":"shape","id":"sh/oryp8fah","slide":6,"bbox":[710,317,56,0]}
+{"kind":"shape","id":"sh/pc76hkr2","slide":6,"bbox":[940,317,56,0]}
+{"kind":"shape","id":"sh/h4bupgn6","slide":6,"bbox":[76,225,174,186]}
+{"kind":"textbox","id":"sh/w32twb6l","slide":6,"text":"1\nVecinos con CIM\ny periodicidad","textPreview":"1 | Vecinos con CIM | y periodicidad","textChars":32,"textLines":3,"bbox":[88,244,150,148]}
+{"kind":"shape","id":"sh/v2tcn650","slide":6,"bbox":[306,225,174,186]}
+{"kind":"textbox","id":"sh/u1kbu1ov","slide":6,"text":"2\nOrientaciones nuevas\ndesde el estado t","textPreview":"2 | Orientaciones nuevas | desde el estado t","textChars":40,"textLines":3,"bbox":[318,244,150,148]}
+{"kind":"shape","id":"sh/5svutgni","slide":6,"bbox":[536,225,174,186]}
+{"kind":"textbox","id":"sh/47mt0b6x","slide":6,"text":"3\nMover posiciones\ncon v(t)","textPreview":"3 | Mover posiciones | con v(t)","textChars":27,"textLines":3,"bbox":[548,244,150,148]}
+{"kind":"shape","id":"sh/j6dcr65c","slide":6,"bbox":[766,225,174,186]}
+{"kind":"textbox","id":"sh/i54bylor","slide":6,"text":"4\nReplegar borde\nperiódico","textPreview":"4 | Replegar borde | periódico","textChars":26,"textLines":3,"bbox":[778,244,150,148]}
+{"kind":"shape","id":"sh/twfux0ne","slide":6,"bbox":[996,225,174,186]}
+{"kind":"textbox","id":"sh/svmt4v6t","slide":6,"text":"5\nMedir\nvₐ y S","textPreview":"5 | Medir | vₐ y S","textChars":14,"textLines":3,"bbox":[1008,244,150,148]}
+{"kind":"textbox","id":"sh/cbe5g3ih","slide":6,"text":"SINCRÓNICO","textPreview":"SINCRÓNICO","textChars":10,"textLines":1,"bbox":[330,481,255,44]}
+{"kind":"textbox","id":"sh/dcnm98zm","slide":6,"text":"BACKWARD UPDATE","textPreview":"BACKWARD UPDATE","textChars":15,"textLines":1,"bbox":[697,481,300,44]}
+{"kind":"textbox","id":"sh/qpwnet0b","slide":6,"text":"Ninguna orientación nueva contamina el cálculo de otra partícula.","textPreview":"Ninguna orientación nueva contamina el cálculo de otra partícula.","textChars":65,"textLines":1,"bbox":[250,548,780,42]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":"Idea central: Recorrer el orden exacto del paso y remarcar que las posiciones usan v(t), no v(t+1).\nDuración estimada: 0:35.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/teoria_tp2_automatas_off_lattice.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/03_validaciones.md\n[/Sources]"}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"IMPLEMENTACIÓN","textShapes":14}
+{"kind":"textbox","id":"sh/eh4jil4r","slide":7,"text":"IMPLEMENTACIÓN","textPreview":"IMPLEMENTACIÓN","textChars":14,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/cb2tkvap","slide":7,"text":"Las validaciones sostienen la lectura de los resultados","textPreview":"Las validaciones sostienen la lectura de los resultados","textChars":55,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/zedcfa9g","slide":7,"text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/kzmdova1","slide":7,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[76,183,74,54]}
+{"kind":"textbox","id":"sh/l0vuh0rm","slide":7,"text":"Vecindad","textPreview":"Vecindad","textChars":8,"textLines":1,"bbox":[170,183,340,40]}
+{"kind":"textbox","id":"sh/eh0ba1sr","slide":7,"text":"CIM coincide con fuerza bruta.","textPreview":"CIM coincide con fuerza bruta.","textChars":30,"textLines":1,"bbox":[510,183,650,54]}
+{"kind":"shape","id":"sh/fi9c369c","slide":7,"bbox":[170,253,990,0]}
+{"kind":"textbox","id":"sh/baxkjqlk","slide":7,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[76,315,74,54]}
+{"kind":"textbox","id":"sh/a9ojq5kz","slide":7,"text":"Estadística inicial","textPreview":"Estadística inicial","textChars":19,"textLines":1,"bbox":[170,315,340,40]}
+{"kind":"textbox","id":"sh/xcz2l03q","slide":7,"text":"Otros vecinos ≈ ρ·π·r_c².","textPreview":"Otros vecinos ≈ ρ·π·r_c².","textChars":25,"textLines":1,"bbox":[510,315,650,54]}
+{"kind":"shape","id":"sh/cbq1sv25","slide":7,"bbox":[170,385,990,0]}
+{"kind":"textbox","id":"sh/n6x0fqlo","slide":7,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[76,447,74,54]}
+{"kind":"textbox","id":"sh/25ojml43","slide":7,"text":"Observables y clusters","textPreview":"Observables y clusters","textChars":22,"textLines":1,"bbox":[170,447,340,40]}
+{"kind":"textbox","id":"sh/p8fih03e","slide":7,"text":"vₐ y S respetan límites, periodicidad y conectividad.","textPreview":"vₐ y S respetan límites, periodicidad y conectividad.","textChars":53,"textLines":1,"bbox":[510,447,650,54]}
+{"kind":"shape","id":"sh/o761ov2t","slide":7,"bbox":[170,517,990,0]}
+{"kind":"textbox","id":"sh/f2d0b6lc","slide":7,"text":"11/11 pruebas CTest aprobadas","textPreview":"11/11 pruebas CTest aprobadas","textChars":29,"textLines":1,"bbox":[845,588,315,32]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":"Idea central: Mostrar solo los controles que justifican vecinos, periodicidad y observables.\nDuración estimada: 0:25.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/03_validaciones.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/README.md\n[/Sources]"}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"SECCIÓN 2","textShapes":4}
+{"kind":"shape","id":"sh/sjix0zy1","slide":8,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/18byd4zy","slide":8,"text":"SECCIÓN 2","textPreview":"SECCIÓN 2","textChars":9,"textLines":1,"bbox":[92,230,600,28]}
+{"kind":"textbox","id":"sh/g72x4zyd","slide":8,"text":"Simulaciones y medición","textPreview":"Simulaciones y medición","textChars":23,"textLines":1,"bbox":[92,274,1050,100]}
+{"kind":"shape","id":"sh/ri9g7uhw","slide":8,"bbox":[92,400,150,0]}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/tkby9kzm","slide":8,"text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":"Idea central: Pasar de la implementación al protocolo experimental.\nDuración estimada: 0:03.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n[/Sources]"}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"SIMULACIONES Y MEDICIÓN","textShapes":14}
+{"kind":"textbox","id":"sh/0ru1ozyp","slide":9,"text":"SIMULACIONES Y MEDICIÓN","textPreview":"SIMULACIONES Y MEDICIÓN","textChars":23,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/1cfmhgne","slide":9,"text":"Un protocolo común permite comparar reglas y densidades","textPreview":"Un protocolo común permite comparar reglas y densidades","textChars":55,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/0b65obm9","slide":9,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/mdonql4z","slide":9,"text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/9gzml0nq","slide":9,"text":"L = 10   ·   r_c = 1   ·   v = 0.03   ·   Δt = 1","textPreview":"L = 10   ·   r_c = 1   ·   v = 0.03   ·   Δt = 1","textChars":48,"textLines":1,"bbox":[66,160,1148,52]}
+{"kind":"shape","id":"sh/ofq5svm5","slide":9,"bbox":[174,230,932,0]}
+{"kind":"textbox","id":"sh/bih4na5w","slide":9,"text":"Sistema","textPreview":"Sistema","textChars":7,"textLines":1,"bbox":[85,278,190,34]}
+{"kind":"textbox","id":"sh/ah8nu54b","slide":9,"text":"ρ = 2, 4, 8\nN = 200, 400, 800","textPreview":"ρ = 2, 4, 8 | N = 200, 400, 800","textChars":29,"textLines":2,"bbox":[53,332,254,90]}
+{"kind":"textbox","id":"sh/oza1gfyh","slide":9,"text":"Ruido","textPreview":"Ruido","textChars":5,"textLines":1,"bbox":[400,278,190,34]}
+{"kind":"textbox","id":"sh/p0ji9kf2","slide":9,"text":"14 valores de η\n0 a 6 rad","textPreview":"14 valores de η | 0 a 6 rad","textChars":25,"textLines":2,"bbox":[368,332,254,90]}
+{"kind":"textbox","id":"sh/2xsjepgb","slide":9,"text":"Muestreo","textPreview":"Muestreo","textChars":8,"textLines":1,"bbox":[715,278,190,34]}
+{"kind":"textbox","id":"sh/3y107axw","slide":9,"text":"R = 20\n3000 pasos","textPreview":"R = 20 | 3000 pasos","textChars":17,"textLines":2,"bbox":[683,332,254,90]}
+{"kind":"textbox","id":"sh/cnu1kzyd","slide":9,"text":"Estacionario","textPreview":"Estacionario","textChars":12,"textLines":1,"bbox":[1030,278,190,34]}
+{"kind":"textbox","id":"sh/do3id4fy","slide":9,"text":"t_eq = 1500\ndesvío estándar","textPreview":"t_eq = 1500 | desvío estándar","textChars":27,"textLines":2,"bbox":[998,332,254,90]}
+{"kind":"shape","id":"sh/qlcjipgn","slide":9,"bbox":[150,491,980,82]}
+{"kind":"textbox","id":"sh/bml0buxs","slide":9,"text":"Primero: promedio temporal estacionario por realización    →    Después: promedio entre realizaciones","textPreview":"Primero: promedio temporal estacionario por realización    →    Después: promedio entre realizaciones","textChars":101,"textLines":1,"bbox":[176,509,928,46]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"Idea central: Explicar el orden de promediado y la definición de barras; no leer la lista completa de η.\nDuración estimada: 0:40.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/DECISIONES_PENDIENTES.md\n[/Sources]"}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"SIMULACIONES Y MEDICIÓN","textShapes":11}
+{"kind":"textbox","id":"sh/1cru1g3y","slide":10,"text":"SIMULACIONES Y MEDICIÓN","textPreview":"SIMULACIONES Y MEDICIÓN","textChars":23,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/xc3mho32","slide":10,"text":"Medimos orden y conectividad por separado","textPreview":"Medimos orden y conectividad por separado","textChars":41,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/cbu58j2h","slide":10,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/zelojyl8","slide":10,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/l036l83y","slide":10,"bbox":[66,170,540,360]}
+{"kind":"shape","id":"sh/kzu5c32t","slide":10,"bbox":[674,170,540,360]}
+{"kind":"textbox","id":"sh/725onyl4","slide":10,"text":"Polarización","textPreview":"Polarización","textChars":12,"textLines":1,"bbox":[96,198,300,42]}
+{"kind":"textbox","id":"sh/m1cnetkj","slide":10,"text":"vₐ(t) = (1 / Nv) · |Σᵢ vᵢ(t)|","textPreview":"vₐ(t) = (1 / Nv) · |Σᵢ vᵢ(t)|","textChars":29,"textLines":1,"bbox":[96,267,450,54]}
+{"kind":"textbox","id":"sh/s7yt4b21","slide":10,"text":"Magnitud de la velocidad media normalizada\n0 ≤ vₐ ≤ 1","textPreview":"Magnitud de la velocidad media normalizada | 0 ≤ vₐ ≤ 1","textChars":53,"textLines":2,"bbox":[100,354,442,80]}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"text":"Componente gigante","textPreview":"Componente gigante","textChars":18,"textLines":1,"bbox":[704,198,340,42]}
+{"kind":"textbox","id":"sh/q5gb21kb","slide":10,"text":"S(t) = n_max(t) / N","textPreview":"S(t) = n_max(t) / N","textChars":19,"textLines":1,"bbox":[704,267,450,54]}
+{"kind":"textbox","id":"sh/r6pcv6lw","slide":10,"text":"Clusters: componentes conexas geométricas\ncon borde periódico","textPreview":"Clusters: componentes conexas geométricas | con borde periódico","textChars":61,"textLines":2,"bbox":[708,354,442,80]}
+{"kind":"textbox","id":"sh/0bit8b2d","slide":10,"text":"Medir ambos evita confundir alineamiento global con proximidad espacial.","textPreview":"Medir ambos evita confundir alineamiento global con proximidad espacial.","textChars":72,"textLines":1,"bbox":[180,575,920,38]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"Idea central: Definir vₐ y S antes de mostrar curvas; señalar que un cluster grande no implica alineamiento global.\nDuración estimada: 0:30.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/teoria_tp2_automatas_off_lattice.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/bibliografia/enunciado_tp2_guia_de_trabajo.md\n[/Sources]"}
+{"kind":"slide","id":"sl/jetc3ut0","slide":11,"title":"SECCIÓN 3","textShapes":4}
+{"kind":"shape","id":"sh/o7ih0r6h","slide":11,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/xcryxg7y","slide":11,"text":"SECCIÓN 3","textPreview":"SECCIÓN 3","textChars":9,"textLines":1,"bbox":[92,230,600,28]}
+{"kind":"textbox","id":"sh/wbih4b6d","slide":11,"text":"Resultados: ruido, orden y conectividad","textPreview":"Resultados: ruido, orden y conectividad","textChars":39,"textLines":1,"bbox":[92,274,1050,100]}
+{"kind":"shape","id":"sh/n69grmpw","slide":11,"bbox":[92,400,150,0]}
+{"kind":"textbox","id":"sh/250zy18b","slide":11,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/98rytw72","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":11,"text":"Idea central: Abrir la sección de resultados.\nDuración estimada: 0:03.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n[/Sources]"}
+{"kind":"slide","id":"sl/8f2psfyx","slide":12,"title":"RESULTADOS","textShapes":6}
+{"kind":"textbox","id":"sh/atc7epon","slide":12,"text":"RESULTADOS","textPreview":"RESULTADOS","textChars":10,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/1gbm9s3a","slide":12,"text":"Misma polarización, distintas reglas de interacción","textPreview":"Misma polarización, distintas reglas de interacción","textChars":51,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/0f2lgnmp","slide":12,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/ra943il8","slide":12,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/q903ad4n","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/dcbm583y","slide":12,"bbox":[63,152,850,476]}
+{"kind":"shape","id":"sh/b6d4f2lc","slide":12,"bbox":[944,155,270,470]}
+{"kind":"shape","id":"sh/a543mx4r","slide":12,"bbox":[966,181,74,0]}
+{"kind":"textbox","id":"sh/wvupgz6t","slide":12,"text":"vₐ ≈ 0.515","textPreview":"vₐ ≈ 0.515","textChars":10,"textLines":1,"bbox":[966,201,226,48]}
+{"kind":"textbox","id":"sh/xw3q94ne","slide":12,"text":"Izquierda · Vicsek\nη=3 · vₐ(t)=0.514\n\nDerecha · Votante\nη=0.4 · vₐ(t)=0.515\n\nEn común\nρ=2 · N=200\nt=2000 · v=0.03\nFlecha: dirección (×15)\nColor: ángulo","textPreview":"Izquierda · Vicsek | η=3 · vₐ(t)=0.514 |  | Derecha · Votante | η=0.4 · vₐ(t)=0.515 |  | En común | ρ=2 · N=200 | t=2000 · v=0.03 | Flech...","textChars":151,"textLines":11,"bbox":[966,263,226,338]}
+{"kind":"image","id":"im/srmp0vmd","slide":12,"name":"","bbox":[66,192.64,844,394.73]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":12,"text":"Idea central: Comparar dos estados con polarización media similar alcanzada con ruidos muy distintos.\nDuración estimada: 0:35.\nPendiente: incorporar la animación cuando exista. Para el PDF final, conservar fotograma y agregar un link visible probado.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/reference_snapshots_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/reference_snapshots_v1/rho2_model_comparison_snapshot.png\n[/Sources]"}
+{"kind":"slide","id":"sl/hgzapcr6","slide":13,"title":"RESULTADOS · VICSEK","textShapes":6}
+{"kind":"textbox","id":"sh/vaxg7ulo","slide":13,"text":"RESULTADOS · VICSEK","textPreview":"RESULTADOS · VICSEK","textChars":19,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/q50nydsj","slide":13,"text":"Vicsek: más densidad sostiene el orden a mayor ruido","textPreview":"Vicsek: más densidad sostiene el orden a mayor ruido","textChars":52,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/bq9orito","slide":13,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/o3i5w3ad","slide":13,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/p4r6p8by","slide":13,"text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/21gnuts7","slide":13,"text":"Observación de estas simulaciones, no una ley universal.","textPreview":"Observación de estas simulaciones, no una ley universal.","textChars":56,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/32ponyts","slide":13,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/1076lobm","slide":13,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/gb6x0zm9","slide":13,"text":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textPreview":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textChars":70,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/x0ji10bi","slide":13,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/m98jmlcv","slide":13,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/hgzapcr6","slide":13,"text":"Idea central: Observación de estas simulaciones, no una ley universal.\nDuración estimada: 0:45.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_va_t_rho_2.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_va_vs_eta.png\n[/Sources]"}
+{"kind":"slide","id":"sl/6lsnupw7","slide":14,"title":"RESULTADOS · VICSEK","textShapes":6}
+{"kind":"textbox","id":"sh/a1wze9g7","slide":14,"text":"RESULTADOS · VICSEK","textPreview":"RESULTADOS · VICSEK","textChars":19,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/xc7eds76","slide":14,"text":"Vicsek: conectividad y alineamiento evolucionan distinto","textPreview":"Vicsek: conectividad y alineamiento evolucionan distinto","textChars":56,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/wbydknq1","slide":14,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/jepwf2pc","slide":14,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/idgvmx8r","slide":14,"text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/5grehs7i","slide":14,"text":"La componente gigante aporta información espacial complementaria.","textPreview":"La componente gigante aporta información espacial complementaria.","textChars":65,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/kfidonqx","slide":14,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/ehwvat8n","slide":14,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/x4ni9ofy","slide":14,"text":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textPreview":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textChars":70,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/0vud8v2d","slide":14,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/rq1cvq1g","slide":14,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/6lsnupw7","slide":14,"text":"Idea central: La componente gigante aporta información espacial complementaria.\nDuración estimada: 0:40.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_t_rho_2.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_vs_eta.png\n[/Sources]"}
+{"kind":"slide","id":"sl/vaxsvy10","slide":15,"title":"RESULTADOS · VICSEK","textShapes":6}
+{"kind":"textbox","id":"sh/upkrilwj","slide":15,"text":"RESULTADOS · VICSEK","textPreview":"RESULTADOS · VICSEK","textChars":19,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/547mhg3m","slide":15,"text":"Vicsek: orden frente a conectividad","textPreview":"Vicsek: orden frente a conectividad","textChars":35,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/k3y5ov21","slide":15,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/76p4jqls","slide":15,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/65gnqlk7","slide":15,"text":"15","textPreview":"15","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/t87ml0ji","slide":15,"bbox":[63,155,830,478]}
+{"kind":"shape","id":"sh/na5476l8","slide":15,"bbox":[924,158,290,472]}
+{"kind":"shape","id":"sh/m9c3e1kn","slide":15,"bbox":[946,184,74,0]}
+{"kind":"textbox","id":"sh/wrm9kvep","slide":15,"text":"Cómo leerlo","textPreview":"Cómo leerlo","textChars":11,"textLines":1,"bbox":[946,204,246,48]}
+{"kind":"textbox","id":"sh/hsvat0fa","slide":15,"text":"Cada punto: un valor de η\nEje x: ⟨S⟩\nEje y: ⟨vₐ⟩\nρ = 2, 4, 8\nBarras: desvío estándar","textPreview":"Cada punto: un valor de η | Eje x: ⟨S⟩ | Eje y: ⟨vₐ⟩ | ρ = 2, 4, 8 | Barras: desvío estándar","textChars":84,"textLines":5,"bbox":[946,266,246,340]}
+{"kind":"image","id":"im/wbalg3a1","slide":15,"name":"","bbox":[150.22,158,655.56,472]}
+{"kind":"notes","id":"nt/vaxsvy10","slide":15,"text":"Idea central: Mostrar que la relación entre alineamiento y conectividad cambia a lo largo del barrido.\nDuración estimada: 0:25.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_va_vs_S.png\n[/Sources]"}
+{"kind":"slide","id":"sl/gny5sjyp","slide":16,"title":"RESULTADOS · VOTANTE","textShapes":6}
+{"kind":"textbox","id":"sh/1ojy10ne","slide":16,"text":"RESULTADOS · VOTANTE","textPreview":"RESULTADOS · VOTANTE","textChars":20,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/8z2h8bq1","slide":16,"text":"Votante: la caída observada ocurre a ruido bajo","textPreview":"Votante: la caída observada ocurre a ruido bajo","textChars":47,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/9kby1g7m","slide":16,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/ytkf2h8j","slide":16,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/zutgvm94","slide":16,"text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/kv2h4rqp","slide":16,"text":"La zona η ≤ 0.5 resuelve la caída observada.","textPreview":"La zona η ≤ 0.5 resuelve la caída observada.","textChars":44,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/lwbyxwra","slide":16,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/3qdg7qpo","slide":16,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/e1sf65o3","slide":16,"text":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textPreview":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textChars":70,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/7mtsba9g","slide":16,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/kji90fa5","slide":16,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/gny5sjyp","slide":16,"text":"Idea central: La zona η ≤ 0.5 resuelve la caída observada.\nDuración estimada: 0:45.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_va_t_rho_2.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_va_vs_eta_zoom_0_0p5.png\n[/Sources]"}
+{"kind":"slide","id":"sl/14bup87q","slide":17,"title":"RESULTADOS · VOTANTE","textShapes":6}
+{"kind":"textbox","id":"sh/29grm1of","slide":17,"text":"RESULTADOS · VOTANTE","textPreview":"RESULTADOS · VOTANTE","textChars":20,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/1c7e50ni","slide":17,"text":"Votante: conectividad","textPreview":"Votante: conectividad","textChars":21,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/gbedwfmx","slide":17,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/rm5czq50","slide":17,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/6lwvql4v","slide":17,"text":"17","textPreview":"17","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/t8ne10n6","slide":17,"text":"La comparación conserva geometría, tiempos y estadística.","textPreview":"La comparación conserva geometría, tiempos y estadística.","textChars":57,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/snedsvml","slide":17,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/ihcvml4j","slide":17,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/pc7qhwn6","slide":17,"text":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textPreview":"Línea vertical: t_eq = 1500  ·  Bandas/barras: desvío estándar, R = 20","textChars":70,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/oz2hcvit","slide":17,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/b2d07qh4","slide":17,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/14bup87q","slide":17,"text":"Idea central: La comparación conserva geometría, tiempos y estadística.\nDuración estimada: 0:40.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_t_rho_2.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_vs_eta.png\n[/Sources]"}
+{"kind":"slide","id":"sl/y5wne50z","slide":18,"title":"RESULTADOS · VOTANTE","textShapes":6}
+{"kind":"textbox","id":"sh/1cr2tg72","slide":18,"text":"RESULTADOS · VOTANTE","textPreview":"RESULTADOS · VOTANTE","textChars":20,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/wrelszu9","slide":18,"text":"Votante: cambia la relación entre orden y conectividad","textPreview":"Votante: cambia la relación entre orden y conectividad","textChars":54,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/hsn2l4bu","slide":18,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/itw3upcf","slide":18,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/je5knut0","slide":18,"text":"18","textPreview":"18","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/4felwzu5","slide":18,"bbox":[63,155,830,478]}
+{"kind":"shape","id":"sh/6hw3y9sb","slide":18,"bbox":[924,158,290,472]}
+{"kind":"shape","id":"sh/rip4retw","slide":18,"bbox":[946,184,74,0]}
+{"kind":"textbox","id":"sh/fapkr6pw","slide":18,"text":"Lectura","textPreview":"Lectura","textChars":7,"textLines":1,"bbox":[946,204,246,48]}
+{"kind":"textbox","id":"sh/upg3i18r","slide":18,"text":"Cada punto: un valor de η\nEje x: ⟨S⟩\nEje y: ⟨vₐ⟩\nMisma geometría\nMismo protocolo","textPreview":"Cada punto: un valor de η | Eje x: ⟨S⟩ | Eje y: ⟨vₐ⟩ | Misma geometría | Mismo protocolo","textChars":80,"textLines":5,"bbox":[946,266,246,340]}
+{"kind":"image","id":"im/vmhknex4","slide":18,"name":"","bbox":[150.22,158,655.56,472]}
+{"kind":"notes","id":"nt/y5wne50z","slide":18,"text":"Idea central: Atribuir la diferencia observada a la regla local, porque los demás parámetros se mantuvieron iguales.\nDuración estimada: 0:25.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_va_vs_S.png\n[/Sources]"}
+{"kind":"slide","id":"sl/nid43ytk","slide":19,"title":"RESULTADOS","textShapes":8}
+{"kind":"textbox","id":"sh/et0jix8r","slide":19,"text":"RESULTADOS","textPreview":"RESULTADOS","textChars":10,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/9gb6xgbi","slide":19,"text":"Fragmentación a baja densidad","textPreview":"Fragmentación a baja densidad","textChars":29,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/8v2pobax","slide":19,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/vitozqt8","slide":19,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/ahk7qls3","slide":19,"text":"19","textPreview":"19","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/xkbq10be","slide":19,"bbox":[63,157,854,474]}
+{"kind":"shape","id":"sh/jmd83atk","slide":19,"bbox":[946,160,268,468]}
+{"kind":"shape","id":"sh/il47u5sz","slide":19,"bbox":[968,186,74,0]}
+{"kind":"textbox","id":"sh/cri1gnql","slide":19,"text":"Densidades","textPreview":"Densidades","textChars":10,"textLines":1,"bbox":[968,206,224,48]}
+{"kind":"textbox","id":"sh/dsri9sr6","slide":19,"text":"ρ nominal:\n1/π · 1/(2π) · 1/(3π)\n\nN:\n32 · 16 · 11\n\nρ efectiva:\n0.32 · 0.16 · 0.11","textPreview":"ρ nominal: | 1/π · 1/(2π) · 1/(3π) |  | N: | 32 · 16 · 11 |  | ρ efectiva: | 0.32 · 0.16 · 0.11","textChars":81,"textLines":8,"bbox":[968,268,224,336]}
+{"kind":"shape","id":"sh/qpgjex8f","slide":19,"bbox":[0,0,1280,132]}
+{"kind":"textbox","id":"sh/rqp07290","slide":19,"text":"RESULTADOS","textPreview":"RESULTADOS","textChars":10,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/0vi1k7qx","slide":19,"text":"Fragmentación a baja densidad","textPreview":"Fragmentación a baja densidad","textChars":29,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/1gridcr2","slide":19,"bbox":[66,126,1148,0]}
+{"kind":"image","id":"im/ojq58325","slide":19,"name":"","bbox":[66,213.07,848,361.86]}
+{"kind":"notes","id":"nt/nid43ytk","slide":19,"text":"Idea central: Explicar por qué se reportan densidad nominal, N entero y densidad efectiva.\nDuración estimada: 0:35.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/DECISIONES_PENDIENTES.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/comparison_S_vs_eta_lowrho.png\n[/Sources]"}
+{"kind":"slide","id":"sl/zyxsni5k","slide":20,"title":"RESULTADOS","textShapes":6}
+{"kind":"textbox","id":"sh/rid4nuhs","slide":20,"text":"RESULTADOS","textPreview":"RESULTADOS","textChars":10,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/qpwjmh8n","slide":20,"text":"Las reglas separan las escalas de ruido observadas","textPreview":"Las reglas separan las escalas de ruido observadas","textChars":50,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/rq50vmp8","slide":20,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/4nu1krqh","slide":20,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/po3itc72","slide":20,"text":"20","textPreview":"20","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/2lczih8r","slide":20,"text":"El votante pierde polarización en la región de ruido bajo resuelta finamente; Vicsek conserva orden hasta ruidos mayores.","textPreview":"El votante pierde polarización en la región de ruido bajo resuelta finamente; Vicsek conserva orden hasta ruidos mayores.","textChars":121,"textLines":1,"bbox":[66,139,1148,54]}
+{"kind":"shape","id":"sh/3ml0rmpw","slide":20,"bbox":[63,200,556,384]}
+{"kind":"shape","id":"sh/hk3ipcr6","slide":20,"bbox":[647,200,556,384]}
+{"kind":"textbox","id":"sh/cj65wzyd","slide":20,"text":"Izquierda: ⟨vₐ⟩ vs. η   ·   Derecha: ⟨S⟩ vs. η   ·   Barras: desvío estándar, R = 20","textPreview":"Izquierda: ⟨vₐ⟩ vs. η   ·   Derecha: ⟨S⟩ vs. η   ·   Barras: desvío estándar, R = 20","textChars":84,"textLines":1,"bbox":[66,600,1132,36]}
+{"kind":"image","id":"im/98v6lgfe","slide":20,"name":"","bbox":[66,274.65,550,234.7]}
+{"kind":"image","id":"im/a947ulgz","slide":20,"name":"","bbox":[650,274.65,550,234.7]}
+{"kind":"notes","id":"nt/zyxsni5k","slide":20,"text":"Idea central: Cerrar la evidencia comparativa con una formulación prudente y limitada a estos datos.\nDuración estimada: 0:45.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/comparison_va_vs_eta.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/comparison_S_vs_eta_base.png\n[/Sources]"}
+{"kind":"slide","id":"sl/m1wvqtk3","slide":21,"title":"CONCLUSIONES","textShapes":11}
+{"kind":"textbox","id":"sh/wvax03q1","slide":21,"text":"CONCLUSIONES","textPreview":"CONCLUSIONES","textChars":12,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/1gbmxs7a","slide":21,"text":"Tres conclusiones: ruido, regla y conectividad","textPreview":"Tres conclusiones: ruido, regla y conectividad","textChars":46,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/0f2lon6p","slide":21,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/ra9kryp8","slide":21,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/qp03yt8n","slide":21,"text":"21","textPreview":"21","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/dcb2t87y","slide":21,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[90,180,58,58]}
+{"kind":"textbox","id":"sh/sb2lk36t","slide":21,"text":"El ruido controla el orden colectivo en ambos modelos.","textPreview":"El ruido controla el orden colectivo en ambos modelos.","textChars":54,"textLines":1,"bbox":[180,174,940,72]}
+{"kind":"textbox","id":"sh/b6d432pc","slide":21,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[90,305,58,58]}
+{"kind":"textbox","id":"sh/al43uxor","slide":21,"text":"La regla de interacción cambia el rango de ruido donde se observa la pérdida de polarización.","textPreview":"La regla de interacción cambia el rango de ruido donde se observa la pérdida de polarización.","textChars":93,"textLines":1,"bbox":[180,299,940,72]}
+{"kind":"textbox","id":"sh/4jax4nqd","slide":21,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[90,430,58,58]}
+{"kind":"textbox","id":"sh/5kjydsri","slide":21,"text":"Conectividad espacial y alineamiento global no son equivalentes; por eso se estudian con S y vₐ por separado.","textPreview":"Conectividad espacial y alineamiento global no son equivalentes; por eso se estudian con S y vₐ por separado.","textChars":109,"textLines":1,"bbox":[180,424,940,72]}
+{"kind":"shape","id":"sh/ixsf2d87","slide":21,"bbox":[180,566,940,0]}
+{"kind":"textbox","id":"sh/jy1gbi9s","slide":21,"text":"Pendientes de cierre: animaciones y benchmark CIM vs. TP1.","textPreview":"Pendientes de cierre: animaciones y benchmark CIM vs. TP1.","textChars":58,"textLines":1,"bbox":[180,588,940,34]}
+{"kind":"notes","id":"nt/m1wvqtk3","slide":21,"text":"Idea central: Resolver la pregunta inicial con tres conclusiones y declarar con honestidad qué falta para la entrega final.\nDuración estimada: 0:35.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/09_informe_presentacion_entrega.md\n[/Sources]"}
+{"kind":"slide","id":"sl/5onypobq","slide":22,"title":"RESPALDO PARA PREGUNTAS","textShapes":4}
+{"kind":"shape","id":"sh/jmh8nyd0","slide":22,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/6987itcr","slide":22,"text":"RESPALDO PARA PREGUNTAS","textPreview":"RESPALDO PARA PREGUNTAS","textChars":23,"textLines":1,"bbox":[92,230,600,28]}
+{"kind":"textbox","id":"sh/7a18rydc","slide":22,"text":"Apéndice","textPreview":"Apéndice","textChars":8,"textLines":1,"bbox":[92,274,1050,100]}
+{"kind":"shape","id":"sh/k7qpgjul","slide":22,"bbox":[92,400,150,0]}
+{"kind":"textbox","id":"sh/58zqpov6","slide":22,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/il87etcv","slide":22,"text":"22","textPreview":"22","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"notes","id":"nt/5onypobq","slide":22,"text":"Idea central: No exponer salvo preguntas; separa claramente el respaldo del relato principal.\nDuración estimada: —.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/PLAN_PPT_TP2.md\n[/Sources]"}
+{"kind":"slide","id":"sl/c7uhcr6t","slide":23,"title":"APÉNDICE","textShapes":4}
+{"kind":"textbox","id":"sh/jqd8jmhs","slide":23,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/90vqdczq","slide":23,"text":"Comparación directa entre orden y conectividad","textPreview":"Comparación directa entre orden y conectividad","textChars":46,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/8zm9k7y5","slide":23,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/v2d8fmhw","slide":23,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/a14rmhgb","slide":23,"text":"23","textPreview":"23","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/xovqhcz2","slide":23,"bbox":[79,147,1122,492]}
+{"kind":"image","id":"im/f65ormlw","slide":23,"name":"","bbox":[82,154.89,1116,476.22]}
+{"kind":"notes","id":"nt/c7uhcr6t","slide":23,"text":"Idea central: Usar solo si preguntan por la comparación punto a punto entre modelos.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/comparison_va_vs_S.png\n[/Sources]"}
+{"kind":"slide","id":"sl/7qto7e10","slide":24,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/mtwz6h0f","slide":24,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/1sfqxsv6","slide":24,"text":"Vicsek: vₐ(t) en ρ = 4 y ρ = 8","textPreview":"Vicsek: vₐ(t) en ρ = 4 y ρ = 8","textChars":30,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/0r6p4nul","slide":24,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/nux8zidc","slide":24,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/2to76dcr","slide":24,"text":"24","textPreview":"24","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/9wzq1svi","slide":24,"text":"Series restantes por densidad.","textPreview":"Series restantes por densidad.","textChars":30,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/ov6p8nux","slide":24,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/ix47utcn","slide":24,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/9wni1wjq","slide":24,"text":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textPreview":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textChars":47,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/cry9cvi5","slide":24,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/zupsnqhg","slide":24,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/7qto7e10","slide":24,"text":"Idea central: Series restantes por densidad.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_va_t_rho_4.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_va_t_rho_8.png\n[/Sources]"}
+{"kind":"slide","id":"sl/69wfm9o7","slide":25,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/uxsra18j","slide":25,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/xg7axgf2","slide":25,"text":"Vicsek: S(t) en ρ = 4 y ρ = 8","textPreview":"Vicsek: S(t) en ρ = 4 y ρ = 8","textChars":29,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/cfyt4beh","slide":25,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/napsr6x0","slide":25,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/29wby1wf","slide":25,"text":"25","textPreview":"25","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/pc7atgf6","slide":25,"text":"Series restantes por densidad.","textPreview":"Series restantes por densidad.","textChars":30,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/obyt0bel","slide":25,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/elwbu1wj","slide":25,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/h0jalgra","slide":25,"text":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textPreview":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textChars":47,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/87y1knmd","slide":25,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/vap0v2lo","slide":25,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/69wfm9o7","slide":25,"text":"Idea central: Series restantes por densidad.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_t_rho_4.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_t_rho_8.png\n[/Sources]"}
+{"kind":"slide","id":"sl/l0bepsfm","slide":26,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/z61szulc","slide":26,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/uhk36lk7","slide":26,"text":"Votante: polarización en ρ = 4 y ρ = 8","textPreview":"Votante: polarización en ρ = 4 y ρ = 8","textChars":38,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/vitkzqlc","slide":26,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/8fil4b21","slide":26,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/tgr2xg3m","slide":26,"text":"26","textPreview":"26","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/md0321kv","slide":26,"text":"Series restantes por densidad.","textPreview":"Series restantes por densidad.","textChars":30,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/7e9kv6lg","slide":26,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/lcr2tw3a","slide":26,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/krat8z2x","slide":26,"text":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textPreview":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textChars":47,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/1wzepgra","slide":26,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/qpofa1sn","slide":26,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/l0bepsfm","slide":26,"text":"Idea central: Series restantes por densidad.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_va_t_rho_4.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_va_t_rho_8.png\n[/Sources]"}
+{"kind":"slide","id":"sl/4vyxknqp","slide":27,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/lw7yxcra","slide":27,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/kn694nmx","slide":27,"text":"Votante: S(t) en ρ = 4 y ρ = 8","textPreview":"Votante: S(t) en ρ = 4 y ρ = 8","textChars":30,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/lofadsni","slide":27,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/mpor6x43","slide":27,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/7qxsfi5o","slide":27,"text":"27","textPreview":"27","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/8r698nm9","slide":27,"text":"Series restantes por densidad.","textPreview":"Series restantes por densidad.","textChars":30,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/9sfahsnu","slide":27,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/vuxsj250","slide":27,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/ytwfmx8j","slide":27,"text":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textPreview":"t_eq = 1500  ·  Bandas: desvío estándar, R = 20","textChars":47,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/3yp0zils","slide":27,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/sni1wn29","slide":27,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/4vyxknqp","slide":27,"text":"Idea central: Series restantes por densidad.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_t_rho_4.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_t_rho_8.png\n[/Sources]"}
+{"kind":"slide","id":"sl/3mdove10","slide":28,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/je1o7ax0","slide":28,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/q9cz6xkv","slide":28,"text":"Vicsek: clusters en densidades bajas","textPreview":"Vicsek: clusters en densidades bajas","textChars":36,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/ralgf21g","slide":28,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/0zehcr2x","slide":28,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/10nylwji","slide":28,"text":"28","textPreview":"28","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/exwzahkr","slide":28,"bbox":[77,147,816,492]}
+{"kind":"shape","id":"sh/o3ehgr29","slide":28,"bbox":[924,150,290,486]}
+{"kind":"shape","id":"sh/947ipwje","slide":28,"bbox":[946,176,74,0]}
+{"kind":"textbox","id":"sh/lg3690fq","slide":28,"text":"Casos","textPreview":"Casos","textChars":5,"textLines":1,"bbox":[946,196,246,48]}
+{"kind":"textbox","id":"sh/kfu5gfe5","slide":28,"text":"ρ nominal = 1/π, 1/(2π), 1/(3π)\nN = 32, 16, 11\nρ efectiva = 0.32, 0.16, 0.11\nBarras: desvío estándar","textPreview":"ρ nominal = 1/π, 1/(2π), 1/(3π) | N = 32, 16, 11 | ρ efectiva = 0.32, 0.16, 0.11 | Barras: desvío estándar","textChars":100,"textLines":4,"bbox":[946,258,246,354]}
+{"kind":"image","id":"im/lkbq18ny","slide":28,"name":"","bbox":[147.5,150,675,486]}
+{"kind":"notes","id":"nt/3mdove10","slide":28,"text":"Idea central: Detalle individual de Vicsek en densidades bajas.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_vs_eta_lowrho.png\n[/Sources]"}
+{"kind":"slide","id":"sl/i5o3q10v","slide":29,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/idkbuxsv","slide":29,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/tk36hwby","slide":29,"text":"Votante: clusters en densidades bajas","textPreview":"Votante: clusters en densidades bajas","textChars":37,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/8jup8rad","slide":29,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/vmlojmto","slide":29,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/ulc7a1s3","slide":29,"text":"29","textPreview":"29","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/h8n6lwbu","slide":29,"bbox":[77,147,816,492]}
+{"kind":"shape","id":"sh/bq1o72tk","slide":29,"bbox":[924,150,290,486]}
+{"kind":"shape","id":"sh/apsnyxcz","slide":29,"bbox":[946,176,74,0]}
+{"kind":"textbox","id":"sh/kf2tw7a1","slide":29,"text":"Casos","textPreview":"Casos","textChars":5,"textLines":1,"bbox":[946,196,246,48]}
+{"kind":"textbox","id":"sh/5gbupcrm","slide":29,"text":"ρ nominal = 1/π, 1/(2π), 1/(3π)\nN = 32, 16, 11\nρ efectiva = 0.32, 0.16, 0.11\nBarras: desvío estándar","textPreview":"ρ nominal = 1/π, 1/(2π), 1/(3π) | N = 32, 16, 11 | ρ efectiva = 0.32, 0.16, 0.11 | Barras: desvío estándar","textChars":100,"textLines":4,"bbox":[946,258,246,354]}
+{"kind":"image","id":"im/kv6h8bu1","slide":29,"name":"","bbox":[147.5,150,675,486]}
+{"kind":"notes","id":"nt/i5o3q10v","slide":29,"text":"Idea central: Detalle individual del votante en densidades bajas.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_vs_eta_lowrho.png\n[/Sources]"}
+{"kind":"slide","id":"sl/wnqh07ex","slide":30,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/2l8f6p0r","slide":30,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/po72d8nm","slide":30,"text":"S con η ≤ 0.5: densidades base","textPreview":"S con η ≤ 0.5: densidades base","textChars":30,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/o3yl4361","slide":30,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/bqpkfy5s","slide":30,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/apg36do7","slide":30,"text":"30","textPreview":"30","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/xsr2h8ni","slide":30,"text":"Mismo intervalo η ≤ 0.5 para ambos modelos.","textPreview":"Mismo intervalo η ≤ 0.5 para ambos modelos.","textChars":43,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/cril836d","slide":30,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/6twju9o3","slide":30,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/p8ze14zi","slide":30,"text":"ρ = 2, 4, 8  ·  Barras: desvío estándar, R = 20","textPreview":"ρ = 2, 4, 8  ·  Barras: desvío estándar, R = 20","textChars":47,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/c32tsfi1","slide":30,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/3y9svqhk","slide":30,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/wnqh07ex","slide":30,"text":"Idea central: Mismo intervalo η ≤ 0.5 para ambos modelos.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_vs_eta_zoom_0_0p5.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_vs_eta_zoom_0_0p5.png\n[/Sources]"}
+{"kind":"slide","id":"sl/lcn6tkb6","slide":31,"title":"APÉNDICE","textShapes":6}
+{"kind":"textbox","id":"sh/it4nexsf","slide":31,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/dgja98fe","slide":31,"text":"Zoom de S: densidades bajas","textPreview":"Zoom de S: densidades bajas","textChars":27,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/cfa903yt","slide":31,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/zilsbyx4","slide":31,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/ehsr2dgz","slide":31,"text":"31","textPreview":"31","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/1k3ad8fa","slide":31,"text":"Detalle del tramo fino η ≤ 0.5 en la extensión de clusters.","textPreview":"Detalle del tramo fino η ≤ 0.5 en la extensión de clusters.","textChars":59,"textLines":1,"bbox":[66,139,1148,35]}
+{"kind":"shape","id":"sh/0jut43yp","slide":31,"bbox":[63,184,554,396]}
+{"kind":"shape","id":"sh/ul8rq9gf","slide":31,"bbox":[647,184,554,396]}
+{"kind":"textbox","id":"sh/5wvmpcr6","slide":31,"text":"N = 32, 16, 11  ·  Barras: desvío estándar, R = 20","textPreview":"N = 32, 16, 11  ·  Barras: desvío estándar, R = 20","textChars":50,"textLines":1,"bbox":[66,596,1132,48]}
+{"kind":"image","id":"im/orelo72x","slide":31,"name":"","bbox":[69.17,187,541.67,390]}
+{"kind":"image","id":"im/f25kr21g","slide":31,"name":"","bbox":[653.17,187,541.67,390]}
+{"kind":"notes","id":"nt/lcn6tkb6","slide":31,"text":"Idea central: Detalle del tramo fino η ≤ 0.5 en la extensión de clusters.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/vicsek_S_vs_eta_lowrho_zoom_0_0p5.png\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/voter_S_vs_eta_lowrho_zoom_0_0p5.png\n[/Sources]"}
+{"kind":"slide","id":"sl/6l0j294r","slide":32,"title":"APÉNDICE","textShapes":18}
+{"kind":"textbox","id":"sh/t8769sbi","slide":32,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/kr61sfy1","slide":32,"text":"Protocolo detallado","textPreview":"Protocolo detallado","textChars":19,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/lszilkfm","slide":32,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/6t8jupg7","slide":32,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/7uh0nuxs","slide":32,"text":"32","textPreview":"32","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"textbox","id":"sh/8vq1wzyd","slide":32,"text":"Geometría","textPreview":"Geometría","textChars":9,"textLines":1,"bbox":[76,156,230,45]}
+{"kind":"textbox","id":"sh/twzipkfy","slide":32,"text":"L=10 · r_c=1 · Δt=1 · v=0.03 · borde periódico","textPreview":"L=10 · r_c=1 · Δt=1 · v=0.03 · borde periódico","textChars":46,"textLines":1,"bbox":[314,156,870,45]}
+{"kind":"shape","id":"sh/mx4zilg3","slide":32,"bbox":[76,210,1108,0]}
+{"kind":"textbox","id":"sh/nyd0bqxo","slide":32,"text":"Matriz base","textPreview":"Matriz base","textChars":11,"textLines":1,"bbox":[76,225,230,45]}
+{"kind":"textbox","id":"sh/ry94z29w","slide":32,"text":"modelos={Vicsek,votante} · ρ={2,4,8} · N={200,400,800}","textPreview":"modelos={Vicsek,votante} · ρ={2,4,8} · N={200,400,800}","textChars":54,"textLines":1,"bbox":[314,225,870,45]}
+{"kind":"shape","id":"sh/qx0nqx8b","slide":32,"bbox":[76,279,1108,0]}
+{"kind":"textbox","id":"sh/d0bm1c7m","slide":32,"text":"Ruido","textPreview":"Ruido","textChars":5,"textLines":1,"bbox":[76,294,230,45]}
+{"kind":"textbox","id":"sh/szi5s7qh","slide":32,"text":"η={0,0.05,0.10,0.15,0.20,0.30,0.40,0.50,1,2,3,4,5,6} rad","textPreview":"η={0,0.05,0.10,0.15,0.20,0.30,0.40,0.50,1,2,3,4,5,6} rad","textChars":56,"textLines":1,"bbox":[314,294,870,45]}
+{"kind":"shape","id":"sh/3a94vi9k","slide":32,"bbox":[76,348,1108,0]}
+{"kind":"textbox","id":"sh/i903mx8z","slide":32,"text":"Ejecución","textPreview":"Ejecución","textChars":9,"textLines":1,"bbox":[76,363,230,45]}
+{"kind":"textbox","id":"sh/5crmxsrq","slide":32,"text":"R=20 · steps=3000 · t_eq=1500 · ventana t=1500…3000","textPreview":"R=20 · steps=3000 · t_eq=1500 · ventana t=1500…3000","textChars":51,"textLines":1,"bbox":[314,363,870,45]}
+{"kind":"shape","id":"sh/4bilonq5","slide":32,"bbox":[76,417,1108,0]}
+{"kind":"textbox","id":"sh/v6p4ri9o","slide":32,"text":"Agregación","textPreview":"Agregación","textChars":10,"textLines":1,"bbox":[76,432,230,45]}
+{"kind":"textbox","id":"sh/u5g3yd83","slide":32,"text":"promedio temporal por realización → promedio entre realizaciones","textPreview":"promedio temporal por realización → promedio entre realizaciones","textChars":64,"textLines":1,"bbox":[314,432,870,45]}
+{"kind":"shape","id":"sh/y1gnadsv","slide":32,"bbox":[76,486,1108,0]}
+{"kind":"textbox","id":"sh/j2p43itg","slide":32,"text":"Incertidumbre","textPreview":"Incertidumbre","textChars":13,"textLines":1,"bbox":[76,501,230,45]}
+{"kind":"textbox","id":"sh/k3y5cna1","slide":32,"text":"desvío estándar entre realizaciones; no error estándar","textPreview":"desvío estándar entre realizaciones; no error estándar","textChars":54,"textLines":1,"bbox":[314,501,870,45]}
+{"kind":"shape","id":"sh/l4765sbm","slide":32,"bbox":[76,555,1108,0]}
+{"kind":"textbox","id":"sh/65gneds7","slide":32,"text":"Densidades bajas","textPreview":"Densidades bajas","textChars":16,"textLines":1,"bbox":[76,570,230,45]}
+{"kind":"textbox","id":"sh/76po7its","slide":32,"text":"ρ nominal={1/π,1/(2π),1/(3π)} · N={32,16,11} · solo clusters","textPreview":"ρ nominal={1/π,1/(2π),1/(3π)} · N={32,16,11} · solo clusters","textChars":60,"textLines":1,"bbox":[314,570,870,45]}
+{"kind":"shape","id":"sh/87y5gnax","slide":32,"bbox":[76,624,1108,0]}
+{"kind":"notes","id":"nt/6l0j294r","slide":32,"text":"Idea central: Responder preguntas de reproducibilidad y método estadístico.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/figures/final_production_v1/README.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/DECISIONES_PENDIENTES.md\n[/Sources]"}
+{"kind":"slide","id":"sl/nax4b2dk","slide":33,"title":"APÉNDICE","textShapes":12}
+{"kind":"textbox","id":"sh/0fqd0z2t","slide":33,"text":"APÉNDICE","textPreview":"APÉNDICE","textChars":8,"textLines":1,"bbox":[66,34,410,24]}
+{"kind":"textbox","id":"sh/lk3m50nq","slide":33,"text":"Validaciones del motor: evidencia disponible","textPreview":"Validaciones del motor: evidencia disponible","textChars":44,"textLines":1,"bbox":[66,64,1148,48]}
+{"kind":"shape","id":"sh/0jalwfm5","slide":33,"bbox":[66,126,1148,0]}
+{"kind":"textbox","id":"sh/nml47a5w","slide":33,"text":"TP2 · Bandadas off-lattice","textPreview":"TP2 · Bandadas off-lattice","textChars":26,"textLines":1,"bbox":[66,680,420,20]}
+{"kind":"textbox","id":"sh/mlc3y54b","slide":33,"text":"33","textPreview":"33","textChars":2,"textLines":1,"bbox":[1170,680,44,20]}
+{"kind":"shape","id":"sh/9o3m9knm","slide":33,"bbox":[85,160,20,20]}
+{"kind":"textbox","id":"sh/8nul0fmh","slide":33,"text":"CIM = fuerza bruta en casos controlados.","textPreview":"CIM = fuerza bruta en casos controlados.","textChars":40,"textLines":1,"bbox":[125,146,1015,46]}
+{"kind":"shape","id":"sh/vql4bu5s","slide":33,"bbox":[85,222,20,20]}
+{"kind":"textbox","id":"sh/apc32p47","slide":33,"text":"Vecinos medios iniciales compatibles con ρπr_c².","textPreview":"Vecinos medios iniciales compatibles con ρπr_c².","textChars":48,"textLines":1,"bbox":[125,208,1015,46]}
+{"kind":"shape","id":"sh/grad8zah","slide":33,"bbox":[85,284,20,20]}
+{"kind":"textbox","id":"sh/hsjuhkb2","slide":33,"text":"Vicsek y votante satisfacen reglas distintas.","textPreview":"Vicsek y votante satisfacen reglas distintas.","textChars":45,"textLines":1,"bbox":[125,270,1015,46]}
+{"kind":"shape","id":"sh/upsv6psb","slide":33,"bbox":[85,346,20,20]}
+{"kind":"textbox","id":"sh/vq1cfutw","slide":33,"text":"Actualización sincrónica y movimiento backward.","textPreview":"Actualización sincrónica y movimiento backward.","textChars":47,"textLines":1,"bbox":[125,332,1015,46]}
+{"kind":"shape","id":"sh/4vadczad","slide":33,"bbox":[85,408,20,20]}
+{"kind":"textbox","id":"sh/5w3ul4by","slide":33,"text":"vₐ ∈ [0,1] y vale 1 para direcciones idénticas.","textPreview":"vₐ ∈ [0,1] y vale 1 para direcciones idénticas.","textChars":47,"textLines":1,"bbox":[125,394,1015,46]}
+{"kind":"shape","id":"sh/itsvapsn","slide":33,"bbox":[85,470,20,20]}
+{"kind":"textbox","id":"sh/3u1cjut8","slide":33,"text":"S valida transitividad, periodicidad e IDs no consecutivos.","textPreview":"S valida transitividad, periodicidad e IDs no consecutivos.","textChars":59,"textLines":1,"bbox":[125,456,1015,46]}
+{"kind":"shape","id":"sh/czudgjap","slide":33,"bbox":[85,532,20,20]}
+{"kind":"textbox","id":"sh/dk3ep4ba","slide":33,"text":"Reproducibilidad con semillas y salida de texto verificada.","textPreview":"Reproducibilidad con semillas y salida de texto verificada.","textChars":59,"textLines":1,"bbox":[125,518,1015,46]}
+{"kind":"textbox","id":"sh/lgzu94je","slide":33,"text":"Suite automatizada: 11/11 CTest aprobadas","textPreview":"Suite automatizada: 11/11 CTest aprobadas","textChars":41,"textLines":1,"bbox":[700,603,450,34]}
+{"kind":"notes","id":"nt/nax4b2dk","slide":33,"text":"Idea central: Usar como respaldo metodológico; no afirmar cierre de la regresión física de consenso si preguntan por ella.\nDuración estimada: respaldo.\n\n[Sources]\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/03_validaciones.md\n- /Users/francoferrari/Desktop/ITBA/SimuTP2/plan_desarrollo_tp2/README.md\n[/Sources]"}

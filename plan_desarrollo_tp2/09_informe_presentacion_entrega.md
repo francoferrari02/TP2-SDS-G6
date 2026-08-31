@@ -10,6 +10,15 @@ Cerrar el trabajo con una narrativa fiel a los datos, una exposición de 13 minu
   - Evidencia: se renderizaron e inspeccionaron individualmente las 33 diapositivas y se generó un montage; `slides_test.py output/presentation/TP2_Bandadas_Borrador_Presentacion.pptx` informó `Test passed. No overflow detected.`; el paquete contiene 33 `slide*.xml`, 33 `notesSlide*.xml` y 29 recursos en `ppt/media/`. La búsqueda sobre el texto visible no encontró `eta_c` ni susceptibilidad.
   - Alcance: cierra la creación y QA de este borrador PPTX, pero no la etapa 9. Siguen pendientes el informe final, animaciones y links, benchmark, grupo/comisión, PDF final y ZIP de código.
 
+- [x] Se creó `output/presentation/TP2_Bandadas_Borrador_Presentacion_clarificada.pptx` como copia revisada del borrador. La diapositiva 12 ahora comunica explícitamente que compara estados de polarización instantánea casi idéntica (`va≈0.515`), identifica Vicsek a la izquierda (`eta=3`) y votante a la derecha (`eta=0.4`), y separa los parámetros comunes. El fotograma y las otras 32 diapositivas se preservaron.
+  - Evidencia: render de las 33 diapositivas, inspección visual individual de la diapositiva 12, `slides_test.py` sin overflow y control de fidelidad de plantilla con `0` problemas.
+  - Alcance: cierra esta corrección de claridad, no la etapa 9 ni el punto A de animaciones.
+
+- [x] El 2026-08-31 se auditó el borrador clarificado contra la guía oficial `GuiaPresentaciones.pdf` y se exportó `output/presentation/TP2_Bandadas_Presentacion_reestructurada_guia_catedra.pptx`, preservando las figuras y los datos. La copia tiene 22 diapositivas de exposición y 11 de apéndice. Se eliminaron los rótulos `SECCIÓN 1/2/3`, se movió la arquitectura de salida/visualización desde Implementación a Simulaciones, se creó un separador exclusivo de Conclusiones y se quitó de la conclusión el texto de trabajo pendiente.
+  - Evidencia: render completo de 33 diapositivas; inspección visual específica de las diapositivas 4-8, 11 y 21-23; `slides_test.py` informó `Test passed. No overflow detected.`; `check_template_fidelity.mjs` informó `0` problemas.
+  - Diagnóstico: ya cumple estructura por secciones sin numerarlas, numeración de diapositivas, introducción breve, bajo volumen de texto, conclusión única basada en resultados y ausencia de bibliografía. Aún no cumple por completo la integración de animaciones/enlaces, la ubicación lateral de parámetros en todas las diapositivas de resultados, el esquema explícito de la simulación ni el reparto de expositores.
+  - Alcance: cierra la primera reestructuración segura exigida por la guía, no la presentación final ni la etapa 9.
+
 - [x] Se creó `PLAN_PPT_TP2.md` en la raíz como guion de 21 diapositivas para una exposición de 13 minutos. Asigna a cada resultado final disponible de `figures/final_production_v1/` y a los fotogramas estáticos de `figures/reference_snapshots_v1/` una ubicación narrativa, y marca explícitamente como pendientes las animaciones, el benchmark, los datos administrativos y los enlaces. No constituye la PPT ni cierra criterios de esta etapa.
 
 - [x] Se generó una síntesis interna del estado para ubicar al grupo frente al enunciado: `output/pdf/estado_actual_tp2_explicado.pdf`. Explica el alcance, motor, validaciones, piloto de 108 corridas, decisiones tomadas y pendientes, y la secuencia que falta hasta la entrega.
@@ -54,7 +63,7 @@ Cerrar el trabajo con una narrativa fiel a los datos, una exposición de 13 minu
 
 ## Presentación de 13 minutos
 
-La exposición debe respetar los 13 minutos indicados y seguir las mismas secciones que el informe. Abrir cada estudio con la animación o un fotograma y enlace explícito, según la guía de presentaciones. Ensayar con cronómetro sin eliminar evidencia obligatoria para incluir análisis adicionales.
+La exposición debe respetar los 13 minutos indicados y seguir las secciones de la guía oficial: Introducción/Sistema real/Fundamentos, Implementación, Simulaciones, Resultados y Conclusiones. Los separadores contienen solo el título de la sección y las secciones no se numeran. Abrir cada estudio con la animación o un fotograma y enlace explícito. Ensayar con cronómetro sin eliminar evidencia obligatoria para incluir análisis adicionales.
 
 La presentación y el informe son documentos autocontenidos: no dejar una definición, cantidad de repeticiones o parámetro solamente en uno suponiendo que el lector consultará el otro. Numerar las diapositivas. En la presentación, ubicar los parámetros al costado de cada figura y no dentro de un título/caption del gráfico; usar ejes legibles y fuente de al menos 20. La versión usada para exponer integra las animaciones; el PDF entregado las reemplaza por un fotograma representativo y un enlace explícito.
 
