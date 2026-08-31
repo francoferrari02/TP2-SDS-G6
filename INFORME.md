@@ -1036,9 +1036,9 @@ decisiones ya tomadas:
   orden de `0.01-0.05`.
 - **Densidades**: las tres obligatorias (`rho=2,4,8`) y, para el estudio de
   clusters (punto D), las tres densidades bajas del enunciado
-  (`1/pi,1/(2pi),1/(3pi)`), convertidas a `N=32,16,11` con la convención
-  provisional de redondeo al entero más cercano ya documentada en
-  `plan_desarrollo_tp2/README.md` (se registra también la densidad
+  (`1/pi,1/(2pi),1/(3pi)`), convertidas a `N=32,16,11` con la decisión
+  del 2026-08-30 de redondeo al entero más cercano ya documentada en
+  `plan_desarrollo_tp2/DECISIONES_PENDIENTES.md` (se registra también la densidad
   efectiva: `0.32, 0.16, 0.11`).
 
 Herramientas nuevas (solo biblioteca estándar de Python, más `matplotlib`
@@ -1248,16 +1248,16 @@ barrido definitivo (etapa 6) y las figuras (etapa 7).
   **no alcanzan** para ver consenso con densidad y movimiento reales (ver
   "Pilotos y protocolo estadístico" arriba); falta un piloto dedicado más
   largo para ese caso específico.
-- Falta refinar la grilla de `eta` (el piloto sugiere agregar puntos entre
-  `eta=2` y `eta=4`) y pilotar por separado las densidades bajas
-  (`1/pi,1/(2pi),1/(3pi)`, conversión a `N` sin resolver).
+- La grilla de `eta` y la conversión de densidades bajas ya quedaron
+  resueltas después de este estado histórico; para clusters bajos se usa
+  `N=32,16,11` con registro de densidad efectiva.
 - Faltan los barridos definitivos y las figuras.
 - Siguen abiertas las decisiones experimentales sobre `eta`, duración,
   realizaciones, semillas y barras de error (el formato de salida ya está
   congelado e implementado; ahora hay evidencia preliminar de piloto para
   cada una, registrada en `DECISIONES_PENDIENTES.md`).
-- Falta decidir, antes del barrido de clusters, cómo convertir las densidades
-  bajas `1/pi`, `1/(2*pi)` y `1/(3*pi)` a un número entero de partículas.
+- La conversión de densidades bajas a número entero de partículas quedó
+  decidida el 2026-08-30: redondeo al entero más cercano (`N=32,16,11`).
 - Falta confirmar si esas densidades bajas también deben incluirse en el
   gráfico `<va>` vs. `<S>` del punto E, o solamente en el estudio de clusters
   del punto D.

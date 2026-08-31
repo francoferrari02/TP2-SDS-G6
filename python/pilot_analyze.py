@@ -164,7 +164,7 @@ def main() -> int:
     parser.add_argument("--sample-stride", type=int, default=25,
                          help="cada cuantos pasos muestrear la serie temporal en el resumen")
     parser.add_argument("--t-eq", type=int, default=None,
-                        help="inicio explicito de la ventana estacionaria; por defecto usa el ultimo 25%")
+                        help="inicio explicito de la ventana estacionaria; por defecto usa el ultimo 25%%")
     args = parser.parse_args()
 
     run_dir = REPO_ROOT / "data" / "pilots" / args.run_name

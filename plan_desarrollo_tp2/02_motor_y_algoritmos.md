@@ -396,7 +396,7 @@ std::vector<Particle> initialize_particles_from_density(
 
 ### Relación entre `rho`, `N` y `L`
 
-`N = rho * L^2`. Para las tres densidades obligatorias del TP (`rho=2,4,8` con `L=10`), esa relación ya da un entero exacto (`N=200,400,800`), así que `initialize_particles_from_density` no introduce ninguna aproximación para esos casos. La conversión de las densidades bajas (`1/pi`, `1/(2*pi)`, `1/(3*pi)`, que con `L=10` no dan `N` entero) sigue sin resolverse: es una decisión abierta registrada en `DECISIONES_PENDIENTES.md`, y esta tarea no la cierra ni la asume. Llamar a `initialize_particles_from_density` con esas densidades redondearía al entero más cercano (misma regla que cualquier otro `rho`), pero eso no equivale a haber tomado esa decisión.
+`N = rho * L^2`. Para las tres densidades obligatorias del TP (`rho=2,4,8` con `L=10`), esa relación ya da un entero exacto (`N=200,400,800`), así que `initialize_particles_from_density` no introduce ninguna aproximación para esos casos. La conversión de las densidades bajas (`1/pi`, `1/(2*pi)`, `1/(3*pi)`, que con `L=10` no dan `N` entero) no se cerró durante esta tarea del motor; quedó resuelta después, el 2026-08-30, como redondeo al entero más cercano (`N=32,16,11`) con registro explícito de `rho_nominal` y `rho_effective` en cada corrida.
 
 ### Integración con la simulación
 

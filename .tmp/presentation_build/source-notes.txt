@@ -1,0 +1,12 @@
+Fuentes internas exclusivas del deck:
+- PLAN_PPT_TP2.md
+- bibliografia/enunciado_tp2_guia_de_trabajo.md
+- bibliografia/teoria_tp2_automatas_off_lattice.md
+- plan_desarrollo_tp2/03_validaciones.md
+- plan_desarrollo_tp2/07_figuras_y_animaciones.md
+- plan_desarrollo_tp2/09_informe_presentacion_entrega.md
+- plan_desarrollo_tp2/DECISIONES_PENDIENTES.md
+- figures/final_production_v1/README.md y PNG de esa carpeta
+- figures/reference_snapshots_v1/README.md y rho2_model_comparison_snapshot.png
+
+No se utilizaron imágenes, claims ni datos externos.

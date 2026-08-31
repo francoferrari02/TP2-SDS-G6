@@ -13,12 +13,6 @@ Una recomendación del agente no equivale a una decisión. Mientras el checkbox 
 
 ## Ambigüedades de alcance y parámetros
 
-- [ ] **Conversión de densidades bajas a `N` entero.**
-  - Contexto: con `L=10`, `N=rho L^2` no es entero para `rho=1/pi,1/(2pi),1/(3pi)`.
-  - Convención provisional a discutir: redondeo al entero más cercano, dando `N=32,16,11`, y registro de densidad efectiva.
-  - Bloquea: barrido definitivo de clusters de la etapa 6.
-  - Decisión del usuario/cátedra: pendiente.
-
 - [ ] **Alcance de las densidades bajas en el punto E (`<va>` vs. `<S>`).**
   - Contexto: la aclaración dice extender densidades “solo para el estudio de Cluster”, mientras el punto E original pide distinguir tres densidades.
   - Camino mínimo actual: usar las densidades bajas en el punto D y mantener `rho=2,4,8` en el punto E.
@@ -28,12 +22,6 @@ Una recomendación del agente no equivale a una decisión. Mientras el checkbox 
 ## Protocolo experimental
 
 Estas decisiones deben proponerse después de las corridas preliminares de la etapa 5 y ser aceptadas antes del barrido definitivo:
-
-- [ ] **Grilla final de valores de `eta`.**
-  - Evidencia necesaria: corridas preliminares que muestren regímenes de ruido diferenciados y resolución suficiente de las curvas.
-  - Bloquea: etapa 6.
-  - Evidencia preliminar (2026-08-30): piloto de 108 corridas (`plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md`, sección "Piloto ejecutado") con grilla exploratoria `eta={0,1,2,3,4,6}`, ambos modelos, `rho=2,4,8`. La grilla ya separa regímenes cualitativos (orden casi perfecto, transición, desorden), pero la caída de `<va>` entre `eta=2` y `eta=4` sugiere que la grilla definitiva necesitará más puntos en esa zona. No se fija todavía la grilla final.
-
 
 - [ ] **Frecuencia productiva de muestreo (valores concretos de `--observables-stride`/`--trajectory-stride`).**
   - Contexto: el *formato* de salida y el *mecanismo* de stride ya están implementados y aprobados (ver "Decisiones resueltas" más abajo). Lo que sigue abierto es qué valores concretos de stride se van a usar en el barrido definitivo (por ejemplo, escribir observables en cada paso pero trayectoria cada 10 o 50 pasos).
@@ -145,6 +133,61 @@ Etapas y archivos afectados:
 Usuario que aprobó:
 ```
 
+- [x] **Conversión de densidades bajas a `N` entero.**
+  - Contexto original: con `L=10`, `N=rho L^2` no es entero para `rho=1/pi,1/(2pi),1/(3pi)`.
+
+```text
+Decisión:
+Para la extension de clusters se redondea `N=rho_nominal*L^2` al entero mas
+cercano y se reportan siempre `rho_nominal`, `N` y `rho_effective=N/L^2`.
+La tabla queda:
+1/pi -> N=32 -> rho_effective=0.32
+1/(2pi) -> N=16 -> rho_effective=0.16
+1/(3pi) -> N=11 -> rho_effective=0.11
+No se presenta `N=32,16,11` como densidad nominal exacta: son los tamanos
+enteros simulados que aproximan las tres densidades pedidas.
+Fecha: 2026-08-30
+Fundamento/evidencia: el usuario pidio resolver esta conversion antes de
+cerrar los graficos de clusters bajos e indico que ya se venia usando
+`32,16,11`; esa es exactamente la regla de redondeo al entero mas cercano
+que estaba documentada provisionalmente en README/REVISION_FINAL_DE_ALCANCE.
+El motor ya acepta `--rho-nominal`, `--rho-label` y `--N` explicitos, por lo
+que la densidad nominal y la efectiva quedan trazadas sin ambiguedad.
+Etapas y archivos afectados: desbloquea el bloque de clusters bajos de la
+etapa 6 y las figuras del punto D de la etapa 7. Se aplico a
+python/vicsek_lowrho_cluster_study_run.py y a los estudios existentes del
+votante. No resuelve el alcance del punto E, que sigue pendiente por
+aclaracion docente.
+Usuario que aprobó: usuario del proyecto (francoferrari).
+```
+
+- [x] **Grilla final común de valores de `eta`.**
+  - Contexto original: la grilla era una decisión pendiente; los pilotos mostraron que el votante cambia principalmente para `eta<=0.5`, mientras que Vicsek requiere ruido mayor para recorrer su pérdida de orden.
+
+```text
+Decisión:
+Ambos modelos, las tres densidades obligatorias y sus figuras comparativas
+usan la misma grilla no uniforme de ruido, en radianes:
+eta={0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}.
+La zona eta<=0.5 se densifica para resolver la caída rápida del votante; los
+puntos eta>=1 verifican su régimen desordenado y cubren la región de cambio
+de Vicsek. En la presentación se permite mostrar un zoom eta<=0.5, pero las
+tablas y la comparación conservan los 14 puntos de la grilla completa.
+Fecha: 2026-08-30
+Fundamento/evidencia: el barrido amplio del votante muestra polarización baja
+para eta>0.5, y la grilla fina existente confirma que el cambio de interés se
+concentra por debajo de ese valor. Las figuras diagnósticas de Vicsek muestran
+que su polarización aún es alta cerca de eta=0.5 y cae a valores mayores de
+ruido. Una grilla común permite comparar los modelos punto a punto sin perder
+resolución donde el votante cambia.
+Etapas y archivos afectados: cierra la decisión de grilla de la etapa 5 y
+define la matriz base de la etapa 6 y las figuras B-E de la etapa 7. No vuelve
+definitivas las corridas ya existentes que no cubran exactamente la grilla o
+no compartan el protocolo final; se deben completar y reagrupar antes de
+generar figuras finales.
+Usuario que aprobó: usuario del proyecto (francoferrari).
+```
+
 - [x] **Cantidad de realizaciones independientes, semillas y duración (`steps`) para el votante.**
   - Contexto original: "Cantidad de realizaciones independientes y semillas" y "Cantidad de pasos de transitorio y de medición".
 
@@ -173,12 +216,47 @@ rho=8), y ademas explico que el pico-y-caida visto antes en esa serie era
 ruido estadistico, no un transitorio sin terminar. Detalle completo en
 plan_desarrollo_tp2/05_pilotos_y_grilla_eta.md.
 Etapas y archivos afectados: cierra el criterio de duracion/realizaciones
-para el barrido definitivo del votante (etapa 6). No aplica a Vicsek (fuera
-de alcance del equipo). Las tablas de resumen ya generadas
+para el barrido definitivo del votante (etapa 6). Esta decisión particular
+corresponde al votante; Vicsek queda cubierto por una decisión separada más
+abajo. Las tablas de resumen ya generadas
 (data/summary/voter_eta_study_1_*.csv, voter_lowrho_cluster_study_1_*.csv,
 voter_eta_fine_lowrange_1_*.csv) son la base de datos vigente para figuras;
 no hace falta volver a correrlas si se usa el mismo protocolo.
 Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
+```
+
+- [x] **Cantidad de realizaciones independientes, duración (`steps`) y ventana estacionaria para Vicsek.**
+  - Contexto original: Vicsek ya tenía corridas y figuras diagnósticas con `steps=3000`, `R=20` y `t_eq=1500`, pero ese protocolo todavía no estaba registrado como decisión formal.
+
+```text
+Decisión:
+Para el modelo Vicsek se adopta formalmente el protocolo ya usado en las
+corridas diagnósticas: R=20 realizaciones independientes, steps=3000 y
+t_eq=1500. La ventana estacionaria usada para promediar es t=1500..3000,
+con la misma ventana para va(t) y S(t). Esta decisión aplica a las tres
+densidades obligatorias rho=2,4,8 y a la comparación con el modelo votante.
+Fecha: 2026-08-30
+Fundamento/evidencia: el piloto exploratorio de ambos modelos con steps=600
+mostró que Vicsek relaja mucho antes que el votante (en ruido bajo/moderado,
+del orden de 100-200 pasos para eta<=2), mientras que las corridas
+diagnósticas posteriores de Vicsek con R=20 y steps=3000 fueron reanalizadas
+con t_eq=1500 y 780/780 archivos de observables válidos, 0 problemas. Las
+series va(t) y S(t) en
+figures/vicsek_eta0_6_deta0p5_steps3000_R20_v1/ marcan t_eq=1500 y no
+muestran una tendencia sistemática posterior incompatible con régimen
+estacionario. Además, el corte es conservador para Vicsek y mantiene la
+comparabilidad directa con el votante, que también usa steps=3000 y
+t_eq=1500.
+Etapas y archivos afectados: cierra la decisión de duración, R y t_eq para
+Vicsek en las etapas 4, 5, 6 y 7. No convierte en finales las figuras ya
+exportadas si usan error estándar: deben regenerarse con desvío estándar
+entre realizaciones. Tampoco completa por sí sola los puntos de eta finos
+faltantes de la grilla común aprobada
+{0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}; las
+corridas existentes de Vicsek con paso 0.5 siguen siendo evidencia válida
+del corte, pero la comparación final requiere cubrir la grilla común.
+Usuario que aprobó: usuario del proyecto (francoferrari), mensaje
+"bueno hacelo asi".
 ```
 
 - [x] **Definición de la ventana estacionaria (`t_eq`).**
@@ -207,8 +285,9 @@ corrida) y justificado visualmente, no un numero elegido a ciegas. Detalle
 completo, con la lista exacta de figuras y comparativas, en INFORME.md
 (seccion "Definición de barras de error y de `t_eq`").
 Etapas y archivos afectados: cierra el criterio de t_eq para el barrido
-definitivo del votante (etapa 6) y las figuras B/D (etapa 7). No se aplico
-a Vicsek (fuera de alcance). Se reconoce como limitacion documentada que la
+definitivo del votante (etapa 6) y las figuras B/D (etapa 7). Esta decisión
+particular corresponde al votante; Vicsek queda cubierto por una decisión
+separada más arriba. Se reconoce como limitacion documentada que la
 heuristica automatica de t_eq (en *_analyze.py) no es confiable para las
 densidades bajas por ruido de tamano finito (ver
 05_pilotos_y_grilla_eta.md); t_eq=1500 se adopta por inspeccion visual, no
@@ -221,29 +300,26 @@ Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
 
 ```text
 Decisión:
-Se usa error estándar de la media entre realizaciones (s_va/sqrt(R), s_S/sqrt(R))
-como definición de barra de error en todas las figuras del TP, para ambos
-observables (va, S), todas las densidades y todo el barrido de eta. No se
-usa el desvío entre realizaciones como barra (aunque se sigue calculando y
-guardando en las tablas de resumen, por si hace falta discutirlo aparte).
+Se usa el desvío estándar entre las medias estacionarias de las realizaciones
+(s_va, s_S) como definición de barra de error en todas las figuras del TP,
+para ambos observables (va, S), todas las densidades y todo el barrido de
+eta. El error estándar se sigue calculando y guardando en las tablas de
+resumen, pero no se usa como barra de la presentación ni del informe.
 Fecha: 2026-08-30
-Fundamento/evidencia: se explicó la diferencia conceptual (el desvío mide
-variabilidad real entre corridas y no se achica con R; el error estándar
-mide precisión del promedio reportado y sí se achica con R, en este caso
-~sqrt(20)=4.47 veces menor que el desvío). Para curvas <va> vs. eta interesa
-comunicar qué tan bien determinado está el promedio reportado, y que dos
-puntos con barras de error estándar que no se solapan son evidencia de una
-diferencia real; el desvío entre realizaciones, en cambio, tiende a hacer
-parecer "todo compatible con todo" en zonas de transición. Ambas cantidades
-ya están calculadas y disponibles en las tablas *_by_combo.csv de
-data/summary/ (columnas va_stderr/S_stderr y
-va_stdev_between_realizations/S_stdev_between_realizations) para cualquier
-verificación posterior.
+Fundamento/evidencia: el desvío estándar comunica directamente la
+variabilidad observada entre realizaciones independientes, que es la
+incertidumbre empírica relevante para la dinámica ruidosa del TP. Ambas
+cantidades ya están calculadas en las tablas *_by_combo.csv de data/summary/
+(columnas va_stderr/S_stderr y
+va_stdev_between_realizations/S_stdev_between_realizations), por lo que el
+cambio no exige repetir las simulaciones, sino regenerar sus figuras usando
+las columnas de desvío.
 Etapas y archivos afectados: aplica a todas las figuras B-E de la etapa 7 y
-a la agregación de la etapa 6 (columna a usar como barra: *_stderr, no
-*_stdev_between_realizations). No modifica ningún dato ya generado (las
-tablas ya tienen ambas columnas calculadas desde el estudio del votante).
-Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
+a la agregación de la etapa 6 (columna a usar como barra:
+*_stdev_between_realizations, no *_stderr). No modifica ningún dato ya
+generado, pero invalida como versiones finales las figuras diagnósticas que
+usan error estándar hasta que se regeneren.
+Usuario que aprobó: usuario del proyecto (francoferrari).
 ```
 
 - [x] **Formato público de salida de texto y CLI productiva.**

@@ -2,4 +2,5 @@
 /data/pilots/
 /data/raw/
 /.idea/
-
+/.venv-*/
+/data/illustrations/

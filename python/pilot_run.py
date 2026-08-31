@@ -38,9 +38,9 @@ SIMULATE_BIN = REPO_ROOT / "build" / "simulate"
 # estos resultados preliminares).
 ETA_GRID_PILOT = [0.0, 1.0, 2.0, 3.0, 4.0, 6.0]
 
-# Densidades obligatorias únicamente (no se incluyen las densidades bajas
-# 1/pi, 1/(2pi), 1/(3pi): su conversión a N entero sigue sin resolverse, ver
-# DECISIONES_PENDIENTES.md).
+# Densidades obligatorias únicamente. Las densidades bajas se resolvieron
+# despues de este piloto historico como redondeo a N=32,16,11; ver
+# DECISIONES_PENDIENTES.md.
 RHO_GRID = [
     (2.0, 200, "rho_2"),
     (4.0, 400, "rho_4"),

@@ -6,6 +6,12 @@ Cerrar el trabajo con una narrativa fiel a los datos, una exposición de 13 minu
 
 ## Progreso parcial (2026-08-30)
 
+- [x] Se creó el borrador avanzado local de la presentación en `output/presentation/TP2_Bandadas_Borrador_Presentacion.pptx`: 21 diapositivas para la exposición de 13 minutos y 12 de apéndice, en 16:9, con dirección visual propia azul marino/índigo, 29 PNG finales embebidos y notas del orador en las 33 diapositivas. La PPT usa únicamente `figures/final_production_v1/` y `figures/reference_snapshots_v1/`, conserva el protocolo `R=20`, `steps=3000`, `t_eq=1500` y desvío estándar, y declara como pendientes las animaciones, el benchmark y grupo/comisión.
+  - Evidencia: se renderizaron e inspeccionaron individualmente las 33 diapositivas y se generó un montage; `slides_test.py output/presentation/TP2_Bandadas_Borrador_Presentacion.pptx` informó `Test passed. No overflow detected.`; el paquete contiene 33 `slide*.xml`, 33 `notesSlide*.xml` y 29 recursos en `ppt/media/`. La búsqueda sobre el texto visible no encontró `eta_c` ni susceptibilidad.
+  - Alcance: cierra la creación y QA de este borrador PPTX, pero no la etapa 9. Siguen pendientes el informe final, animaciones y links, benchmark, grupo/comisión, PDF final y ZIP de código.
+
+- [x] Se creó `PLAN_PPT_TP2.md` en la raíz como guion de 21 diapositivas para una exposición de 13 minutos. Asigna a cada resultado final disponible de `figures/final_production_v1/` y a los fotogramas estáticos de `figures/reference_snapshots_v1/` una ubicación narrativa, y marca explícitamente como pendientes las animaciones, el benchmark, los datos administrativos y los enlaces. No constituye la PPT ni cierra criterios de esta etapa.
+
 - [x] Se generó una síntesis interna del estado para ubicar al grupo frente al enunciado: `output/pdf/estado_actual_tp2_explicado.pdf`. Explica el alcance, motor, validaciones, piloto de 108 corridas, decisiones tomadas y pendientes, y la secuencia que falta hasta la entrega.
   - Evidencia: el PDF se renderizó y revisó en cinco páginas A4; `pdfinfo` confirmó cinco páginas y la extracción de texto confirmó contenido en todas. En la misma revisión se ejecutó `cmake --build build` y `ctest --test-dir build --output-on-failure`, con 11/11 pruebas aprobadas.
   - Alcance: artefacto de orientación interna. No reemplaza el informe final, la presentación ni los resultados definitivos y por ello los criterios de cierre de esta etapa permanecen abiertos.

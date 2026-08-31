@@ -66,13 +66,35 @@ No se adopta automáticamente “descartar el 50%” ni se exige análisis de au
 
 ## Decisiones pendientes que deben registrarse
 
-- valor o criterio final de `t_eq`;
-- cantidad de pasos de medición;
-- cantidad `R` de realizaciones;
-- semillas;
-- desvío o error estándar como barra.
+- valores o criterios finales de `t_eq` que falten para bloques todavía no corridos;
+- cantidad de pasos de medición de bloques todavía no cerrados;
+- cantidad `R` de realizaciones y semillas de bloques todavía no cerrados;
+- valores concretos de stride productivo;
+- cualquier extensión que dependa de densidades bajas no confirmadas.
 
-Los valores se deciden después de las corridas preliminares. El plan no fija `R`, tolerancias numéricas ni metas de precisión que no aparecen en el enunciado.
+Los valores se deciden después de las corridas preliminares. El plan no fija tolerancias numéricas ni metas de precisión que no aparecen en el enunciado.
+
+## Protocolo estadístico fijado para la matriz base
+
+Para las densidades obligatorias `rho=2,4,8`, ambos modelos usan ahora el
+mismo protocolo temporal y estadístico:
+
+```text
+steps = 3000
+R = 20 realizaciones independientes
+t_eq = 1500
+ventana estacionaria = t=1500..3000
+barra de error = desvío estándar entre medias estacionarias de realizaciones
+```
+
+En el votante esto ya estaba registrado como decisión previa. El 2026-08-30
+se formalizó también para Vicsek porque las corridas diagnósticas existentes
+(`vicsek_eta0_6_deta0p5_steps3000_R20_v1`) ya usaban ese protocolo de hecho:
+`python/pilot_analyze.py` releyó `780/780` archivos válidos con `0` problemas
+y las series `va(t)`/`S(t)` generadas con `t_eq=1500` muestran que el corte
+es conservador respecto de la relajación observada. La comparación final
+queda metodológicamente más simple al mantener la misma ventana que el
+votante.
 
 ## Tablas mínimas
 
@@ -102,6 +124,9 @@ No se calcula susceptibilidad ni se estima `eta_c`: son análisis complementario
 
 - [ ] `va(t)` y `S(t)` se calculan sobre el mismo estado.
 - [ ] `t_eq` está justificado con series temporales.
+  - Estado: resuelto para la matriz base `rho=2,4,8` de ambos modelos con `t_eq=1500`; siguen fuera de este cierre los bloques que dependan de densidades bajas no confirmadas o corridas faltantes.
 - [ ] Primero se promedia en el estacionario y después entre realizaciones.
 - [ ] La cantidad de realizaciones y las semillas están registradas.
+  - Estado: `R=20` y `steps=3000` quedaron formalizados para votante y Vicsek en `DECISIONES_PENDIENTES.md`; las semillas quedan trazadas en manifiestos/scripts de cada estudio.
 - [ ] Las barras tienen una definición explícita y constante.
+  - Estado: resuelto como desvío estándar entre realizaciones; las figuras que usen error estándar deben regenerarse antes de entrega.

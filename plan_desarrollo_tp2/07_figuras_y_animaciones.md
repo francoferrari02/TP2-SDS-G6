@@ -76,6 +76,11 @@ Repetir A-E para el votante y comparar contra Vicsek usando:
 - misma cantidad de realizaciones;
 - misma definición de barras.
 
+La grilla común aprobada para estas comparaciones es
+`eta={0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}`.
+Se permite un panel o figura de zoom para `eta<=0.5`, pero no reemplaza la
+curva completa ni autoriza puntos distintos por modelo.
+
 ## Convenciones de presentación
 
 - `va` y `S` se muestran en su rango `[0,1]`.
@@ -99,7 +104,7 @@ No generar susceptibilidad, `eta_c`, histéresis, distribución de tamaños de c
 
 ## Progreso parcial (2026-08-30): figuras diagnósticas de Vicsek
 
-Se agregó `python/vicsek_eta_study_plot.py`, siguiendo la estructura de los scripts del votante pero ajustado a la decisión vigente de barras: las curvas estacionarias usan error estándar (`va_stderr`, `S_stderr`) y las series temporales muestran bandas de error estándar. La dependencia externa es `matplotlib`; en esta máquina se instaló con:
+Se agregó `python/vicsek_eta_study_plot.py`, siguiendo la estructura de los scripts del votante. El protocolo de estas corridas queda formalizado para Vicsek como `steps=3000`, `R=20`, `t_eq=1500` y ventana estacionaria `t=1500..3000`. Sus exportaciones actuales usan error estándar (`va_stderr`, `S_stderr`) y bandas de error estándar; tras la decisión del 2026-08-30 de informar desvío estándar entre realizaciones, son diagnósticas y deben regenerarse con las columnas `va_stdev_between_realizations`/`S_stdev_between_realizations` (y `va_stdev`/`S_stdev` en series) antes de incluirse en la presentación. La dependencia externa es `matplotlib`; en esta máquina se instaló con:
 
 ```text
 python3 -m pip install --user matplotlib==3.8.4
@@ -127,21 +132,249 @@ Evidencia:
 - Se generaron `11` PNG en `figures/vicsek_eta0_6_deta0p5_steps3000_R20_v1/`: `va_vs_eta.png`, `S_vs_eta.png`, sus zooms `eta<=1.5`, `va_vs_S.png`, y `va_t_*/S_t_*` para `rho=2,4,8`.
 - Se revisaron visualmente `va_vs_eta.png`, `S_t_rho_2.png` y `va_vs_S.png`: los archivos renderizan, los ejes cubren `[0,1]`, aparecen las barras/bandas y las series marcan `t_eq=1500`.
 
-Alcance: esto no cierra la etapa 7. Falta integrar el votante bajo el mismo estilo estadístico, completar la comparación Vicsek-votante, decidir el formato final de diapositivas, generar/validar animaciones y cubrir las densidades bajas del punto D para Vicsek si el grupo conserva esa obligación.
+Alcance: esto no cierra la etapa 7. Falta integrar el votante bajo el mismo estilo estadístico, completar la comparación Vicsek-votante, decidir el formato final de diapositivas y generar/validar animaciones.
+
+## Progreso parcial (2026-08-30): datos crudos de la grilla fina común listos, figuras aún no regeneradas
+
+Se completó y validó (ver `06_barrido_de_produccion.md`) el bloque de producción
+`final_fine_grid_steps3000_R20_v1`: `{vicsek,voter} x {rho=2,4,8} x
+{eta=0.05,0.10,0.15,0.20,0.30,0.40} x R=20`, `steps=3000`, `t_eq=1500`, sin
+trayectoria. Las tablas resumen quedaron en:
+
+```text
+data/summary/final_fine_grid_steps3000_R20_v1_by_realization.csv
+data/summary/final_fine_grid_steps3000_R20_v1_by_combo.csv
+data/summary/final_fine_grid_steps3000_R20_v1_series_sampled.csv
+```
+
+Esto habilita, en cuanto a datos, regenerar con `va_stdev_between_realizations`/
+`S_stdev_between_realizations` (la convención de barras ya decidida) las figuras C y D
+en la zona fina `eta<=0.4` comparando ambos modelos. Esta tarea **no generó** ninguna
+figura (PNG) todavía: solo produjo y validó los datos crudos y resumidos. Sigue
+pendiente:
+
+- escribir/adaptar un script de graficado que combine `final_fine_grid_steps3000_R20_v1`
+  con el resto de la grilla de 14 puntos (`eta>=0.5`) para Vicsek y votante, una vez
+  reconciliados esos protocolos (ver pendiente en `06_barrido_de_produccion.md`);
+- regenerar las figuras diagnósticas de Vicsek (`figures/vicsek_eta0_6_deta0p5_steps3000_R20_v1/`)
+  con desvío entre realizaciones en vez de error estándar;
+- producir la comparación Vicsek-votante (punto F) con la grilla común completa, no solo
+  el tramo fino.
+
+Además, la grilla de esa corrida (`eta=0..6` con paso `0.5`) no cubre todos
+los puntos finos de la grilla común aprobada para la comparación
+(`0.05, 0.10, 0.15, 0.20, 0.30, 0.40`). Por eso sirve como evidencia del
+protocolo temporal de Vicsek, pero no como tabla final completa de
+comparación.
+
+## Progreso parcial (2026-08-30): clusters bajos de Vicsek
+
+Se resolvió la conversión de densidades bajas a `N` entero como redondeo al entero más cercano y se agregó el bloque faltante de Vicsek para el punto D:
+
+```text
+run_name=vicsek_lowrho_cluster_study_1
+rho_nominal={1/pi,1/(2pi),1/(3pi)}
+N={32,16,11}
+eta={0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}
+R=20
+steps=3000
+t_eq=1500
+```
+
+Comandos verificados:
+
+```text
+cmake --build build
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 -m py_compile python/pilot_analyze.py python/vicsek_lowrho_cluster_study_run.py python/vicsek_lowrho_cluster_study_plot.py
+ctest --test-dir build --output-on-failure
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 python/vicsek_lowrho_cluster_study_run.py --run-name vicsek_lowrho_cluster_study_1 --steps 3000 --realizations 20 --jobs 8
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 python/pilot_analyze.py --run-name vicsek_lowrho_cluster_study_1 --sample-stride 50 --t-eq 1500
+MPLCONFIGDIR=/private/tmp/tp2_mplconfig PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache .venv-mpl311/bin/python python/vicsek_lowrho_cluster_study_plot.py --run-name vicsek_lowrho_cluster_study_1
+```
+
+Evidencia:
+
+- `ctest` pasó `11/11`.
+- El lanzador produjo `840/840` corridas exitosas, sin fallos.
+- `pilot_analyze.py` releyó `840` observables, todos válidos, y generó las tablas `data/summary/vicsek_lowrho_cluster_study_1_*`.
+- La matriz agregada tiene `42` combinaciones y todas tienen `R=20`.
+- Se generaron `10` PNG en `figures/vicsek_lowrho_cluster_study_1/`: `<S>` vs. `eta`, zoom de `<S>`, `<va>` vs. `eta`, zoom de `<va>`, y series `va(t)`/`S(t)` para cada densidad baja.
+- Se revisó visualmente `figures/vicsek_lowrho_cluster_study_1/S_vs_eta.png`: renderiza correctamente, con eje `S` en `[0,1]`, tres densidades distinguibles y barras de desvío estándar.
+
+## Progreso parcial (2026-08-30): figuras finales de produccion en `figures/final_production_v1/`
+
+Se consolidaron las dos tablas finales que faltaban y se generaron **todas** las figuras
+finales de los puntos B-F en una carpeta nueva y separada de las diagnosticas.
+
+Tablas consolidadas nuevas (ningun valor recomputado; solo union con `source_run`):
+
+```text
+python/build_final_voter_base_table.py
+  -> data/summary/final_voter_base_grid_steps3000_R20_v1_{manifest,by_realization,by_combo,series_sampled}.csv
+     (final_fine_grid_steps3000_R20_v1 filtrado a voter + final_voter_base_coarse_v1)
+
+python/build_final_lowrho_cluster_table.py
+  -> data/summary/final_lowrho_cluster_grid_steps3000_R20_v1_{manifest,by_realization,by_combo,series_sampled}.csv
+     (vicsek_lowrho_cluster_study_1 + final_voter_lowrho_grid_v1)
+```
+
+Script unico de figuras: `python/generate_final_figures.py`. Lee exclusivamente las tres
+tablas consolidadas finales (`final_vicsek_base_grid_steps3000_R20_v1`,
+`final_voter_base_grid_steps3000_R20_v1`, `final_lowrho_cluster_grid_steps3000_R20_v1`),
+no ejecuta simulaciones y rechaza cualquier `--out-dir` fuera de `figures/`.
+
+Comandos verificados:
+
+```text
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 -m py_compile python/build_final_voter_base_table.py python/build_final_lowrho_cluster_table.py python/generate_final_figures.py
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 python/build_final_voter_base_table.py
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 python/build_final_lowrho_cluster_table.py
+MPLCONFIGDIR=/private/tmp/tp2_mplconfig PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache .venv-mpl311/bin/python python/generate_final_figures.py
+```
+
+Evidencia:
+
+- Votante base: `840` filas `by_realization`, `42` combinaciones, `20` realizaciones cada
+  una, `rho={2,4,8}`, los 14 eta exactos, `steps=3000`, `t_window_start=1500`, sin eta
+  duplicado entre lotes ni combinaciones faltantes. Validacion OK, `0` problemas.
+- Clusters bajos: `1680` filas `by_realization`, `84` combinaciones, ambos modelos, tres
+  densidades bajas (`N=32,16,11`), 14 eta, `20` realizaciones cada una, `steps=3000`,
+  `t_window_start=1500`. Validacion OK, `0` problemas.
+- Se generaron `36` PNG en `figures/final_production_v1/`, mas su `README.md` con la
+  tabla archivo -> punto A-F, tablas fuente, protocolo, definicion de barras, significado
+  de colores y comandos de regeneracion.
+- Barras: `va_stdev_between_realizations`/`S_stdev_between_realizations` en curvas
+  estacionarias; bandas `va_stdev`/`S_stdev` en series temporales. Ninguna figura usa
+  `*_stderr` (verificado por inspeccion del script: no aparece la cadena `stderr`).
+- Sin titulo interno ni `suptitle` (verificado: el script no llama `set_title`), sin
+  grilla de fondo (`axes.grid=False` y `ax.grid(False)` explicito), `va` y `S` separados,
+  eje `y` en `[0,1]` con margen `[-0.04,1.04]`, fuente >= 20 pt, PNG a `220` dpi, color
+  por densidad constante en todas las figuras.
+- En `va` vs. `S` la linea recorre los puntos en el orden del barrido de `eta` (no en
+  orden de `S`): es guia visual del camino del barrido, no un ajuste.
+- Revision visual: `vicsek_va_vs_eta.png`, `voter_S_vs_eta_lowrho.png`,
+  `vicsek_va_vs_S.png`, `vicsek_va_t_rho_2.png`, `voter_S_t_rho_2.png` y
+  `comparison_va_vs_eta.png` renderizan correctamente, con puntos visibles, barras/bandas,
+  `t_eq=1500` marcado en las series y paneles legibles en la comparacion.
+
+Las carpetas diagnosticas previas (`figures/vicsek_eta0_6_deta0p5_steps3000_R20_v1/`,
+`figures/vicsek_lowrho_cluster_study_1/`) se conservan sin tocar como evidencia
+historica; no se usan en la presentacion.
+
+Alcance: **esto no cierra la etapa 7**. Siguen faltando las animaciones (punto A) y la
+integracion final en diapositivas; el benchmark del CIM (etapa 8) tampoco esta hecho.
+
+## Progreso parcial (2026-08-30): fotogramas estaticos de referencia listos
+
+Se generaron **fotogramas estaticos de referencia** para la presentacion: imagenes
+fijas de las particulas con su vector de direccion. Esto **no cierra el punto A**:
+no hay video, GIF ni animador todavia; son cuadros de referencia para las
+diapositivas y para fijar la convencion visual (vector por particula, color por
+angulo) que despues debera reusar la animacion.
+
+Script nuevo: `python/render_reference_snapshots.py`. Lee **exclusivamente**
+`trajectory.csv`; no ejecuta el motor, no depende de su tiempo de computo, no
+produce animaciones y rechaza cualquier `--out-dir` fuera de `figures/`.
+
+Casos elegidos a partir de nuestras tablas finales (no copiados de ninguna otra
+fuente), ambos con `rho=2`, `N=200`, `L=10`, `steps=3000`, `t=2000` (ventana
+estacionaria, `t_eq=1500`), una realizacion determinista por caso:
+
+| Modelo | `eta` | `<va>` tabla final (`rho=2`, `R=20`) | `base_seed` | realizacion |
+|---|---:|---:|---:|---:|
+| Vicsek | `3.00` | `0.4627` | `9100000` | `0` |
+| Votante | `0.40` | `0.4625` | `9200000` | `0` |
+
+`eta=3` es el punto de polarizacion intermedia de Vicsek en `rho=2`
+(`0.9284 -> 0.7336 -> 0.4627 -> 0.1897` para `eta=1,2,3,4`), dentro de la zona
+donde cae el orden. `eta=0.40` es el punto de la zona fina `eta<=0.5` del votante
+donde el ruido ya es evidente (`1.0000 -> 0.7318 -> 0.4625` para
+`eta=0, 0.20, 0.40`) y ademas iguala el `<va>` de Vicsek en `eta=3`, lo que hace
+directamente comparable la figura lado a lado.
+
+Trayectorias en un directorio separado (`data/illustrations/`, agregado a
+`.gitignore` como el resto de las salidas crudas), escritas con
+`--write-trajectory --trajectory-stride 10`.
+
+PNG generadas en `figures/reference_snapshots_v1/` (`220` dpi, fondo blanco):
+
+```text
+figures/reference_snapshots_v1/vicsek_rho2_snapshot.png
+figures/reference_snapshots_v1/voter_rho2_snapshot.png
+figures/reference_snapshots_v1/rho2_model_comparison_snapshot.png
+figures/reference_snapshots_v1/README.md
+```
+
+La comparativa pone Vicsek y votante lado a lado con la misma escala espacial
+(`[0,10]x[0,10]`, aspecto igual) y el mismo mapeo de color angular.
+
+Convenciones: una flecha por particula en su posicion, direccion dada por `theta`,
+color por `theta` con mapa ciclico HSV y barra de color angular de `0` a `2pi`,
+caja cuadrada con aspecto igual, sin grilla de fondo, sin titulo ni caption ni
+links dentro del PNG, fuente `20` pt. **La longitud de las flechas esta amplificada
+por un unico factor comun `15.0` (`v*15 = 0.45` unidades de caja) solo por
+legibilidad**: la rapidez fisica es `v=0.03` e identica para todas las particulas,
+y la longitud dibujada no codifica ninguna diferencia entre ellas. Esto queda
+documentado tambien en `figures/reference_snapshots_v1/README.md`, junto con las
+rutas de `trajectory.csv` usadas y los comandos exactos de regeneracion.
+
+Comandos verificados:
+
+```text
+./build/simulate --model vicsek --rho-nominal 2 --rho-label rho_2 --N 200 --eta 3 --steps 3000 --base-seed 9100000 --realization 0 --output-dir data/illustrations/reference_snapshots_v1 --observables-stride 100 --write-trajectory --trajectory-stride 10
+./build/simulate --model voter --rho-nominal 2 --rho-label rho_2 --N 200 --eta 0.40 --steps 3000 --base-seed 9200000 --realization 0 --output-dir data/illustrations/reference_snapshots_v1 --observables-stride 100 --write-trajectory --trajectory-stride 10
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 -m py_compile python/render_reference_snapshots.py
+MPLCONFIGDIR=/private/tmp/tp2_mplconfig PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache .venv-mpl311/bin/python python/render_reference_snapshots.py
+```
+
+Evidencia:
+
+- Cada `trajectory.csv` contiene exactamente `200` IDs unicos en `t=2000`
+  (`60200` filas totales con stride `10`), `theta` en `[0,2pi)` y posiciones
+  dentro de `[0,10]x[0,10]`, en ambos casos.
+- `va` de la realizacion mostrada en `t=2000`: `0.5144` (Vicsek) y `0.5153`
+  (votante), consistentes con los `<va>` de ensamble de las tablas finales.
+- `py_compile` sobre `python/render_reference_snapshots.py` sin errores.
+- Las tres PNG se inspeccionaron visualmente: renderizan, la caja es cuadrada y
+  cubre `[0,10]`, las flechas son legibles, la barra de color angular va de `0` a
+  `2pi` y los dos paneles de la comparativa comparten escala y color.
+
+Alcance: **esto no cierra la etapa 7 ni el punto A**. Sigue faltando la animacion
+propiamente dicha (video/GIF con su modulo animador), la integracion en las
+diapositivas y el benchmark de la etapa 8.
+
+## Progreso parcial (2026-08-30): integración y QA del borrador PPTX
+
+Se integraron las figuras finales y el fotograma comparativo en
+`output/presentation/TP2_Bandadas_Borrador_Presentacion.pptx`. El cuerpo principal
+usa una o dos figuras por diapositiva, deja los parámetros fuera de los PNG y conserva
+su proporción; el apéndice reúne las series restantes, comparaciones y zooms sin
+reutilizar imágenes del cuerpo. El archivo tiene 33 diapositivas (21 de exposición y 12
+de respaldo), 29 PNG embebidos y notas del orador en todas las diapositivas.
+
+Evidencia: render independiente de las 33 diapositivas, inspección individual a tamaño
+completo y montage; `slides_test.py` pasó sin overflow. Se corrigieron durante la QA
+las imágenes inicialmente referenciadas por ruta para que quedaran embebidas por bytes,
+y se acortaron títulos hasta eliminar wrapping/clipping. Esto cierra la maquetación de
+figuras para el borrador, pero no el punto A: siguen sin existir video/GIF, módulo
+animador ni links públicos probados.
 
 ## Criterio de cierre
 
 - [ ] Hay animaciones independientes con vectores coloreados por ángulo.
-- [ ] `va(t)` y `S(t)` muestran y justifican `t_eq`.
-  - Estado: en progreso. Para Vicsek (`rho=2,4,8`, `eta=0..6` con paso `0.5`, `R=20`, `steps=3000`) ya existen series `va_t_*` y `S_t_*` con `t_eq=1500` graficado; falta justificar si ese corte queda como definitivo para Vicsek y repetir/comparar con votante.
-- [ ] `<va>` vs. `eta` cubre ambos modelos y `rho=2,4,8`.
-  - Estado: en progreso. Para Vicsek ya existe `figures/vicsek_eta0_6_deta0p5_steps3000_R20_v1/va_vs_eta.png`; falta la versión comparativa con votante bajo protocolo común.
-- [ ] `<S>` vs. `eta` incorpora las densidades adicionales solo en clusters.
-  - Estado: en progreso parcial. Para Vicsek base (`rho=2,4,8`) ya existe `S_vs_eta.png`; faltan las densidades bajas del punto D para Vicsek si se mantienen dentro del alcance del grupo.
-- [ ] `<va>` vs. `<S>` usa `S` en x, `va` en y y las tres densidades base.
-  - Estado: en progreso. Para Vicsek ya existe `va_vs_S.png`; falta comparación contra votante y revisión del formato final.
-- [ ] Todos los gráficos tienen barras definidas cuando corresponde.
-  - Estado: en progreso. Las figuras nuevas de Vicsek usan error estándar, consistente con `DECISIONES_PENDIENTES.md`; queda revisar que las figuras/scripts del votante usen la misma convención antes de congelar la comparación final.
-- [ ] Vicsek y votante se comparan bajo el mismo protocolo.
-- [ ] Las exportaciones para diapositivas cumplen tamaños de fuente, ejes, símbolos y ubicación de parámetros de la guía.
+  - Estado: **abierto**. El 2026-08-30 quedaron listos los *fotogramas estáticos de referencia* (`figures/reference_snapshots_v1/`, script `python/render_reference_snapshots.py`), que fijan la convención visual (un vector por partícula, color por ángulo con mapa cíclico). No hay video, GIF ni módulo animador todavía, por lo que el ítem sigue sin cerrarse.
+- [x] `va(t)` y `S(t)` muestran y justifican `t_eq`.
+  - Estado: cerrado el 2026-08-30. `figures/final_production_v1/` tiene `{vicsek,voter}_{va,S}_t_{rho_2,rho_4,rho_8}.png` (12 figuras) con `eta={0,0.40,6}`, banda de desvío entre realizaciones y línea vertical `t_eq=1500` rotulada, más `S(t)` para las tres densidades bajas de cada modelo.
+- [x] `<va>` vs. `eta` cubre ambos modelos y `rho=2,4,8`.
+  - Estado: cerrado el 2026-08-30. `figures/final_production_v1/{vicsek,voter}_va_vs_eta.png` (más zooms `eta<=0.5`) y `comparison_va_vs_eta.png`, los 14 puntos de la grilla común y `R=20` en ambos modelos.
+- [x] `<S>` vs. `eta` incorpora las densidades adicionales solo en clusters.
+  - Estado: cerrado el 2026-08-30. `figures/final_production_v1/{vicsek,voter}_S_vs_eta.png` para `rho=2,4,8` y `{vicsek,voter}_S_vs_eta_lowrho.png` para `N=32,16,11`, más zooms y `comparison_S_vs_eta_lowrho.png`. Las densidades bajas no se incorporaron a `<va>` vs. `eta` ni a `<va>` vs. `<S>`.
+- [x] `<va>` vs. `<S>` usa `S` en x, `va` en y y las tres densidades base.
+  - Estado: cerrado el 2026-08-30. `figures/final_production_v1/{vicsek,voter}_va_vs_S.png` y `comparison_va_vs_S.png`, con `x=<S>`, `y=<va>`, `rho=2,4,8` y barras en ambos ejes.
+- [x] Todos los gráficos tienen barras definidas cuando corresponde.
+  - Estado: cerrado el 2026-08-30 para las figuras finales. Las 36 PNG de `figures/final_production_v1/` usan desvío estándar entre realizaciones (`va_stdev_between_realizations`/`S_stdev_between_realizations` en curvas estacionarias, `va_stdev`/`S_stdev` como banda en series) y ninguna usa `*_stderr`. Las carpetas diagnósticas previas siguen con error estándar y quedan explícitamente fuera de la entrega.
+- [x] Vicsek y votante se comparan bajo el mismo protocolo.
+  - Estado: cerrado el 2026-08-30. `comparison_va_vs_eta.png`, `comparison_S_vs_eta_base.png`, `comparison_va_vs_S.png` y `comparison_S_vs_eta_lowrho.png`, con la misma grilla de 14 `eta`, `steps=3000`, `R=20`, `t_eq=1500` y la misma definición de barras en ambos modelos; un panel por densidad para mantener la legibilidad.
+- [x] Las exportaciones para diapositivas cumplen tamaños de fuente, ejes, símbolos y ubicación de parámetros de la guía.
+  - Estado: cerrado para el borrador PPTX el 2026-08-30. Las figuras finales usan fuente interna >=20 pt, no tienen título/caption ni grilla, conservan proporción y muestran parámetros en bloques externos de la diapositiva. Las 33 diapositivas se renderizaron e inspeccionaron; `slides_test.py` no detectó overflow.
 - [ ] La versión para exposición integra las animaciones y el PDF usa fotogramas con links probados.

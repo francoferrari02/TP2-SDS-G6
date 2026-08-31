@@ -64,7 +64,7 @@ Cada valor debe estar acompañado por una breve justificación basada en las ser
 
 ### Grilla y protocolo del piloto
 
-- **Densidades**: únicamente las obligatorias, `rho=2,4,8` (`N=200,400,800`). No se incluyeron las densidades bajas (`1/pi, 1/(2pi), 1/(3pi)`): su conversión a `N` entero sigue sin resolverse.
+- **Densidades**: únicamente las obligatorias, `rho=2,4,8` (`N=200,400,800`). No se incluyeron las densidades bajas (`1/pi, 1/(2pi), 1/(3pi)`): su conversión a `N` entero seguía sin resolverse al momento de este piloto; se resolvió después, el 2026-08-30, como `N=32,16,11`.
 - **Modelos**: Vicsek y votante, ambos con el mismo protocolo.
 - **Grilla exploratoria de `eta`** (explícitamente de piloto, no la grilla final): `{0.0, 1.0, 2.0, 3.0, 4.0, 6.0}`. Justificación: con la convención de cátedra `xi~U[-eta/2,eta/2]`, el ruido cubre todo el círculo cuando `eta>=2*pi≈6.283`; valores mayores no agregan un régimen distinto porque el `U` ya es uniforme sobre `[0,2pi)`. Se eligieron 6 puntos razonablemente espaciados en `[0, ~2pi]` para separar cualitativamente ruido nulo, bajo, intermedio y cercano al máximo, sin comprometerse todavía con una grilla fina en ninguna zona particular (eso requeriría ya haber visto esta evidencia, que es justamente el objetivo de este piloto). No se copió ninguna grilla de otro grupo ni de la bibliografía (el artículo de votante usa otra convención de `eta`, ver `teoria_tp2_automatas_off_lattice.md` sección 5.1).
 - **Realizaciones**: 3 por combinación (rango sugerido por la consigna: 3 a 5). Semillas explícitas y deterministas: `seed = 800000 + offset(modelo) + offset(rho) + 100*indice_eta + realizacion`, con `offset(vicsek)=0`, `offset(voter)=50000`, `offset(rho=2)=0`, `offset(rho=4)=10000`, `offset(rho=8)=20000` (ver `python/pilot_run.py`, función `seed_for`). El esquema es una función pura de la combinación: cualquier corrida del piloto se puede reproducir exactamente a partir de su fila en el manifiesto, sin tener que volver a correr el lote completo.
@@ -162,7 +162,7 @@ Los 108 `observables.csv` crudos (y cualquier archivo bajo `data/pilots/`) **no*
 
 - La grilla final de `eta`, el valor o criterio final de `t_eq` (en particular para el votante), la cantidad definitiva de realizaciones, las semillas de producción y la definición de barras de error: todo sigue en `[ ]` en `DECISIONES_PENDIENTES.md`.
 - El votante en `eta=0` (y posiblemente otros `eta` bajos) requiere un piloto dedicado con más pasos antes de proponer su `t_eq`: la evidencia de este piloto alcanza para decir "600 pasos no bastan", no para decir cuántos bastarían.
-- Las densidades bajas (`1/pi,1/(2pi),1/(3pi)`) no se pilotaron todavía (conversión a `N` sin resolver).
+- Las densidades bajas (`1/pi,1/(2pi),1/(3pi)`) no se pilotaron todavía en este primer bloque histórico; la conversión a `N` se resolvió después como `N=32,16,11`.
 - Los valores productivos de stride para el barrido definitivo (más allá de confirmar que `stride=1` en observables es liviano) siguen sin decidirse.
 
 ## Estudio dedicado del votante (2026-08-30): grilla refinada, R=20, 3000 pasos
@@ -231,20 +231,60 @@ Al inspeccionar `figures/voter_eta_study_1/va_t_rho_*.png` se notó que, en `eta
 
 Los valores coinciden dentro del margen de error. Además, la nueva serie temporal (semillas distintas) muestra una meseta ruidosa sin el pico marcado seguido de caída que se había observado antes. Conclusión: el pico-y-caída visto en la corrida original de `eta=0.2` fue mayormente **fluctuación estadística de esa muestra particular de 20 realizaciones** (el promedio entre pocas realizaciones no termina de suavizar del todo esas oscilaciones en la zona donde el orden y el ruido compiten de forma más pareja), no un transitorio sin terminar ni un artefacto del motor: el valor de equilibrio ya estaba bien capturado a los 3000 pasos. No corresponde citar esa forma de pico-y-caída como un resultado físico reproducible sin promediar sobre más realizaciones para confirmarlo.
 
+## Decisión final de grilla común (2026-08-30)
+
+El grupo aprobó para ambos modelos y las densidades obligatorias la grilla:
+
+```text
+eta={0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}.
+```
+
+El tramo fino hasta `0.5` responde a la evidencia del votante; los puntos
+altos se conservan para mostrar su régimen desordenado y la caída de Vicsek.
+La misma lista se utiliza para que la comparación sea punto a punto. Las
+figuras de presentación pueden incluir, además de la curva completa, un zoom
+del intervalo `eta<=0.5`; el zoom no constituye un segundo protocolo.
+
+## Decisión final de duración, realizaciones y corte para Vicsek (2026-08-30)
+
+Se formaliza para Vicsek el protocolo ya usado en las corridas diagnósticas:
+
+```text
+steps=3000
+R=20
+t_eq=1500
+ventana estacionaria=t=1500..3000
+```
+
+La decisión se apoya en dos evidencias: primero, el piloto exploratorio de
+`steps=600` ya mostraba que Vicsek relaja mucho más rápido que el votante
+(del orden de 100-200 pasos en ruido bajo/moderado); segundo, el estudio
+`vicsek_eta0_6_deta0p5_steps3000_R20_v1` fue reanalizado con `t_eq=1500`,
+`780/780` observables válidos y `0` problemas, y sus series `va(t)`/`S(t)`
+no muestran una deriva sistemática posterior al corte. Adoptar el mismo
+`steps`, `R` y `t_eq` que el votante deja la comparación bajo un protocolo
+único y conservador.
+
+Alcance: esta decisión cierra duración, realizaciones y corte estacionario
+para Vicsek, pero no vuelve finales las figuras exportadas con error estándar
+ni cubre los puntos finos de `eta` que faltan para la grilla común aprobada
+(`0.05, 0.10, 0.15, 0.20, 0.30, 0.40`). Esas corridas/figuras todavía deben
+completarse o regenerarse antes de la entrega comparativa.
+
 ## Criterio de cierre
 
 - [ ] Hay varios valores de `eta` y situaciones de bajo/alto ruido.
-  - Estado: propuesta preliminar. El piloto de 2026-08-30 (grilla `{0,1,2,3,4,6}`, ambos modelos, `rho=2,4,8`) ya muestra situaciones cualitativamente distintas; falta decidir si esa grilla es la definitiva o necesita más puntos (ver "Propuesta inicial" arriba).
+  - Estado: resuelto para la matriz base. La grilla común final de 14 puntos incluye ruido nulo, bajo, intermedio y alto; falta completar las corridas de Vicsek que no cubran todos los puntos finos.
 - [ ] La grilla resuelve el cambio observado sin imponer un `eta_c` no solicitado.
-  - Estado: propuesta preliminar. La caída de `<va>` vs. `eta` está bien resuelta en los extremos; la zona `eta=2..4` (donde cae más rápido, sobre todo en `rho=2`) probablemente necesite más puntos antes de considerarse resuelta.
+  - Estado: resuelto como decisión de protocolo. La grilla final densifica `eta<=0.5` para el votante y conserva puntos altos hasta `eta=6` para cubrir la caída de Vicsek, sin estimar ni imponer un `eta_c`.
 - [ ] `t_eq` y duración se justifican con series temporales.
-  - Estado: propuesta preliminar, y con una limitación explícita: para Vicsek con `eta` bajo/moderado hay evidencia razonable (`t_eq` del orden de 100-200 pasos); para el votante en `eta=0` la evidencia muestra que 600 pasos no alcanzan a estabilizar la serie, así que ese caso queda sin propuesta de `t_eq` (ver "Qué sigue sin poder cerrarse").
+  - Estado: resuelto para la matriz base de ambos modelos (`steps=3000`, `t_eq=1500`, `R=20`). En votante se respaldó con corridas de 3000/5000/6000 pasos; en Vicsek se adoptó formalmente el mismo corte, conservador frente a la relajación observada y respaldado por `vicsek_eta0_6_deta0p5_steps3000_R20_v1`.
 - [ ] Cantidad de realizaciones, semillas y barras quedaron definidas.
-  - Estado: propuesta preliminar. El piloto usó 3 realizaciones con semillas explícitas y deterministas (documentadas arriba), pero mostró que 3 no alcanzan para un error chico cerca de la transición; no se fija todavía un número definitivo. La definición de barras (desvío vs. error estándar) sigue sin elegirse.
+  - Estado: resuelto para la matriz base de ambos modelos: `R=20` y barras por desvío estándar entre realizaciones. Las semillas quedan trazadas por los manifiestos/scripts de cada estudio; falta completar la grilla común de Vicsek donde no existan corridas.
 - [ ] El mismo protocolo permite comparar Vicsek y votante.
-  - Estado: propuesta preliminar. El piloto ya corrió ambos modelos con exactamente el mismo protocolo (misma grilla, misma duración, mismas realizaciones, mismas densidades), lo que permitió justamente detectar que sus tiempos de relajación difieren (ver "Comparación Vicsek vs. votante").
+  - Estado: resuelto en términos de protocolo (`eta` común, `steps=3000`, `R=20`, `t_eq=1500`, barras por desvío estándar). Falta completar/regenerar datos y figuras donde Vicsek todavía no cubre todos los puntos de la grilla común.
 - [ ] La grilla final está registrada antes de producción.
-  - Sigue sin registrarse: lo de arriba es la grilla del piloto, no la definitiva.
+  - Estado: resuelta. La grilla común de 14 puntos se registró arriba y en `DECISIONES_PENDIENTES.md`; falta completar las corridas que no la cubren y validar la matriz antes de marcar la etapa.
 - [ ] Las densidades bajas fueron pilotadas por separado antes de fijar su `t_eq` y duración.
   - Sigue pendiente: no se incluyeron en este piloto.
 - [ ] Los artefactos de pilotos y producción tienen identidades/rutas incompatibles entre sí.

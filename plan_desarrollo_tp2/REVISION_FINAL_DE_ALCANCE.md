@@ -78,7 +78,7 @@ Si la cátedra confirma que la aclaración también comprende la relación `<va>
 
 ### Conversión de las densidades bajas a `N`
 
-Con `L=10`, `N=rho L^2` da valores no enteros para `1/pi`, `1/(2pi)` y `1/(3pi)`. El plan usa provisionalmente redondeo al entero más cercano (`32,16,11`) y registra la densidad efectiva, pero esa convención no aparece expresamente en el material y debe confirmarse antes del barrido definitivo de clusters.
+Con `L=10`, `N=rho L^2` da valores no enteros para `1/pi`, `1/(2pi)` y `1/(3pi)`. La decisión registrada el 2026-08-30 es redondear al entero más cercano (`32,16,11`) y registrar siempre la densidad nominal junto con la densidad efectiva (`0.32,0.16,0.11`). Esta convención resuelve la matriz de clusters bajos, pero no debe presentarse como si las densidades nominales fueran exactas.
 
 ## Veredicto
 

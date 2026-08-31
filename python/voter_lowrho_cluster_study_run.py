@@ -3,9 +3,9 @@
 
 Contexto: el punto D (clusters) del enunciado pide ampliar S(t)/<S> vs eta a
 rho_nominal = {1/pi, 1/(2pi), 1/(3pi)}. Con L=10 esas densidades no dan un N
-entero; se usa la convención provisional ya documentada en
-plan_desarrollo_tp2/README.md (redondeo al entero mas cercano), registrando
-tambien la densidad efectiva N/L^2:
+entero; se usa la decision registrada el 2026-08-30 en
+plan_desarrollo_tp2/DECISIONES_PENDIENTES.md (redondeo al entero mas
+cercano), registrando tambien la densidad efectiva N/L^2:
 
     1/pi     -> N=32 -> rho_efectiva=0.32
     1/(2pi)  -> N=16 -> rho_efectiva=0.16
@@ -39,7 +39,7 @@ SIMULATE_BIN = REPO_ROOT / "build" / "simulate"
 ETA_GRID = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0]
 
 # rho_nominal exacto (no redondeado), N ya redondeado por la convencion
-# provisional, y una etiqueta de ruta segura (is_safe_path_label solo
+# aprobada, y una etiqueta de ruta segura (is_safe_path_label solo
 # permite letras/digitos/'_'/'-').
 RHO_GRID = [
     (1.0 / 3.141592653589793, 32, "rho_1_over_pi"),
