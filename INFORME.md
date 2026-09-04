@@ -1228,6 +1228,56 @@ una comparación a mayor duración. Después de eso corresponde generar las
 animaciones de los casos característicos (ruido bajo/alto) y avanzar con el
 barrido definitivo (etapa 6) y las figuras (etapa 7).
 
+## Etapa 8: benchmark de rendimiento del CIM contra TP1 (2026-09-03)
+
+Se comparó el tiempo de búsqueda de vecinos (Cell Index Method) del motor
+de este TP2 (C++) contra el TP1 propio del autor (`cell-index-method`,
+Python + numpy), aislando en ambos casos únicamente la llamada al CIM
+(sin generación de partículas, I/O ni gráficos). Detalle completo,
+metodología y comandos de reproducción en
+`plan_desarrollo_tp2/08_rendimiento_cim.md`.
+
+Se corrieron tres condiciones, no dos, para poder separar causas en vez de
+solo constatar una diferencia: (A) TP1 real (partículas con radio
+`U[0.23,0.26]`, sin superposición, criterio borde-borde), (B) TP1
+ablacionado a partículas puntuales (mismo código, `r=0`, sin la
+restricción de superposición) y (C) TP2 (C++, puntual). Mismos `L=20`,
+`rc=1`, borde periódico y `N∈{10,25,50,100,200,400,800}` en las tres,
+`R=100` repeticiones por punto.
+
+Gráfico: `figures/benchmark_tp1_vs_tp2/tiempo_y_vecinos_vs_N.png`. Tabla:
+`data/summary/benchmark_tp1_vs_tp2.csv`.
+
+**Resultados y causas identificadas**:
+
+- TP2 es más rápido que ambas variantes de TP1 en todo el rango medido,
+  pero la ventaja no es constante: ~90x a `N=10`, ~4.8x a `N=800`. Un costo
+  fijo por llamada (overhead de intérprete y de construir arrays de numpy
+  en TP1; inexistente en C++ compilado) domina a `N` chico; a `N` grande
+  domina el trabajo real de comparar pares, y ahí la ventaja de TP2 se
+  reduce porque el CIM de TP1 ya está vectorizado con numpy, no es un loop
+  puro de Python.
+- Dentro de TP1, tener radio (condición A) es más lento que no tenerlo
+  (condición B) a partir de `N≈200` (a `N=800`, ~26% más lento), con causa
+  medida y no solo conjeturada: el radio obliga a un `M_max` menor (13 en
+  vez de 20) y extiende el alcance efectivo de interacción (criterio
+  borde-borde), lo que se ve directamente en vecinos medios por partícula
+  a igual `rc` nominal: `~13` (A) vs. `~6.2` (B y C, que coinciden entre
+  sí como control de consistencia cruzada).
+- La restricción de no superposición de TP1 (rejection sampling) no
+  aparece en esta medición porque se excluyó deliberadamente del tiempo
+  cronometrado (igual que la inicialización de TP2); su efecto real es
+  limitar el `N` máximo alcanzable para un `L` dado, no hacer más lenta
+  cada búsqueda.
+- Que TP1 sea una única foto estática (no mueve partículas) no afecta esta
+  comparación puntual porque en TP2 también se aisló el CIM del resto del
+  motor (reglas, movimiento, repliegue periódico): se cronometra la misma
+  operación en ambos, no un paso completo de simulación dinámica.
+
+Herramientas nuevas: `src/cli/benchmark_cim.cpp` (ejecutable
+`benchmark_cim`, no registrado en CTest), `python/benchmark_tp1_vs_tp2.py`,
+`python/benchmark_tp1_vs_tp2_plot.py`.
+
 ## Pendientes y decisiones abiertas
 
 - Falta el protocolo estadístico completo: promedio estacionario de los

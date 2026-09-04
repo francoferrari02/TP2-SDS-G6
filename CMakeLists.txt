@@ -57,6 +57,12 @@ target_link_libraries(voter_consensus_regression PRIVATE tp2_core)
 add_executable(simulate src/cli/simulate.cpp)
 target_link_libraries(simulate PRIVATE tp2_core)
 
+# Herramienta de medicion de la etapa 8 (rendimiento del CIM vs. TP1): mide
+# unicamente cell_index_neighbors, sin generacion ni I/O. No es un test de
+# CTest (no valida correctitud, solo tiempos).
+add_executable(benchmark_cim src/cli/benchmark_cim.cpp)
+target_link_libraries(benchmark_cim PRIVATE tp2_core)
+
 add_executable(test_text_output tests/test_text_output.cpp)
 target_link_libraries(test_text_output PRIVATE tp2_core)
 add_test(NAME text_output COMMAND test_text_output)

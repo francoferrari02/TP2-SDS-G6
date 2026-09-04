@@ -103,10 +103,6 @@ Estas decisiones deben proponerse después de las corridas preliminares de la et
 
 ## Rendimiento y entrega
 
-- [ ] **Protocolo de comparación de tiempos con TP1.**
-  - Falta elegir `N`, pasos/repeticiones, entorno y tramo cronometrado.
-  - Bloquea: etapa 8.
-
 - [ ] **Datos administrativos y enlaces finales.**
   - Falta confirmar grupo, comisión, integrantes/números requeridos y destino de las animaciones.
   - Bloquea: cierre de etapa 9.
@@ -186,6 +182,48 @@ definitivas las corridas ya existentes que no cubran exactamente la grilla o
 no compartan el protocolo final; se deben completar y reagrupar antes de
 generar figuras finales.
 Usuario que aprobó: usuario del proyecto (francoferrari).
+```
+
+- [x] **Protocolo de comparación de tiempos con TP1.**
+  - Contexto original: faltaba elegir `N`, repeticiones, entorno y tramo cronometrado.
+
+```text
+Decisión:
+Se cronometra unicamente la busqueda de vecinos por Cell Index Method
+(cell_index_neighbors en TP2, buscar_vecinos_cim en TP1), sin generacion de
+particulas, I/O, animacion ni graficos. Parametros comunes: L=20, rc=1,
+borde periodico en ambos motores, N en {10,25,50,100,200,400,800}, R=100
+repeticiones por punto, semilla 12345. Se corren tres condiciones para
+separar causas en vez de solo constatar una diferencia: (A) TP1 real
+(radio U[0.23,0.26], sin superposicion, criterio borde-borde, M_max=13),
+(B) TP1 ablacionado a particulas puntuales (mismo codigo, r=0, sin
+restriccion de superposicion, M_max=20) y (C) TP2 (C++, puntual, M_max=20).
+Fecha: 2026-09-03
+Fundamento/evidencia: TP2 resulto mas rapido que ambas variantes de TP1
+en todo el rango medido, pero la ventaja no es constante (~90x a N=10,
+~4.8x a N=800): a N chico domina un costo fijo por llamada (overhead de
+interprete y de numpy en TP1, inexistente en C++ compilado); a N grande
+domina el trabajo real de comparar pares y la ventaja se achica porque el
+CIM de TP1 ya esta vectorizado con numpy. Dentro de TP1, tener radio
+(A) es ~26% mas lento que no tenerlo (B) a N=800, con causa medida (no
+conjeturada): el radio obliga a un M_max menor (13 vs 20) y extiende el
+alcance efectivo de interaccion (criterio borde-borde), lo que se ve
+directamente en vecinos medios por particula a igual rc nominal (~13 en A
+vs ~6.2 en B y C, que coinciden entre si como control cruzado). La
+restriccion de no superposicion de TP1 no aparece en esta medicion porque
+se excluyo la generacion del tiempo cronometrado; su efecto real es
+limitar el N maximo alcanzable, no hacer mas lenta cada busqueda. Detalle
+completo, tabla y grafico en plan_desarrollo_tp2/08_rendimiento_cim.md
+(seccion "Progreso (2026-09-03): benchmark comparable TP1 vs TP2") e
+INFORME.md.
+Etapas y archivos afectados: cierra la etapa 8 completa (todos los
+criterios de cierre de 08_rendimiento_cim.md quedaron en [x]).
+Herramientas nuevas: src/cli/benchmark_cim.cpp (no registrado en CTest),
+python/benchmark_tp1_vs_tp2.py, python/benchmark_tp1_vs_tp2_plot.py.
+No modifica el motor productivo (rules.hpp, time_step.hpp,
+neighbor_search.hpp, simulation.hpp, observables.hpp, initialization.hpp,
+cli/simulate_cli.hpp).
+Usuario que aprobó: usuario del proyecto (kmenshikoff@balanz.com).
 ```
 
 - [x] **Cantidad de realizaciones independientes, semillas y duración (`steps`) para el votante.**

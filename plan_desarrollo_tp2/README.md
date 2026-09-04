@@ -85,7 +85,7 @@ La extensión se aplica al punto D del enunciado: `S(t)` y `<S>` vs. `eta`. La c
 | 5 | [ ] | [`05_pilotos_y_grilla_eta.md`](05_pilotos_y_grilla_eta.md) | Grilla final de ruido y duraciones justificadas con series temporales |
 | 6 | [ ] | [`06_barrido_de_produccion.md`](06_barrido_de_produccion.md) | Matriz completa, trazable y sin combinaciones faltantes |
 | 7 | [ ] | [`07_figuras_y_animaciones.md`](07_figuras_y_animaciones.md) | Todas las figuras obligatorias y animaciones verificadas |
-| 8 | [ ] | [`08_rendimiento_cim.md`](08_rendimiento_cim.md) | Comparación TP1/TP2 metodológicamente interpretable |
+| 8 | [x] | [`08_rendimiento_cim.md`](08_rendimiento_cim.md) | Comparación TP1/TP2 metodológicamente interpretable |
 | 9 | [ ] | [`09_informe_presentacion_entrega.md`](09_informe_presentacion_entrega.md) | Informe, exposición, enlaces y ZIP final listos |
 | 10 | [x] | [`10_protocolo_para_agentes.md`](10_protocolo_para_agentes.md) | Reglas de delegación, handoff y definición de terminado establecidas |
 
@@ -153,6 +153,19 @@ La extensión se aplica al punto D del enunciado: `S(t)` y `<S>` vs. `eta`. La c
 - **Etapa 9:** se creó y verificó `output/presentation/TP2_Bandadas_Borrador_Presentacion.pptx`, un borrador avanzado 16:9 con 21 diapositivas para la exposición y 12 de apéndice. Integra 29 PNG exclusivamente de `figures/final_production_v1/` y `figures/reference_snapshots_v1/`, todos embebidos y sin deformación, y contiene notas del orador en sus 33 diapositivas. Evidencia: render e inspección individual de las 33 diapositivas, montage y `slides_test.py` sin overflow; el paquete contiene 33 slides, 33 notes slides y 29 recursos de imagen. Esto cierra la creación/QA del borrador, no la etapa: siguen pendientes animaciones y links, benchmark, grupo/comisión, PDF, informe y ZIP final.
 - **Etapa 9:** el 31/08 se preservó el borrador anterior y se exportó `output/presentation/TP2_Bandadas_Borrador_Presentacion_clarificada.pptx`. La diapositiva 12 ahora explicita la comparación a polarización instantánea casi idéntica (`va≈0.515`), identifica Vicsek/`eta=3` a la izquierda y votante/`eta=0.4` a la derecha, y separa los parámetros comunes. Las otras 32 diapositivas y el fotograma científico no cambiaron. Evidencia: render completo, inspección visual de la diapositiva 12, `slides_test.py` sin overflow y fidelidad de plantilla con `0` problemas. Esto no cierra las animaciones ni los demás pendientes de la etapa.
 - **Etapa 9:** el 31/08 se auditó esa copia contra la guía oficial `GuiaPresentaciones.pdf` y se exportó `output/presentation/TP2_Bandadas_Presentacion_reestructurada_guia_catedra.pptx` (22 diapositivas de exposición y 11 de apéndice). Se eliminaron los números de los separadores, se llevó la arquitectura de salida/visualización a Simulaciones, se agregó un separador exclusivo de Conclusiones y se retiró el texto de pendientes de la conclusión. Evidencia: render completo de 33 diapositivas, inspección visual de las afectadas, `slides_test.py` sin overflow y fidelidad de plantilla con `0` problemas. La auditoría dejó abiertos la integración de animaciones/enlaces, la ubicación estrictamente lateral de parámetros, el esquema explícito de simulación y el reparto de expositores; por eso no cierra la etapa.
+
+- **Etapa 8 (cerrada, 03/09):** benchmark comparable TP1 (Python, `cell-index-method`)
+  vs. TP2 (C++), aislando únicamente la llamada al CIM. Tres condiciones para separar
+  causas: TP1 real (radio, sin superposición, `M_max=13`), TP1 ablacionado a partículas
+  puntuales (`r=0`, mismo código, `M_max=20`) y TP2 (puntual, `M_max=20`); mismos
+  `L=20`, `rc=1`, borde periódico, `N∈{10,...,800}`, `R=100` repeticiones. TP2 resultó
+  más rápido en todo el rango (~90x en `N=10`, ~4.8x en `N=800`, brecha que se achica
+  porque el CIM de TP1 ya está vectorizado con numpy); dentro de TP1, tener radio es
+  ~26% más lento que no tenerlo a `N=800`, con causa medida (`M_max` menor y más
+  vecinos reales por el criterio borde-borde, no solo conjeturada). Herramientas:
+  `src/cli/benchmark_cim.cpp`, `python/benchmark_tp1_vs_tp2.py`,
+  `python/benchmark_tp1_vs_tp2_plot.py`. Detalle completo, tabla y gráfico en
+  [`08_rendimiento_cim.md`](08_rendimiento_cim.md).
 
 ## Decisiones experimentales que la cátedra deja abiertas
 
