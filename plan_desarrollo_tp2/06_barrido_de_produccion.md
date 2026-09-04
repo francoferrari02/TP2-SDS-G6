@@ -320,6 +320,77 @@ tablas consolidadas. Sigue pendiente regenerar las figuras finales de Vicsek a p
 de esta tabla (con desvío estándar entre realizaciones, no error estándar) y la
 consolidación equivalente para el votante.
 
+## Progreso parcial (2026-09-03): ampliación de la grilla de `eta` a 37 puntos
+
+El usuario señaló que la figura `<va>` vs. `eta` de Vicsek se veía poligonal entre
+`eta=1` y `eta=6` (paso entero) frente a una figura de referencia externa, aceptada
+por la cátedra en otro grupo, que usa un barrido mucho más fino, y que la cátedra
+exige gráficos "precisos". Se decidió ampliar la grilla común (ver
+`DECISIONES_PENDIENTES.md`, "Ampliación de la grilla de `eta` a 37 puntos") agregando
+paso `0.2` entre `eta=0.6` y `eta=6.2`, para `rho=2,4,8` y ambos modelos, sin tocar la
+zona `eta<=0.5` (ya densificada) ni el bloque de densidades bajas de clusters.
+
+Se agregó `python/final_dense_eta_grid_run.py` (generaliza `final_fine_grid_run.py` a
+los 23 puntos nuevos), con semillas deterministas `1600000 + model_offset + rho_offset
++ 100*eta_index + realization` (sin colisión: el máximo de semilla reservado hasta
+ahora era `1541319`, en `final_voter_lowrho_grid_run.py`).
+
+Comandos ejecutados:
+
+```text
+cmake --build build
+ctest --test-dir build --output-on-failure   # 11/11 OK
+python3 python/final_dense_eta_grid_run.py --jobs 10
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 python/pilot_analyze.py \
+    --run-name final_dense_eta_grid_steps3000_R20_v1 --sample-stride 50 --t-eq 1500
+```
+
+Evidencia:
+
+- `2760/2760` corridas exitosas, `0` fallos (`2` modelos x `3` densidades x `23` eta x
+  `20` realizaciones), `1476.4s` de cómputo total con `--jobs 10`.
+- `pilot_analyze.py`: `2760/2760` `observables.csv` válidos, `0` problemas de formato.
+- Validación programática independiente (ad hoc, ver comando abajo): `2760` filas en
+  `by_realization.csv`, `138` combinaciones (`2` modelos x `3` rho x `23` eta), todas
+  con exactamente `R=20`, `steps=3000` y `t_window_start=1500` en todas las filas,
+  `va_window_mean`/`S_window_mean` en `[0,1]` en todas las filas.
+- No se escribió ningún `trajectory.csv`, conforme al protocolo ya usado.
+
+Archivos generados: `data/summary/final_dense_eta_grid_steps3000_R20_v1_{manifest,
+by_realization,by_combo,series_sampled}.csv`.
+
+**Consolidación.** Se actualizaron `python/build_final_vicsek_base_table.py` y
+`python/build_final_voter_base_table.py` para incorporar este tercer lote de origen
+(antes combinaban dos lotes en 14 puntos; ahora combinan tres en 37 puntos), con la
+misma validación explícita de no solapamiento entre lotes y de cobertura exacta de la
+grilla ampliada antes de escribir nada. Ambos scripts corrieron sin problemas:
+
+```text
+python3 python/build_final_vicsek_base_table.py
+# Validacion OK: 2220 filas by_realization (3 rho x 37 eta x R=20), 111 combinaciones.
+python3 python/build_final_voter_base_table.py
+# Validacion OK: 2220 filas by_realization (3 rho x 37 eta x R=20), 111 combinaciones.
+```
+
+Esto **sobrescribió** (mismo nombre de tabla, nuevo contenido) las tablas consolidadas
+`final_vicsek_base_grid_steps3000_R20_v1_*` y `final_voter_base_grid_steps3000_R20_v1_*`,
+que ahora tienen 37 puntos de `eta` en vez de 14 para `rho=2,4,8` en ambos modelos.
+
+**Regeneración de figuras.** Se re-ejecutó `python/generate_final_figures.py` (sin
+cambios de código: lee las mismas tres tablas consolidadas por nombre) y se regeneraron
+las `36` PNG de `figures/final_production_v1/` con la grilla ampliada. También se
+regeneró `figures/vicsek_va_vs_eta_paper_style_v1/vicsek_va_vs_eta_paper_style.png`
+(ver progreso de la etapa 7 más abajo). Revisión visual: las curvas `<va>` vs. `eta` de
+ambos modelos pasaron de tener tramos poligonales entre `eta=1` y `eta=6` a una
+sigmoide suave, sin cruces entre densidades salvo en la cola de ruido alto (`eta>=5`,
+zona de polarización residual `~0.03-0.07`, compatible con ruido estadístico ya
+documentado antes de esta tarea).
+
+Alcance de esta tarea: solo `rho=2,4,8` (matriz base), ambos modelos. No se tocó el
+bloque de densidades bajas de clusters (`1/pi,1/(2pi),1/(3pi)`), que sigue con la
+grilla de 14 puntos original; esto queda fuera de esta tarea salvo que se pida
+explícitamente.
+
 ## Criterio de cierre
 
 - [ ] Están todas las combinaciones de dos modelos, tres densidades base y todos los `eta`.

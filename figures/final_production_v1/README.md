@@ -14,7 +14,11 @@ consolidadas, sin ejecutar simulaciones ni recomputar observables.
 ```text
 modelos          {vicsek, voter}
 L=10  rc=1  dt=1  v=0.03
-eta              {0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}  (14 puntos, rad)
+eta (base)       {0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50,
+                  0.60, 0.80, 1, 1.20, 1.40, 1.60, 1.80, 2, 2.20, 2.40, 2.60, 2.80,
+                  3, 3.20, 3.40, 3.60, 3.80, 4, 4.20, 4.40, 4.60, 4.80,
+                  5, 5.20, 5.40, 5.60, 5.80, 6, 6.20}  (37 puntos, rad; rho=2,4,8 solamente)
+eta (clusters)   {0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50, 1, 2, 3, 4, 5, 6}  (14 puntos, rad; rho bajas)
 rho base         {2, 4, 8}                      -> N = {200, 400, 800}
 rho bajas        {1/pi, 1/(2pi), 1/(3pi)}       -> N = {32, 16, 11}  (solo clusters)
 steps            3000
@@ -81,9 +85,14 @@ Cada una lleva `source_run` con el lote de origen de cada fila:
 
 | Tabla consolidada | Filas `by_realization` | Combinaciones | Lotes de origen |
 |---|---:|---:|---|
-| `final_vicsek_base_grid_steps3000_R20_v1` | 840 | 42 | `final_fine_grid_steps3000_R20_v1` (vicsek), `vicsek_eta0_6_deta0p5_steps3000_R20_v1` |
-| `final_voter_base_grid_steps3000_R20_v1` | 840 | 42 | `final_fine_grid_steps3000_R20_v1` (voter), `final_voter_base_coarse_v1` |
+| `final_vicsek_base_grid_steps3000_R20_v1` | 2220 | 111 | `final_fine_grid_steps3000_R20_v1` (vicsek), `vicsek_eta0_6_deta0p5_steps3000_R20_v1`, `final_dense_eta_grid_steps3000_R20_v1` (vicsek) |
+| `final_voter_base_grid_steps3000_R20_v1` | 2220 | 111 | `final_fine_grid_steps3000_R20_v1` (voter), `final_voter_base_coarse_v1`, `final_dense_eta_grid_steps3000_R20_v1` (voter) |
 | `final_lowrho_cluster_grid_steps3000_R20_v1` | 1680 | 84 | `vicsek_lowrho_cluster_study_1`, `final_voter_lowrho_grid_v1` |
+
+La grilla de `eta` ampliada a 37 puntos (03/09/2026) aplica solo a las dos primeras
+tablas (`rho=2,4,8`); la tercera (densidades bajas de clusters) sigue con los 14
+puntos originales. Ver `plan_desarrollo_tp2/06_barrido_de_produccion.md` y
+`DECISIONES_PENDIENTES.md` para el detalle de la ampliación.
 
 ## Archivos generados y punto del enunciado que cubren
 
@@ -93,7 +102,7 @@ Cada una lleva `source_run` con el lote de origen de cada fila:
 
 | Archivo | Punto | Contenido |
 |---|:--:|---|
-| `vicsek_va_vs_eta.png` | C | `<va>` vs. `eta`, 14 puntos, tres densidades |
+| `vicsek_va_vs_eta.png` | C | `<va>` vs. `eta`, 37 puntos, tres densidades |
 | `vicsek_va_vs_eta_zoom_0_0p5.png` | C | idem, zoom `eta<=0.5` |
 | `vicsek_S_vs_eta.png` | D | `<S>` vs. `eta`, tres densidades |
 | `vicsek_S_vs_eta_zoom_0_0p5.png` | D | idem, zoom `eta<=0.5` |
@@ -176,6 +185,13 @@ estándar.
 
 `generate_final_figures.py` acepta `--out-dir`, pero rechaza cualquier destino fuera de
 `figures/`; por defecto escribe en esta carpeta y no toca ninguna otra.
+
+Desde el 03/09/2026, `build_final_vicsek_base_table.py`/`build_final_voter_base_table.py`
+requieren además `data/summary/final_dense_eta_grid_steps3000_R20_v1_*.csv` (los 23
+puntos nuevos de `eta`, `rho=2,4,8`, ambos modelos), producida por
+`python3 python/final_dense_eta_grid_run.py` (sí ejecuta simulaciones: `2760`
+corridas). Si esos CSV no existen, los dos scripts de consolidación fallan la
+validación en vez de escribir una tabla incompleta.
 
 ## Qué NO hay acá
 

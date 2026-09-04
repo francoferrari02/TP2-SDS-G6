@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Consolida la tabla final de produccion de Vicsek para rho=2,4,8.
 
-Combina, sin volver a correr nada, dos lotes ya validados:
+Combina, sin volver a correr nada, tres lotes ya validados:
 
   - final_fine_grid_steps3000_R20_v1 (filtrado a model=vicsek): cubre los
     puntos finos eta={0.05,0.10,0.15,0.20,0.30,0.40} de la grilla comun.
   - vicsek_eta0_6_deta0p5_steps3000_R20_v1 (filtrado a
-    eta={0,0.5,1,2,3,4,5,6}): cubre el resto de la grilla comun de 14
-    puntos.
+    eta={0,0.5,1,2,3,4,5,6}): cubre los puntos enteros/medios de la grilla
+    comun original de 14 puntos.
+  - final_dense_eta_grid_steps3000_R20_v1 (filtrado a model=vicsek): cubre
+    los 23 puntos nuevos con paso 0.2 entre eta=0.6 y eta=6.2, agregados el
+    2026-09-03 porque la grilla de 14 puntos resultaba demasiado gruesa para
+    las figuras finales de <va> vs. eta (ver DECISIONES_PENDIENTES.md).
 
-Ambos lotes ya comparten protocolo (steps=3000, R=20, t_eq=1500, rho=2,4,8,
-CIM, sin trayectoria), asi que la union cubre exactamente los 14 puntos de
-la grilla comun aprobada sin superposicion. El script valida esto
+Los tres lotes comparten protocolo (steps=3000, R=20, t_eq=1500, rho=2,4,8,
+CIM, sin trayectoria), asi que la union cubre exactamente los 37 puntos de
+la grilla comun ampliada sin superposicion. El script valida esto
 explicitamente antes de escribir nada.
 
 vicsek_eta0_6_deta0p5_steps3000_R20_v1 no tiene un manifiesto de lanzador
@@ -50,7 +54,18 @@ FINE_GRID_ETAS = {0.05, 0.10, 0.15, 0.20, 0.30, 0.40}
 WIDE_GRID_RUN = "vicsek_eta0_6_deta0p5_steps3000_R20_v1"
 WIDE_GRID_ETAS = {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0}
 
-COMMON_GRID_ETAS = FINE_GRID_ETAS | WIDE_GRID_ETAS  # 14 puntos
+DENSE_GRID_RUN = "final_dense_eta_grid_steps3000_R20_v1"
+DENSE_GRID_ETAS = {
+    0.60, 0.80,
+    1.20, 1.40, 1.60, 1.80,
+    2.20, 2.40, 2.60, 2.80,
+    3.20, 3.40, 3.60, 3.80,
+    4.20, 4.40, 4.60, 4.80,
+    5.20, 5.40, 5.60, 5.80,
+    6.20,
+}
+
+COMMON_GRID_ETAS = FINE_GRID_ETAS | WIDE_GRID_ETAS | DENSE_GRID_ETAS  # 37 puntos
 RHO_LABELS = {"rho_2": 200, "rho_4": 400, "rho_8": 800}
 EXPECTED_R = 20
 EXPECTED_STEPS = 3000
@@ -69,9 +84,13 @@ def eta_matches(row_eta: str, allowed: set) -> bool:
 
 
 def main() -> int:
-    assert len(COMMON_GRID_ETAS) == 14, "la union de ambos lotes debe dar exactamente 14 puntos de eta"
-    overlap = FINE_GRID_ETAS & WIDE_GRID_ETAS
-    assert not overlap, f"los dos lotes de origen no deberian superponerse en eta, pero comparten {overlap}"
+    assert len(COMMON_GRID_ETAS) == 37, "la union de los tres lotes debe dar exactamente 37 puntos de eta"
+    overlap_fw = FINE_GRID_ETAS & WIDE_GRID_ETAS
+    overlap_fd = FINE_GRID_ETAS & DENSE_GRID_ETAS
+    overlap_wd = WIDE_GRID_ETAS & DENSE_GRID_ETAS
+    assert not overlap_fw, f"fine/wide no deberian superponerse en eta, pero comparten {overlap_fw}"
+    assert not overlap_fd, f"fine/dense no deberian superponerse en eta, pero comparten {overlap_fd}"
+    assert not overlap_wd, f"wide/dense no deberian superponerse en eta, pero comparten {overlap_wd}"
 
     # --- manifiesto ---
     fine_manifest = [r for r in read_csv(SUMMARY_DIR / f"{FINE_GRID_RUN}_manifest.csv")
@@ -98,11 +117,18 @@ def main() -> int:
             "source_run": WIDE_GRID_RUN,
         })
 
+    dense_manifest = [r for r in read_csv(SUMMARY_DIR / f"{DENSE_GRID_RUN}_manifest.csv")
+                       if r["model"] == "vicsek" and eta_matches(r["eta"], DENSE_GRID_ETAS)]
+    for r in dense_manifest:
+        r["source_run"] = DENSE_GRID_RUN
+
     manifest_fieldnames = ["model", "rho_nominal", "rho_label", "N", "eta", "eta_index",
                             "steps", "base_seed", "realization", "returncode", "elapsed_s", "source_run"]
     for r in fine_manifest:
         r.setdefault("eta_index", "")
-    manifest_rows = fine_manifest + wide_manifest
+    for r in dense_manifest:
+        r.setdefault("eta_index", "")
+    manifest_rows = fine_manifest + wide_manifest + dense_manifest
 
     # --- by_realization ---
     fine_by_real = [r for r in read_csv(SUMMARY_DIR / f"{FINE_GRID_RUN}_by_realization.csv")
@@ -113,7 +139,11 @@ def main() -> int:
                      if eta_matches(r["eta"], WIDE_GRID_ETAS)]
     for r in wide_by_real:
         r["source_run"] = WIDE_GRID_RUN
-    by_realization_rows = fine_by_real + wide_by_real
+    dense_by_real = [r for r in read_csv(SUMMARY_DIR / f"{DENSE_GRID_RUN}_by_realization.csv")
+                      if r["model"] == "vicsek" and eta_matches(r["eta"], DENSE_GRID_ETAS)]
+    for r in dense_by_real:
+        r["source_run"] = DENSE_GRID_RUN
+    by_realization_rows = fine_by_real + wide_by_real + dense_by_real
 
     # --- by_combo ---
     fine_by_combo = [r for r in read_csv(SUMMARY_DIR / f"{FINE_GRID_RUN}_by_combo.csv")
@@ -124,7 +154,11 @@ def main() -> int:
                       if eta_matches(r["eta"], WIDE_GRID_ETAS)]
     for r in wide_by_combo:
         r["source_run"] = WIDE_GRID_RUN
-    by_combo_rows = fine_by_combo + wide_by_combo
+    dense_by_combo = [r for r in read_csv(SUMMARY_DIR / f"{DENSE_GRID_RUN}_by_combo.csv")
+                       if r["model"] == "vicsek" and eta_matches(r["eta"], DENSE_GRID_ETAS)]
+    for r in dense_by_combo:
+        r["source_run"] = DENSE_GRID_RUN
+    by_combo_rows = fine_by_combo + wide_by_combo + dense_by_combo
 
     # --- series_sampled ---
     fine_series = [r for r in read_csv(SUMMARY_DIR / f"{FINE_GRID_RUN}_series_sampled.csv")
@@ -135,7 +169,11 @@ def main() -> int:
                    if eta_matches(r["eta"], WIDE_GRID_ETAS)]
     for r in wide_series:
         r["source_run"] = WIDE_GRID_RUN
-    series_rows = fine_series + wide_series
+    dense_series = [r for r in read_csv(SUMMARY_DIR / f"{DENSE_GRID_RUN}_series_sampled.csv")
+                     if r["model"] == "vicsek" and eta_matches(r["eta"], DENSE_GRID_ETAS)]
+    for r in dense_series:
+        r["source_run"] = DENSE_GRID_RUN
+    series_rows = fine_series + wide_series + dense_series
 
     # --- validaciones explicitas antes de escribir nada ---
     problems = []

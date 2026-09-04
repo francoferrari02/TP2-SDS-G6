@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
 """Consolida la tabla final de clusters en densidades bajas para ambos modelos.
 
-Combina, sin volver a correr nada ni recomputar ningun valor, dos lotes ya
+Combina, sin volver a correr nada ni recomputar ningun valor, los lotes ya
 validados que comparten protocolo (steps=3000, R=20, t_eq=1500, CIM, sin
-trayectoria) y la misma grilla comun de 14 valores de eta:
+trayectoria):
 
-  - vicsek_lowrho_cluster_study_1  (model=vicsek)
-  - final_voter_lowrho_grid_v1     (model=voter)
+  - vicsek_lowrho_cluster_study_1        (model=vicsek, 14 puntos de eta)
+  - vicsek_lowrho_dense_eta_grid_steps3000_R20_v1
+    (model=vicsek, 23 puntos nuevos con paso 0.2 entre eta=0.6 y eta=6.2)
+  - final_voter_lowrho_grid_v1           (model=voter, 14 puntos de eta)
+  - voter_lowrho_dense_eta_grid_steps3000_R20_v1
+    (model=voter, los mismos 23 puntos nuevos, agregados el 2026-09-03 para
+    que la figura combinada de <S> vs. eta de seis densidades del votante
+    tenga la misma resolucion que la de Vicsek; ver
+    06_barrido_de_produccion.md y DECISIONES_PENDIENTES.md)
 
-Ambos cubren rho_nominal={1/pi,1/(2pi),1/(3pi)} con N={32,16,11} (redondeo
-al entero mas cercano, decision registrada el 2026-08-30).
+Todos cubren rho_nominal={1/pi,1/(2pi),1/(3pi)} con N={32,16,11} (redondeo
+al entero mas cercano, decision registrada el 2026-08-30). Ambos modelos
+terminan con la misma grilla ampliada de 37 puntos de eta (union de los dos
+lotes de cada modelo, sin solapamiento).
 
 Los manifiestos de origen no comparten el mismo conjunto de columnas
 (`final_voter_lowrho_grid_v1` agrega `rho_effective` y `output_path`). El
@@ -36,13 +45,32 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SUMMARY_DIR = REPO_ROOT / "data" / "summary"
 
-SOURCE_RUNS = {
-    "vicsek": "vicsek_lowrho_cluster_study_1",
-    "voter": "final_voter_lowrho_grid_v1",
+ORIGINAL_GRID_ETAS = {0.0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50,
+                      1.0, 2.0, 3.0, 4.0, 5.0, 6.0}
+DENSE_GRID_ETAS = {
+    0.60, 0.80,
+    1.20, 1.40, 1.60, 1.80,
+    2.20, 2.40, 2.60, 2.80,
+    3.20, 3.40, 3.60, 3.80,
+    4.20, 4.40, 4.60, 4.80,
+    5.20, 5.40, 5.60, 5.80,
+    6.20,
 }
+COMBINED_GRID_ETAS = ORIGINAL_GRID_ETAS | DENSE_GRID_ETAS  # 37 puntos
 
-COMMON_GRID_ETAS = {0.0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50,
-                    1.0, 2.0, 3.0, 4.0, 5.0, 6.0}
+# model -> lista de (run_name, etas esperados de ese lote)
+SOURCE_RUNS = {
+    "vicsek": [
+        ("vicsek_lowrho_cluster_study_1", ORIGINAL_GRID_ETAS),
+        ("vicsek_lowrho_dense_eta_grid_steps3000_R20_v1", DENSE_GRID_ETAS),
+    ],
+    "voter": [
+        ("final_voter_lowrho_grid_v1", ORIGINAL_GRID_ETAS),
+        ("voter_lowrho_dense_eta_grid_steps3000_R20_v1", DENSE_GRID_ETAS),
+    ],
+}
+MODEL_GRID_ETAS = {"vicsek": COMBINED_GRID_ETAS, "voter": COMBINED_GRID_ETAS}
+
 RHO_LABELS = {"rho_1_over_pi": 32, "rho_1_over_2pi": 16, "rho_1_over_3pi": 11}
 EXPECTED_R = 20
 EXPECTED_STEPS = 3000
@@ -62,22 +90,32 @@ def read_csv_rows(path: Path):
         return list(csv.DictReader(f))
 
 
+def eta_matches(row_eta: str, allowed) -> bool:
+    return any(abs(float(row_eta) - e) < 1e-6 for e in allowed)
+
+
 def collect(suffix: str):
-    """Devuelve las filas de ambos lotes para un sufijo de tabla, ya etiquetadas."""
+    """Devuelve las filas de todos los lotes para un sufijo de tabla, ya etiquetadas."""
     rows = []
-    for model, run_name in SOURCE_RUNS.items():
-        for r in read_csv_rows(SUMMARY_DIR / f"{run_name}_{suffix}.csv"):
-            if r["model"] != model:
-                raise SystemExit(
-                    f"{run_name}_{suffix}.csv contiene model={r['model']}, esperaba solo {model}"
-                )
-            r["source_run"] = run_name
-            rows.append(r)
+    for model, sources in SOURCE_RUNS.items():
+        for run_name, etas in sources:
+            for r in read_csv_rows(SUMMARY_DIR / f"{run_name}_{suffix}.csv"):
+                if r["model"] != model:
+                    raise SystemExit(
+                        f"{run_name}_{suffix}.csv contiene model={r['model']}, esperaba solo {model}"
+                    )
+                if not eta_matches(r["eta"], etas):
+                    continue
+                r["source_run"] = run_name
+                rows.append(r)
     return rows
 
 
 def main() -> int:
-    assert len(COMMON_GRID_ETAS) == 14, "la grilla comun debe tener exactamente 14 puntos de eta"
+    assert len(ORIGINAL_GRID_ETAS) == 14, "la grilla original debe tener exactamente 14 puntos de eta"
+    assert len(COMBINED_GRID_ETAS) == 37, "la grilla ampliada debe tener exactamente 37 puntos"
+    overlap = ORIGINAL_GRID_ETAS & DENSE_GRID_ETAS
+    assert not overlap, f"original/dense no deberian superponerse en eta, pero comparten {overlap}"
 
     raw_manifest = collect("manifest")
     manifest_rows = [{k: r.get(k, "") for k in MANIFEST_FIELDNAMES} for r in raw_manifest]
@@ -106,7 +144,7 @@ def main() -> int:
         if int(r["N"]) != RHO_LABELS[r["rho_label"]]:
             problems.append(f"by_realization: N={r['N']} != {RHO_LABELS[r['rho_label']]} para {r['rho_label']}")
 
-    expected_rows = len(SOURCE_RUNS) * len(RHO_LABELS) * len(COMMON_GRID_ETAS) * EXPECTED_R
+    expected_rows = sum(len(RHO_LABELS) * len(MODEL_GRID_ETAS[m]) * EXPECTED_R for m in SOURCE_RUNS)
     if len(by_realization_rows) != expected_rows:
         problems.append(f"by_realization: {len(by_realization_rows)} filas, esperaba {expected_rows}")
 
@@ -114,7 +152,7 @@ def main() -> int:
         (r["model"], r["rho_label"], round(float(r["eta"]), 6)) for r in by_realization_rows
     )
     expected_keys = {(m, rho, round(eta, 6))
-                     for m in SOURCE_RUNS for rho in RHO_LABELS for eta in COMMON_GRID_ETAS}
+                     for m in SOURCE_RUNS for rho in RHO_LABELS for eta in MODEL_GRID_ETAS[m]}
     observed_keys = set(combo_counts.keys())
 
     missing = expected_keys - observed_keys
@@ -138,9 +176,9 @@ def main() -> int:
     for model in SOURCE_RUNS:
         seen_etas = sorted({round(float(r["eta"]), 6)
                             for r in by_realization_rows if r["model"] == model})
-        expected_etas_rounded = sorted({round(e, 6) for e in COMMON_GRID_ETAS})
+        expected_etas_rounded = sorted({round(e, 6) for e in MODEL_GRID_ETAS[model]})
         if seen_etas != expected_etas_rounded:
-            problems.append(f"{model}: etas observados {seen_etas} != grilla comun {expected_etas_rounded}")
+            problems.append(f"{model}: etas observados {seen_etas} != grilla esperada {expected_etas_rounded}")
 
     for r in by_realization_rows:
         va = float(r["va_window_mean"])
@@ -156,7 +194,7 @@ def main() -> int:
         missing_cols = required_cols - set(by_combo_rows[0].keys())
         if missing_cols:
             problems.append(f"by_combo: faltan columnas de desvio {sorted(missing_cols)}")
-        expected_combo_rows = len(SOURCE_RUNS) * len(RHO_LABELS) * len(COMMON_GRID_ETAS)
+        expected_combo_rows = sum(len(RHO_LABELS) * len(MODEL_GRID_ETAS[m]) for m in SOURCE_RUNS)
         if len(by_combo_rows) != expected_combo_rows:
             problems.append(f"by_combo: {len(by_combo_rows)} filas, esperaba {expected_combo_rows}")
         for r in by_combo_rows:
@@ -174,8 +212,9 @@ def main() -> int:
         return 1
 
     print(f"Validacion OK: {len(by_realization_rows)} filas by_realization "
-          f"({len(SOURCE_RUNS)} modelos x {len(RHO_LABELS)} rho x {len(COMMON_GRID_ETAS)} eta "
-          f"x R={EXPECTED_R}), {len(combo_counts)} combinaciones, todas con R={EXPECTED_R}, "
+          f"(vicsek: {len(RHO_LABELS)} rho x {len(MODEL_GRID_ETAS['vicsek'])} eta; "
+          f"voter: {len(RHO_LABELS)} rho x {len(MODEL_GRID_ETAS['voter'])} eta; "
+          f"R={EXPECTED_R}), {len(combo_counts)} combinaciones, todas con R={EXPECTED_R}, "
           f"steps={EXPECTED_STEPS}, t_window_start={EXPECTED_T_EQ}.")
 
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)

@@ -16,6 +16,7 @@ Una recomendación del agente no equivale a una decisión. Mientras el checkbox 
 - [ ] **Alcance de las densidades bajas en el punto E (`<va>` vs. `<S>`).**
   - Contexto: la aclaración dice extender densidades “solo para el estudio de Cluster”, mientras el punto E original pide distinguir tres densidades.
   - Camino mínimo actual: usar las densidades bajas en el punto D y mantener `rho=2,4,8` en el punto E.
+  - Estado 2026-08-31: se generó, a pedido del usuario, una figura **exploratoria** con las seis densidades (`figures/cluster_order_relationship_v1/comparison_va_vs_S_six_densities.png`) para comparar nuestros CSV con la figura de otro grupo y analizar la relación entre orden y conectividad. Esto no se interpreta como confirmación de la cátedra ni reemplaza la figura oficial del punto E; la decisión sigue abierta.
   - Bloquea: únicamente una posible ampliación del gráfico E, no el motor ni el barrido principal.
   - Decisión del usuario/cátedra: pendiente.
 
@@ -159,6 +160,7 @@ Usuario que aprobó: usuario del proyecto (francoferrari).
 
 - [x] **Grilla final común de valores de `eta`.**
   - Contexto original: la grilla era una decisión pendiente; los pilotos mostraron que el votante cambia principalmente para `eta<=0.5`, mientras que Vicsek requiere ruido mayor para recorrer su pérdida de orden.
+  - Estado 2026-09-03: esta grilla de 14 puntos quedó **ampliada a 37 puntos** por la decisión siguiente ("Ampliación de la grilla de `eta` a 37 puntos"). El razonamiento de densificar `eta<=0.5` sigue vigente; lo que cambia es que la zona `0.5<eta<=6.2` deja de ser solo 6 puntos enteros.
 
 ```text
 Decisión:
@@ -411,6 +413,41 @@ exactamente el contrato aprobado debajo."
 ```
 
 Lo que este ítem **no** resuelve (siguen `[ ]` en este documento): los valores concretos de stride que se usarán en producción, la grilla de `eta`, `t_eq`, la cantidad de realizaciones y semillas, la definición de barras de error, y la conversión de las densidades bajas a `N` entero.
+
+- [x] **Ampliación de la grilla de `eta` a 37 puntos (rho=2,4,8, ambos modelos).**
+  - Contexto original: con la grilla de 14 puntos, la figura `<va>` vs. `eta` mostraba tramos poligonales entre `eta=1` y `eta=6` (paso entero), notoriamente más gruesos que una figura de referencia externa (aceptada por la cátedra en otro grupo, según indicó el usuario) que usa un barrido mucho más fino.
+
+```text
+Decisión:
+Se amplía la grilla común de eta para rho=2,4,8 (ambos modelos), agregando
+paso 0.2 entre eta=0.6 y eta=6.2, sin tocar la zona eta<=0.5 (que ya estaba
+densificada). Grilla final de 37 puntos:
+{0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50,
+ 0.60, 0.80, 1, 1.20, 1.40, 1.60, 1.80, 2, 2.20, 2.40, 2.60, 2.80,
+ 3, 3.20, 3.40, 3.60, 3.80, 4, 4.20, 4.40, 4.60, 4.80,
+ 5, 5.20, 5.40, 5.60, 5.80, 6, 6.20}
+Mismo protocolo que la grilla de 14 puntos: R=20 realizaciones, steps=3000,
+t_eq=1500, CIM, sin trayectoria. No se tocó el bloque de densidades bajas de
+clusters (1/pi,1/(2pi),1/(3pi)): esta ampliación es solo para rho=2,4,8.
+Fecha: 2026-09-03
+Fundamento/evidencia: el usuario señaló que la cátedra exige gráficos
+"precisos" y que la grilla de 14 puntos resultaba pobre frente a una figura
+de referencia externa aceptada por la cátedra. Se agregaron los 23 puntos
+nuevos con python/final_dense_eta_grid_run.py (2 modelos x 3 rho x 23 eta x
+R=20 = 2760 corridas nuevas), analizados con python/pilot_analyze.py y
+consolidados junto con los lotes previos mediante
+python/build_final_vicsek_base_table.py / build_final_voter_base_table.py
+(actualizados para incluir el tercer lote de origen). Evidencia de la
+corrida y validación en 06_barrido_de_produccion.md.
+Etapas y archivos afectados: redefine la grilla común de la etapa 5/6 (ya no
+son 14 sino 37 puntos) para rho=2,4,8 en ambos modelos; obliga a regenerar
+las figuras finales <va>/S vs. eta y <va> vs. <S> de la etapa 7
+(figures/final_production_v1/) y la figura de estilo "paper"
+(figures/vicsek_va_vs_eta_paper_style_v1/). No afecta el bloque de
+densidades bajas de clusters ni las series temporales va(t)/S(t) (que usan
+eta={0,0.40,6}, todos puntos ya existentes en la grilla ampliada).
+Usuario que aprobó: usuario del proyecto (francoferrari123111@gmail.com).
+```
 
 - [x] **Revisión de robustez del escritor de salida y la CLI (validación de entradas y publicación de archivos).**
   - Contexto: revisión posterior al ítem anterior, sobre los mismos archivos, sin cambiar el formato público ni agregar funcionalidades nuevas.

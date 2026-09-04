@@ -378,6 +378,24 @@ detected.` y `check_template_fidelity.mjs` pasó con `0` problemas. El original
 Alcance: mejora la interpretación del fotograma estático, pero no cierra el punto A:
 siguen faltando las animaciones y sus links probados.
 
+## Progreso parcial (2026-08-31): relación exploratoria `va`--`S` con seis densidades
+
+Se agregó `python/plot_cluster_order_relationship.py`, que lee exclusivamente las
+tres tablas finales consolidadas y genera
+`figures/cluster_order_relationship_v1/comparison_va_vs_S_six_densities.png`.
+La figura reproduce la orientación de la referencia externa (`x=<va>`, `y=<S>`),
+combina ambos modelos y las seis densidades disponibles y, desde la revisión del
+31/08 pedida por el usuario, muestra solo los promedios sin barras de desvío para
+reducir la superposición visual. El script
+valida antes de graficar las `168` combinaciones esperadas (`2 modelos x 6 rho x
+14 eta`), sin duplicados, con `R=20` y observables en `[0,1]`; además escribe
+`correlation_summary.csv` con coeficientes de Pearson y rangos por serie.
+
+Alcance: es una figura exploratoria pedida para comprender los datos y no reemplaza
+`figures/final_production_v1/comparison_va_vs_S.png`, que conserva la convención
+obligatoria `x=<S>`, `y=<va>` y `rho={2,4,8}`. La ampliación formal del punto E a
+densidades bajas sigue pendiente de aclaración docente.
+
 ## Progreso parcial (2026-08-31): guía oficial auditada y estructura de la PPT corregida
 
 Se auditó `output/presentation/TP2_Bandadas_Borrador_Presentacion_clarificada.pptx`
@@ -397,6 +415,73 @@ de este criterio vuelve a quedar abierto hasta una segunda pasada de maquetació
 Alcance: esto no cierra la etapa 7 ni el punto A. Siguen faltando el módulo animador,
 los archivos de animación, sus enlaces públicos probados y la adecuación lateral de
 parámetros en todas las diapositivas de resultados.
+
+## Progreso parcial (2026-09-03): grilla de `eta` ampliada a 37 puntos y figuras finales regeneradas
+
+El usuario notó que `vicsek_va_vs_eta.png` (14 puntos de `eta`, paso entero entre
+`eta=1` y `eta=6`) se veía notoriamente menos preciso que una figura de referencia
+externa aceptada por la cátedra en otro grupo, y que la cátedra exige gráficos
+"precisos". Ver la corrida y consolidación de datos en
+`06_barrido_de_produccion.md` ("Progreso parcial (2026-09-03): ampliación de la
+grilla de `eta` a 37 puntos") y la decisión formal en `DECISIONES_PENDIENTES.md`.
+
+Con las tablas `final_vicsek_base_grid_steps3000_R20_v1_*` y
+`final_voter_base_grid_steps3000_R20_v1_*` ya ampliadas a 37 puntos de `eta` (mismo
+nombre de archivo, mismo protocolo, sin cambios de código en los scripts de figuras),
+se re-ejecutó `python/generate_final_figures.py` y se regeneraron las `36` PNG de
+`figures/final_production_v1/` sin modificar el script. Revisión visual: las curvas
+`<va>` vs. `eta` y `<S>` vs. `eta` de ambos modelos, antes poligonales entre `eta=1` y
+`eta=6`, ahora son sigmoides/decaimientos suaves, con las tres densidades bien
+separadas y sin cruces salvo en la cola de ruido alto (`eta>=5`), zona de polarización
+residual ya documentada como ruido estadístico.
+
+Además se agregó `python/plot_vicsek_va_vs_eta_paper_style.py`, que grafica
+`<va>` vs. `eta` de Vicsek (`rho=2,4,8`) replicando el estilo visual (colores,
+marcador por densidad, leyenda sin marco) de una figura de referencia que el usuario
+compartió como ejemplo de forma deseada; usa `va_stderr` como barra (en vez de
+`va_stdev_between_realizations`) solo para esta figura de estilo, para igualar la
+apariencia de barras finas de la referencia. Escribe
+`figures/vicsek_va_vs_eta_paper_style_v1/vicsek_va_vs_eta_paper_style.png`.
+
+Alcance: esta tarea cubre solo `rho=2,4,8` (matriz base) para ambos modelos; no tocó
+el bloque de densidades bajas de clusters ni las series temporales `va(t)`/`S(t)`
+(que usan `eta={0,0.40,6}`, puntos ya presentes en la grilla ampliada). No cierra el
+punto A (animaciones) ni la maquetación lateral de parámetros en la PPT, que siguen
+abiertos de tareas anteriores.
+
+## Progreso parcial (2026-09-03): fotograma Vicsek `rho=2`, `eta=1` vs `eta=5`
+
+A pedido del usuario se generó una figura estática lado a lado para comparar dos
+estados avanzados del modelo Vicsek con `rho=2`: bajo ruido (`eta=1`) y alto ruido
+(`eta=5`). Como las corridas de producción no guardaban trayectorias, se re-ejecutaron
+solo esas dos realizaciones con `--write-trajectory`, usando semillas ya presentes en
+la tabla final de producción:
+
+```text
+./build/simulate --model vicsek --rho-nominal 2 --rho-label rho_2 --N 200 --eta 1 --steps 3000 --base-seed 922000 --realization 0 --output-dir data/illustrations/vicsek_rho2_eta1_eta5_snapshots_v1 --observables-stride 100 --write-trajectory --trajectory-stride 10 --overwrite
+./build/simulate --model vicsek --rho-nominal 2 --rho-label rho_2 --N 200 --eta 5 --steps 3000 --base-seed 930000 --realization 0 --output-dir data/illustrations/vicsek_rho2_eta1_eta5_snapshots_v1 --observables-stride 100 --write-trajectory --trajectory-stride 10 --overwrite
+PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache python3 -m py_compile python/render_vicsek_rho2_eta1_eta5_snapshots.py
+MPLCONFIGDIR=/private/tmp/tp2_mplconfig PYTHONPYCACHEPREFIX=/private/tmp/tp2_pycache .venv-mpl311/bin/python python/render_vicsek_rho2_eta1_eta5_snapshots.py
+```
+
+Artefactos:
+
+```text
+python/render_vicsek_rho2_eta1_eta5_snapshots.py
+figures/vicsek_rho2_eta1_eta5_snapshots_v1/vicsek_rho2_eta1_eta5_t2000_side_by_side.png
+figures/vicsek_rho2_eta1_eta5_snapshots_v1/README.md
+```
+
+Evidencia: cada `trajectory.csv` tiene `60200` filas (`N=200`, pasos `0..3000` cada
+10 pasos), el renderizador validó `200` IDs únicos en `t=2000`, `theta` en `[0,2pi)`
+y posiciones en la caja. La polarización instantánea del fotograma es
+`va(t=2000)=0.927548` para `eta=1` y `0.088270` para `eta=5`, coherente con el
+contraste esperado entre régimen ordenado y desordenado. Se inspeccionó visualmente el
+PNG: ambos paneles comparten escala espacial, mapa de color angular y longitud visual
+de flecha.
+
+Alcance: este fotograma no cierra el punto A ni reemplaza las animaciones requeridas;
+solo agrega una figura estática útil para la presentación o el informe.
 
 ## Criterio de cierre
 
